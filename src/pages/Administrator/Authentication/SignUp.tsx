@@ -120,10 +120,27 @@ const SignUp: React.FC = () => {
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
                     ID Picture
                   </label>
-                  <input
-                    type="file"
-                    className="w-full rounded-lg border border-stroke bg-transparent py-2 px-4 text-black outline-none text-sm sm:text-base focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  />
+
+                  <label className="flex items-center justify-between w-full cursor-pointer rounded-lg border border-stroke bg-transparent py-3 px-4 text-black text-sm sm:text-base outline-none hover:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:hover:border-primary">
+                    <span>Choose file...</span>
+                    {/* Upload Icon */}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 text-[#071c4f]"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12v8m0-8l-3 3m3-3l3 3M12 4v8"
+                      />
+                    </svg>
+                    {/* Hidden input */}
+                    <input type="file" className="hidden" />
+                  </label>
                 </div>
 
                 {/* Password */}

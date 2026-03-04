@@ -3,8 +3,6 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 
 import Loader from './common/Loader';
 import PageTitle from './components/PageTitle';
-import SignIn from './pages/Authentication/SignIn';
-import SignUp from './pages/Authentication/SignUp';
 import Calendar from './pages/Calendar';
 import Chart from './pages/Chart';
 import ECommerce from './pages/Dashboard/ECommerce';
@@ -19,6 +17,7 @@ import DefaultLayout from './layout/DefaultLayout';
 import AdminSignIn from './pages/Administrator/Authentication/SignIn';
 import AdminSignUp from './pages/Administrator/Authentication/SignUp';
 import AdminForgetPassword from './pages/Administrator/Authentication/ForgetPassword';
+import PageNotFound from './pages/404PageNotFound/404PageNotFound';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -85,6 +84,17 @@ function App() {
         <Route path="/ui/alerts" element={<Alerts />} />
         <Route path="/ui/buttons" element={<Buttons />} />
       </Route>
+
+      {/* 404 Not Found - Catch All */}
+      <Route
+        path="*"
+        element={
+          <>
+            <PageTitle title="404 Not Found | CSD Voting System" />
+            <PageNotFound />
+          </>
+        }
+      />
     </Routes>
   );
 }
