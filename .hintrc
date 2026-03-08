@@ -6,6 +6,12 @@
     "axe/forms": "off",
     "axe/name-role-value": "off",
     "axe/aria": "off",
-    "axe/structure": "off"
+    "axe/structure": "off",
+    "axe/text-alternatives": [
+      "default",
+      {
+        "image-alt": "off"
+      }
+    ]
   }
 }

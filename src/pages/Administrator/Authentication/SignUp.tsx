@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import LogoDark from '../../../images/logo/csd_logo_lightmode.svg';
 import Logo from '../../../images/logo/csd_logo_darkmode.svg';
+import SelectProgram from './SelectProgram';
+import YearLevel from './YearLevel';
 
 const SignUp: React.FC = () => {
   return (
@@ -46,36 +48,38 @@ const SignUp: React.FC = () => {
                     <label className="mb-2.5 block font-medium text-black dark:text-white">
                       Program
                     </label>
-                    <select className="w-full rounded-lg border border-stroke bg-transparent py-3 px-4 text-black outline-none text-sm sm:text-base focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary">
-                      <option value="">Select Program</option>
-                      <option value="BSIT">BSIT</option>
-                      <option value="BSCS">BSCS</option>
-                      <option value="BSA">BSA</option>
-                    </select>
+                    <SelectProgram />
                   </div>
 
                   <div className="flex-1 min-w-[120px]">
                     <label className="mb-2.5 block font-medium text-black dark:text-white">
-                      Student ID
+                      Year Level
                     </label>
-                    <input
-                      type="text"
-                      placeholder="Enter your student ID"
-                      className="w-full rounded-lg border border-stroke bg-transparent py-3 px-4 text-black outline-none text-sm sm:text-base focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    />
+                    <YearLevel />
                   </div>
                 </div>
 
-                {/* Email */}
-                <div className="mb-4">
-                  <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    className="w-full rounded-lg border border-stroke bg-transparent py-3 px-4 text-black outline-none text-sm sm:text-base focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  />
+                <div className="mb-4 flex gap-4 flex-wrap">
+                  <div className="flex-1 min-w-[120px]">
+                    <label className="mb-2.5 block font-medium text-black dark:text-white">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="Enter your email"
+                      className="w-full rounded-lg border border-stroke bg-transparent py-3 px-4 text-black outline-none text-sm sm:text-base focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-[120px]">
+                    <label className="mb-2.5 block font-medium text-black dark:text-white">
+                      Student Number
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter your student number"
+                      className="w-full rounded-lg border border-stroke bg-transparent py-3 px-4 text-black outline-none text-sm sm:text-base focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    />
+                  </div>
                 </div>
 
                 {/* First + Last Name */}
@@ -121,26 +125,12 @@ const SignUp: React.FC = () => {
                     ID Picture
                   </label>
 
-                  <label className="flex items-center justify-between w-full cursor-pointer rounded-lg border border-stroke bg-transparent py-3 px-4 text-black text-sm sm:text-base outline-none hover:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:hover:border-primary">
-                    <span>Choose file...</span>
-                    {/* Upload Icon */}
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-[#071c4f]"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12v8m0-8l-3 3m3-3l3 3M12 4v8"
-                      />
-                    </svg>
-                    {/* Hidden input */}
-                    <input type="file" className="hidden" />
-                  </label>
+                  <div>
+                    <input
+                      type="file"
+                      className="w-full rounded-md border border-stroke p-3 outline-none transition file:mr-4 file:rounded file:border-[0.5px] text-sm sm:text-base file:border-stroke file:bg-[#EEEEEE] file:py-1 file:px-2.5 file:text-sm focus:border-primary file:focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-strokedark dark:file:bg-white/30 dark:file:text-white"
+                    />
+                  </div>
                 </div>
 
                 {/* Password */}

@@ -18,6 +18,11 @@ import AdminSignIn from './pages/Administrator/Authentication/SignIn';
 import AdminSignUp from './pages/Administrator/Authentication/SignUp';
 import AdminForgetPassword from './pages/Administrator/Authentication/ForgetPassword';
 import PageNotFound from './pages/404PageNotFound/404PageNotFound';
+import Dashboard from './pages/Administrator/Dashboard/Dashboard';
+import Voters from './pages/Administrator/UserManagement/Voters/Voters';
+import Administrators from './pages/Administrator/UserManagement/Administrators/Administrators';
+import Exhibitors from './pages/Administrator/Exhibitors/Exhibitors';
+import Transactions from './pages/Administrator/Transactions/Transactions';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -63,8 +68,73 @@ function App() {
           </>
         }
       />
-
       <Route path="/" element={<DefaultLayout />}>
+        <Route
+          index
+          element={
+            <>
+              <PageTitle title="Dashboard | CSD Voting System" />
+              <Dashboard />
+            </>
+          }
+        />
+        <Route
+          path="admin/dashboard"
+          element={
+            <>
+              <PageTitle title="Dashboard | CSD Voting System" />
+              <Dashboard />
+            </>
+          }
+        />
+        <Route
+          path="admin/user-management/voters"
+          element={
+            <>
+              <PageTitle title="Voters | CSD Voting System" />
+              <Voters />
+            </>
+          }
+        />
+        <Route
+          path="admin/user-management/administrators"
+          element={
+            <>
+              <PageTitle title="Administrators | CSD Voting System" />
+              <Administrators />
+            </>
+          }
+        />
+        <Route
+          path="admin/transactions"
+          element={
+            <>
+              <PageTitle title="Transactions | CSD Voting System" />
+              <Transactions />
+            </>
+          }
+        />
+
+        <Route
+          path="admin/exhibitors"
+          element={
+            <>
+              <PageTitle title="Exhibitors | CSD Voting System" />
+              <Exhibitors />
+            </>
+          }
+        />
+
+        <Route
+          path="admin/voters"
+          element={
+            <>
+              <PageTitle title="Voters | CSD Voting System" />
+              <Voters />
+            </>
+          }
+        />
+
         <Route
           index
           element={
@@ -74,6 +144,7 @@ function App() {
             </>
           }
         />
+
         <Route path="/calendar" element={<Calendar />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/forms/form-elements" element={<FormElements />} />
