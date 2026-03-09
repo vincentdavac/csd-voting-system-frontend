@@ -69,7 +69,7 @@ interface ChartTwoState {
   }[];
 }
 
-const BarGraph: React.FC = () => {
+const BarGraphPerProgram: React.FC = () => {
   const [state, setState] = useState<ChartTwoState>({
     series: [
       {
@@ -95,7 +95,7 @@ const BarGraph: React.FC = () => {
       <div className="mb-4 justify-between gap-4 sm:flex">
         <div>
           <h4 className="text-xl font-semibold text-black dark:text-white">
-            Exhibitors per Program
+            Program Name
           </h4>
         </div>
         <div>
@@ -150,4 +150,4 @@ const BarGraph: React.FC = () => {
   );
 };
 
-export default BarGraph;
+export default BarGraphPerProgram;

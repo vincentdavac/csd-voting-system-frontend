@@ -1,6 +1,7 @@
 import { Search, FileDown, SquarePen, Wallet } from 'lucide-react';
 import { useState } from 'react';
 import TopUpModal from './TopUpModal';
+import UpdateModal from './UpdateModal';
 
 interface TRANSACTION {
   program: string;
@@ -30,6 +31,9 @@ const TransactionsTable = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [dateFilter, setDateFilter] = useState('');
+  const [showUpdate, setShowUpdate] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<TRANSACTION | null>(null);
 
   // Filter
   const filteredData = transactionsData.filter((t) => {
@@ -156,10 +160,14 @@ const TransactionsTable = () => {
                 {/* Action */}
                 <td className="p-3 flex justify-center">
                   <button
-                    className="text-blue-600 hover:underline"
-                    title="Update (Requires Super Admin Approval)"
+                    onClick={() => {
+                      setSelectedTransaction(t);
+                      setShowUpdate(true);
+                    }}
+                    className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
                   >
-                    <SquarePen size={18} />{' '}
+                    <SquarePen size={16} />
+                    Update
                   </button>
                 </td>
               </tr>
@@ -193,6 +201,18 @@ const TransactionsTable = () => {
 
       {/* Show Modal */}
       {showTopUp && <TopUpModal onClose={() => setShowTopUp(false)} />}
+      {showUpdate && selectedTransaction && (
+        <UpdateModal
+          transaction={selectedTransaction}
+          onClose={() => setShowUpdate(false)}
+          onUpdate={(amount) => {
+            console.log('Updated Amount:', amount);
+            console.log('Student:', selectedTransaction.studentNo);
+
+            // API update here
+          }}
+        />
+      )}
     </div>
   );
 };

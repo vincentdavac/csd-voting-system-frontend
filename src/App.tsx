@@ -23,6 +23,9 @@ import Voters from './pages/Administrator/UserManagement/Voters/Voters';
 import Administrators from './pages/Administrator/UserManagement/Administrators/Administrators';
 import Exhibitors from './pages/Administrator/Exhibitors/Exhibitors';
 import Transactions from './pages/Administrator/Transactions/Transactions';
+import ProgramTable from './pages/Administrator/Program/ProgramTable';
+import VotingResult from './pages/Administrator/VotingResult/VotingResult';
+import BoothRating from './pages/Administrator/BoothRating/BoothRating';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -121,6 +124,36 @@ function App() {
             <>
               <PageTitle title="Exhibitors | CSD Voting System" />
               <Exhibitors />
+            </>
+          }
+        />
+
+        <Route
+          path="admin/voting-results"
+          element={
+            <>
+              <PageTitle title="Voting Results | CSD Voting System" />
+              <VotingResult />
+            </>
+          }
+        />
+
+        <Route
+          path="admin/booth-rating"
+          element={
+            <>
+              <PageTitle title="Booth Rating | CSD Voting System" />
+              <BoothRating />
+            </>
+          }
+        />
+
+        <Route
+          path="admin/programs"
+          element={
+            <>
+              <PageTitle title="Programs | CSD Voting System" />
+              <ProgramTable />
             </>
           }
         />

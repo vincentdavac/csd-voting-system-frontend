@@ -129,36 +129,44 @@ const VotersTable = () => {
                 <td className="p-3">{voter.remainingVotes}</td>
                 <td className="p-3">{voter.totalVotesPurchased}</td>
                 <td className="p-3">{voter.datetime}</td>
-                <td className="p-3 flex gap-2 justify-center">
+                <td className="p-3 flex gap-4 justify-center">
+                  {/* VIEW / UPDATE */}
                   <button
-                    className="text-blue-500 hover:underline"
-                    title="Update Voter"
+                    className="flex items-center gap-1 text-blue-600 hover:text-blue-800 transition"
+                    title="View Voter"
                     onClick={() => {
-                      setSelectedVoter(voter); // set the voter for this row
-                      setShowViewModal(true); // show the modal
+                      setSelectedVoter(voter);
+                      setShowViewModal(true);
                     }}
                   >
-                    <SquareUser size={18} />
+                    <SquareUser size={16} />
+                    View
                   </button>
+
+                  {/* RESTORE */}
                   <button
-                    className="text-green-600 hover:underline"
-                    onClick={() => {
-                      setSelectedVoter(voter); // this voter
-                      setShowRestore(true); // show modal
-                    }}
+                    className="flex items-center gap-1 text-green-600 hover:text-green-800 transition"
                     title="Restore User"
-                  >
-                    <ArchiveRestore size={18} />
-                  </button>
-                  <button
-                    className="text-red-500 hover:underline"
                     onClick={() => {
-                      setSelectedVoter(voter); // set the voter to archive
-                      setShowArchive(true); // open the modal
+                      setSelectedVoter(voter);
+                      setShowRestore(true);
                     }}
-                    title="Archive User"
                   >
-                    <Archive size={18} />
+                    <ArchiveRestore size={16} />
+                    Restore
+                  </button>
+
+                  {/* ARCHIVE */}
+                  <button
+                    className="flex items-center gap-1 text-red-600 hover:text-red-800 transition"
+                    title="Archive User"
+                    onClick={() => {
+                      setSelectedVoter(voter);
+                      setShowArchive(true);
+                    }}
+                  >
+                    <Archive size={16} />
+                    Archive
                   </button>
                 </td>
               </tr>
