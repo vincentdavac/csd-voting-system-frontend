@@ -26,6 +26,13 @@ import Transactions from './pages/Administrator/Transactions/Transactions';
 import ProgramTable from './pages/Administrator/Program/ProgramTable';
 import VotingResult from './pages/Administrator/VotingResult/VotingResult';
 import BoothRating from './pages/Administrator/BoothRating/BoothRating';
+import ClientLayout from './layout/ClientLayout';
+import ClientSignUp from './pages/Client/Authentication/SignUp';
+import ClientSignIn from './pages/Client/Authentication/SignIn';
+import ClientForgetPassword from './pages/Client/Authentication/ForgetPassword';
+import ClientDashBoard from './pages/Client/Dashboard/index';
+import TopUpPoints from './pages/Client/TopUpPoints';
+import QRCodeScanner from './pages/Client/QRCodeScanner';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -188,6 +195,77 @@ function App() {
         <Route path="/ui/alerts" element={<Alerts />} />
         <Route path="/ui/buttons" element={<Buttons />} />
       </Route>
+
+      <Route path="/" element={<ClientLayout />}>
+        <Route
+          index
+          element={
+            <>
+              <PageTitle title="Dashboard | CSD Voting System" />
+              <Dashboard />
+            </>
+          }
+        />
+
+        {/* Client Routes */}
+        <Route
+          path="client/dashboard"
+          element={
+            <>
+              <PageTitle title="Dashboard | CSD Voting System" />
+              <ClientDashBoard />
+            </>
+          }
+        />
+
+        <Route
+          path="client/top-up-points"
+          element={
+            <>
+              <PageTitle title="Top Up Points | CSD Voting System" />
+              <TopUpPoints />
+            </>
+          }
+        />
+
+        <Route
+          path="client/qr-code-scanner"
+          element={
+            <>
+              <PageTitle title="QR Code Scanner | CSD Voting System" />
+              <QRCodeScanner />
+            </>
+          }
+        />
+      </Route>
+
+      <Route
+        path="/client/signup"
+        element={
+          <>
+            <PageTitle title="Sign Up | CSD Voting System" />
+            <ClientSignUp />
+          </>
+        }
+      />
+      <Route
+        path="/client/signin"
+        element={
+          <>
+            <PageTitle title="Sign In | CSD Voting System" />
+            <ClientSignIn />
+          </>
+        }
+      />
+      <Route
+        path="/client/forget-password"
+        element={
+          <>
+            <PageTitle title="Forget Password | CSD Voting System" />
+            <ClientForgetPassword />
+          </>
+        }
+      />
 
       {/* 404 Not Found - Catch All */}
       <Route

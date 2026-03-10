@@ -247,7 +247,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   }`}
                 >
                   <Vote />
-                  Voting Results
+                  People's Choice
                 </NavLink>
               </li>
 
@@ -260,7 +260,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   }`}
                 >
                   <Star />
-                  Booth Rating
+                  Best Booth
                 </NavLink>
               </li>
 

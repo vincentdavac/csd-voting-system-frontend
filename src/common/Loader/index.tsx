@@ -12,13 +12,13 @@ const Loader: React.FC = () => {
       />
 
       {/* Title */}
-      <h1 className="text-xl sm:text-2xl font-bold text-[#071c4f] mb-2 text-center">
+      <h1 className="text-xl sm:text-2xl font-extrabold text-[#071c4f] mb-2 text-center">
         ITECHTIVITY 2026
       </h1>
 
       {/* Description */}
       <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-4 sm:mb-6 text-center max-w-xs">
-        CSD Voting System is loading ...
+        Voting System is loading ...
       </p>
 
       {/* Spinner */}

@@ -70,7 +70,7 @@ const DropdownNotification = () => {
         </Link>
 
         {dropdownOpen && (
-          <div className="absolute -right-20 mt-2.5 flex h-90 w-75 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark sm:right-0 sm:w-80">
+          <div className="absolute -right-22 mt-2.5 flex h-90 w-75 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark sm:right-0 sm:w-80">
             {/* Header */}
             <div className="flex items-center justify-between px-4.5 py-3">
               <h5 className="text-sm font-medium text-bodydark2">
