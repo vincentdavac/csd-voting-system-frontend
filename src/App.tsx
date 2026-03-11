@@ -3,16 +3,7 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 
 import Loader from './common/Loader';
 import PageTitle from './components/PageTitle';
-import Calendar from './pages/Calendar';
-import Chart from './pages/Chart';
-import ECommerce from './pages/Dashboard/ECommerce';
-import FormElements from './pages/Form/FormElements';
-import FormLayout from './pages/Form/FormLayout';
-import Profile from './pages/Profile';
-import Settings from './pages/Settings';
-import Tables from './pages/Tables';
 import Alerts from './pages/UiElements/Alerts';
-import Buttons from './pages/UiElements/Buttons';
 import DefaultLayout from './layout/DefaultLayout';
 import AdminSignIn from './pages/Administrator/Authentication/SignIn';
 import AdminSignUp from './pages/Administrator/Authentication/SignUp';
@@ -257,6 +248,7 @@ function App() {
           </>
         }
       />
+      <Route path="/ui/alerts" element={<Alerts />} />
     </Routes>
   );
 }

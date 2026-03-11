@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { AlertProvider } from './components/Alert/AlertContext';
 
 import App from './App';
 import './css/style.css';
@@ -13,7 +14,9 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <AuthProvider>
       <Router>
-        <App />
+        <AlertProvider>
+          <App />
+        </AlertProvider>
       </Router>
     </AuthProvider>
   </React.StrictMode>,
