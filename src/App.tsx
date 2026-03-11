@@ -174,26 +174,6 @@ function App() {
             </>
           }
         />
-
-        <Route
-          index
-          element={
-            <>
-              <PageTitle title="Dashboard" />
-              <ECommerce />
-            </>
-          }
-        />
-
-        <Route path="/calendar" element={<Calendar />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/forms/form-elements" element={<FormElements />} />
-        <Route path="/forms/form-layout" element={<FormLayout />} />
-        <Route path="/tables" element={<Tables />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/chart" element={<Chart />} />
-        <Route path="/ui/alerts" element={<Alerts />} />
-        <Route path="/ui/buttons" element={<Buttons />} />
       </Route>
 
       <Route path="/" element={<ClientLayout />}>
