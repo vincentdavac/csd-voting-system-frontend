@@ -24,6 +24,7 @@ import ClientForgetPassword from './pages/Client/Authentication/ForgetPassword';
 import ClientDashBoard from './pages/Client/Dashboard/index';
 import TopUpPoints from './pages/Client/TopUpPoints';
 import QRCodeScanner from './pages/Client/QRCodeScanner';
+import ProtectedRoute from './routes/ProtectedRoute';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -41,204 +42,103 @@ function App() {
     <Loader />
   ) : (
     <Routes>
-      {/* Admin Routes */}
-      <Route
-        path="/admin/signin"
-        element={
-          <>
-            <PageTitle title="Sign In | CSD Voting System" />
-            <AdminSignIn />
-          </>
-        }
-      />
-      <Route
-        path="/admin/signup"
-        element={
-          <>
-            <PageTitle title="Sign Up | CSD Voting System" />
-            <AdminSignUp />
-          </>
-        }
-      />
-      <Route
-        path="/admin/forget-password"
-        element={
-          <>
-            <PageTitle title="Forget Password | CSD Voting System" />
-            <AdminForgetPassword />
-          </>
-        }
-      />
-      <Route path="/" element={<DefaultLayout />}>
+      {/* Guest-only routes */}
+      <Route element={<ProtectedRoute guestOnly />}>
+        {/* Admin */}
         <Route
-          index
+          path="/admin/signin"
           element={
             <>
-              <PageTitle title="Dashboard | CSD Voting System" />
-              <Dashboard />
+              <PageTitle title="Sign In | CSD Voting System" />
+              <AdminSignIn />
             </>
           }
         />
         <Route
-          path="admin/dashboard"
+          path="/admin/signup"
           element={
             <>
-              <PageTitle title="Dashboard | CSD Voting System" />
-              <Dashboard />
+              <PageTitle title="Sign Up | CSD Voting System" />
+              <AdminSignUp />
             </>
           }
         />
         <Route
-          path="admin/user-management/voters"
+          path="/admin/forget-password"
           element={
             <>
-              <PageTitle title="Voters | CSD Voting System" />
-              <Voters />
-            </>
-          }
-        />
-        <Route
-          path="admin/user-management/administrators"
-          element={
-            <>
-              <PageTitle title="Administrators | CSD Voting System" />
-              <Administrators />
-            </>
-          }
-        />
-        <Route
-          path="admin/transactions"
-          element={
-            <>
-              <PageTitle title="Transactions | CSD Voting System" />
-              <Transactions />
+              <PageTitle title="Forget Password | CSD Voting System" />
+              <AdminForgetPassword />
             </>
           }
         />
 
+        {/* Client */}
         <Route
-          path="admin/exhibitors"
+          path="/client/signin"
           element={
             <>
-              <PageTitle title="Exhibitors | CSD Voting System" />
-              <Exhibitors />
+              <PageTitle title="Sign In | CSD Voting System" />
+              <ClientSignIn />
             </>
           }
         />
-
         <Route
-          path="admin/voting-results"
+          path="/client/signup"
           element={
             <>
-              <PageTitle title="Voting Results | CSD Voting System" />
-              <VotingResult />
+              <PageTitle title="Sign Up | CSD Voting System" />
+              <ClientSignUp />
             </>
           }
         />
-
         <Route
-          path="admin/booth-rating"
+          path="/client/forget-password"
           element={
             <>
-              <PageTitle title="Booth Rating | CSD Voting System" />
-              <BoothRating />
-            </>
-          }
-        />
-
-        <Route
-          path="admin/programs"
-          element={
-            <>
-              <PageTitle title="Programs | CSD Voting System" />
-              <ProgramTable />
-            </>
-          }
-        />
-
-        <Route
-          path="admin/voters"
-          element={
-            <>
-              <PageTitle title="Voters | CSD Voting System" />
-              <Voters />
+              <PageTitle title="Forget Password | CSD Voting System" />
+              <ClientForgetPassword />
             </>
           }
         />
       </Route>
 
-      <Route path="/" element={<ClientLayout />}>
-        <Route
-          index
-          element={
-            <>
-              <PageTitle title="Dashboard | CSD Voting System" />
-              <Dashboard />
-            </>
-          }
-        />
-
-        {/* Client Routes */}
-        <Route
-          path="client/dashboard"
-          element={
-            <>
-              <PageTitle title="Dashboard | CSD Voting System" />
-              <ClientDashBoard />
-            </>
-          }
-        />
-
-        <Route
-          path="client/top-up-points"
-          element={
-            <>
-              <PageTitle title="Top Up Points | CSD Voting System" />
-              <TopUpPoints />
-            </>
-          }
-        />
-
-        <Route
-          path="client/qr-code-scanner"
-          element={
-            <>
-              <PageTitle title="QR Code Scanner | CSD Voting System" />
-              <QRCodeScanner />
-            </>
-          }
-        />
+      {/* Admin-only routes */}
+      <Route element={<ProtectedRoute role="admin" />}>
+        <Route path="/" element={<DefaultLayout />}>
+          <Route
+            index
+            element={
+              <>
+                <PageTitle title="Dashboard | CSD Voting System" />
+                <Dashboard />
+              </>
+            }
+          />
+          <Route path="admin/dashboard" element={<Dashboard />} />
+          <Route path="admin/user-management/voters" element={<Voters />} />
+          <Route
+            path="admin/user-management/administrators"
+            element={<Administrators />}
+          />
+          <Route path="admin/transactions" element={<Transactions />} />
+          <Route path="admin/exhibitors" element={<Exhibitors />} />
+          <Route path="admin/voting-results" element={<VotingResult />} />
+          <Route path="admin/booth-rating" element={<BoothRating />} />
+          <Route path="admin/programs" element={<ProgramTable />} />
+          <Route path="admin/voters" element={<Voters />} />
+        </Route>
       </Route>
 
-      <Route
-        path="/client/signup"
-        element={
-          <>
-            <PageTitle title="Sign Up | CSD Voting System" />
-            <ClientSignUp />
-          </>
-        }
-      />
-      <Route
-        path="/client/signin"
-        element={
-          <>
-            <PageTitle title="Sign In | CSD Voting System" />
-            <ClientSignIn />
-          </>
-        }
-      />
-      <Route
-        path="/client/forget-password"
-        element={
-          <>
-            <PageTitle title="Forget Password | CSD Voting System" />
-            <ClientForgetPassword />
-          </>
-        }
-      />
+      {/* Client-only routes */}
+      <Route element={<ProtectedRoute role="client" />}>
+        <Route path="/" element={<ClientLayout />}>
+          <Route path="client/dashboard" element={<ClientDashBoard />} />
+          <Route path="client/top-up-points" element={<TopUpPoints />} />
+          <Route path="client/qr-code-scanner" element={<QRCodeScanner />} />
+        </Route>
+      </Route>
 
-      {/* 404 Not Found - Catch All */}
       <Route
         path="*"
         element={

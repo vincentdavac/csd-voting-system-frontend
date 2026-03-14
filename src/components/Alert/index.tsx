@@ -12,22 +12,22 @@ interface AlertProps {
 const Alert = ({ status, title, message, onClose }: AlertProps) => {
   const styles = {
     success: {
-      border: 'border-[#34D399]',
-      bg: 'bg-[#34D399] bg-opacity-[50%]',
-      iconBg: 'bg-[#34D399]',
-      titleColor: 'text-[#065F46]',
+      border: 'border-green-500',
+      bg: 'bg-green-100',
+      iconBg: 'bg-green-500',
+      titleColor: 'text-green-800',
     },
     warning: {
-      border: 'border-warning',
-      bg: 'bg-warning bg-opacity-[50%]',
-      iconBg: 'bg-warning',
-      titleColor: 'text-[#9D5425]',
+      border: 'border-amber-500',
+      bg: 'bg-amber-100',
+      iconBg: 'bg-amber-500',
+      titleColor: 'text-amber-800',
     },
     error: {
-      border: 'border-[#F87171]',
-      bg: 'bg-[#F87171] bg-opacity-[50%]',
-      iconBg: 'bg-[#F87171]',
-      titleColor: 'text-[#B45454]',
+      border: 'border-red-500',
+      bg: 'bg-red-100',
+      iconBg: 'bg-red-500',
+      titleColor: 'text-red-800',
     },
   };
 
@@ -43,11 +43,11 @@ const Alert = ({ status, title, message, onClose }: AlertProps) => {
 
   return (
     <div
-      className={`flex w-full max-w-[90vw] sm:max-w-sm border-l-4 sm:border-l-6 ${current.border} ${current.bg} px-3 py-3 sm:px-5 sm:py-4 shadow-lg rounded-md`}
+      className={`flex w-full max-w-[90vw] sm:max-w-sm border-l-4 sm:border-l-[6px] ${current.border} ${current.bg} px-3 py-3 sm:px-5 sm:py-4 shadow-lg rounded-md`}
     >
       {/* Icon */}
       <div
-        className={`mr-3 sm:mr-4 flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-lg ${current.iconBg} text-white text-sm sm:text-base`}
+        className={`mr-3 sm:mr-4 flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-lg ${current.iconBg} text-white text-sm sm:text-base font-bold`}
       >
         {status === 'success' && '✓'}
         {status === 'warning' && '!'}
@@ -61,15 +61,14 @@ const Alert = ({ status, title, message, onClose }: AlertProps) => {
         >
           {displayTitle}
         </h5>
-
-        <p className="text-xs sm:text-sm text-gray-700">{message}</p>
+        <p className="text-xs sm:text-sm text-gray-600">{message}</p>
       </div>
 
       {/* Close */}
       {onClose && (
         <button
           onClick={onClose}
-          className="ml-2 sm:ml-3 text-gray-500 hover:text-red-500"
+          className="ml-2 sm:ml-3 text-gray-400 hover:text-red-500 transition-colors"
         >
           <X size={16} className="sm:size-[18px]" />
         </button>

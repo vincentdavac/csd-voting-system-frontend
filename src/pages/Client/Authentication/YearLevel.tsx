@@ -1,8 +1,13 @@
 import { CalendarSearch } from 'lucide-react';
 import React, { useState } from 'react';
 
-const YearLevel: React.FC = () => {
-  const [selectedOption, setSelectedOption] = useState<string>('');
+interface YearLevelProps {
+  value: string;
+  onChange: (level: string) => void;
+}
+
+const YearLevel: React.FC<YearLevelProps> = ({ value, onChange }) => {
+  const [selectedOption, setSelectedOption] = useState<string>(value);
   const [isOptionSelected, setIsOptionSelected] = useState<boolean>(false);
 
   const changeTextColor = () => {
@@ -20,6 +25,7 @@ const YearLevel: React.FC = () => {
           value={selectedOption}
           onChange={(e) => {
             setSelectedOption(e.target.value);
+            onChange(e.target.value);
             changeTextColor();
           }}
           className={`relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-12 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input ${
@@ -29,22 +35,16 @@ const YearLevel: React.FC = () => {
           <option value="" disabled className="text-body dark:text-bodydark">
             Select Year Level
           </option>
-          <option
-            value="Computer Science"
-            className="text-body dark:text-bodydark"
-          >
+          <option value="1" className="text-body dark:text-bodydark">
             First Year
           </option>
-          <option
-            value="Information Technology"
-            className="text-body dark:text-bodydark"
-          >
+          <option value="2" className="text-body dark:text-bodydark">
             Second Year
           </option>
-          <option value="Canada" className="text-body dark:text-bodydark">
+          <option value="3" className="text-body dark:text-bodydark">
             Third Year
           </option>
-          <option value="Canada" className="text-body dark:text-bodydark">
+          <option value="4" className="text-body dark:text-bodydark">
             Fourth Year
           </option>
         </select>

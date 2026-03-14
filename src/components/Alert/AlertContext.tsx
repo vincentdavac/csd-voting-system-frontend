@@ -27,7 +27,7 @@ export const AlertProvider = ({ children }: any) => {
   const showAlert = (status: Status, message: string) => {
     const id = Date.now();
 
-    setAlerts((prev) => [...prev, { id, status, message }]);
+    setAlerts([{ id, status, message }]);
 
     setTimeout(() => {
       setAlerts((prev) => prev.filter((a) => a.id !== id));

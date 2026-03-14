@@ -1,4 +1,5 @@
 interface ImportMetaEnv {
+  VITE_TOKEN_SECRET: string;
   readonly VITE_API_BASE_URL: string;
 }
 
