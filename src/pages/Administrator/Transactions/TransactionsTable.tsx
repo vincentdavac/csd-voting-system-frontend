@@ -3,6 +3,9 @@ import { useState } from 'react';
 import TopUpModal from './TopUpModal';
 import UpdateModal from './UpdateModal';
 import { TRANSACTION } from './Transactions';
+import API_BASE_URL from '../../../config/api';
+import { useAuth } from '../../../context/AuthContext';
+import { useAlert } from '../../../components/Alert/AlertContext';
 
 interface TransactionsTableProps {
   transactions: TRANSACTION[];
@@ -27,7 +30,10 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   const [showUpdate, setShowUpdate] = useState(false);
   const [selectedTransaction, setSelectedTransaction] =
     useState<TRANSACTION | null>(null);
-
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const { authUser } = useAuth();
+  const token = authUser?.token;
+  const { showAlert } = useAlert();
   // Filtered & paginated data
   const filteredData = transactions.filter((t) => {
     const matchSearch =
@@ -63,6 +69,48 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     .filter((t) => t.yearLevel === null)
     .reduce((sum, t) => sum + t.amountPaid, 0);
 
+  const handleGeneratePDF = async () => {
+    if (!token) {
+      showAlert('error', 'Please login again.');
+      return;
+    }
+
+    try {
+      // Optional: indicate loading
+      setIsGeneratingPDF(true);
+
+      const response = await fetch(
+        `${API_BASE_URL}/purchase-transactions/pdf`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/pdf',
+          },
+        },
+      );
+
+      if (!response.ok) throw new Error('Failed to generate PDF');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+
+      link.href = url;
+      link.download = 'transactions-report.pdf';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      showAlert('success', 'PDF generated successfully!.');
+    } catch (error) {
+      console.error(error);
+      showAlert('error', 'Failed to generate PDF.');
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
   return (
     <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-4 shadow-default dark:border-strokedark dark:bg-boxdark">
       {/* Top Controls */}
@@ -106,10 +154,13 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
             </button>
           </div>
 
-          {/* Generate PDF */}
-          <button className="flex items-center gap-2 rounded bg-primary px-4 py-2 text-white hover:bg-opacity-90">
+          <button
+            onClick={handleGeneratePDF}
+            className="flex items-center gap-2 rounded bg-primary px-4 py-2 text-white hover:bg-opacity-90"
+            disabled={isGeneratingPDF}
+          >
             <FileDown size={18} />
-            Generate PDF
+            {isGeneratingPDF ? 'Generating...' : 'Generate PDF'}
           </button>
         </div>
       </div>

@@ -28,7 +28,7 @@ const toProxyUrl = (url: string): string => {
     const parsed = new URL(url);
     return parsed.pathname + parsed.search;
   } catch {
-    return url; 
+    return url;
   }
 };
 
@@ -45,8 +45,12 @@ const ExhibitorsTable = () => {
 
   const [showAdd, setShowAdd] = useState(false);
   const [showUpdate, setShowUpdate] = useState(false);
-  const [selectedExhibitor, setSelectedExhibitor] = useState<EXHIBITOR | null>(null);
-  const [selectedForUpdate, setSelectedForUpdate] = useState<EXHIBITOR | null>(null);
+  const [selectedExhibitor, setSelectedExhibitor] = useState<EXHIBITOR | null>(
+    null,
+  );
+  const [selectedForUpdate, setSelectedForUpdate] = useState<EXHIBITOR | null>(
+    null,
+  );
 
   const rowsPerPage = 10;
 
@@ -102,12 +106,16 @@ const ExhibitorsTable = () => {
     const matchesSearch =
       e.title.toLowerCase().includes(search.toLowerCase()) ||
       e.qrCode.toLowerCase().includes(search.toLowerCase());
-    const matchesProgram = programFilter === 'All' || e.program === programFilter;
+    const matchesProgram =
+      programFilter === 'All' || e.program === programFilter;
     return matchesSearch && matchesProgram;
   });
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-  const currentData = filteredData.slice((page - 1) * rowsPerPage, page * rowsPerPage);
+  const currentData = filteredData.slice(
+    (page - 1) * rowsPerPage,
+    page * rowsPerPage,
+  );
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
@@ -119,7 +127,7 @@ const ExhibitorsTable = () => {
 
   const handleSelectRow = (id: number) => {
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
 
@@ -142,7 +150,9 @@ const ExhibitorsTable = () => {
           const svgText = await svgRes.text();
 
           // Build a Blob URL so the browser can load it as an <img>
-          const blob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
+          const blob = new Blob([svgText], {
+            type: 'image/svg+xml;charset=utf-8',
+          });
           const blobUrl = URL.createObjectURL(blob);
 
           const img = new Image();
@@ -181,7 +191,10 @@ const ExhibitorsTable = () => {
           canvas.width = img.naturalWidth || 512;
           canvas.height = img.naturalHeight || 512;
           const ctx = canvas.getContext('2d');
-          if (!ctx) { reject('Could not get canvas context'); return; }
+          if (!ctx) {
+            reject('Could not get canvas context');
+            return;
+          }
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(img, 0, 0);
@@ -258,20 +271,31 @@ const ExhibitorsTable = () => {
               type="text"
               placeholder="Search title or QR..."
               value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
               className="w-full rounded-lg border border-stroke bg-transparent py-2 pl-10 pr-4 outline-none focus:border-primary dark:border-strokedark"
             />
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+            <Search
+              size={18}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+            />
           </div>
 
           <select
             value={programFilter}
-            onChange={(e) => { setProgramFilter(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setProgramFilter(e.target.value);
+              setPage(1);
+            }}
             className="rounded-lg border border-stroke bg-transparent px-4 py-2 outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark"
           >
             <option value="All">All Programs</option>
             {programs.map((p) => (
-              <option key={p.id} value={p.name}>{p.name}</option>
+              <option key={p.id} value={p.name}>
+                {p.name}
+              </option>
             ))}
           </select>
         </div>
@@ -302,24 +326,51 @@ const ExhibitorsTable = () => {
                 <input
                   type="checkbox"
                   onChange={handleSelectAll}
-                  checked={selectedIds.length === filteredData.length && filteredData.length > 0}
+                  checked={
+                    selectedIds.length === filteredData.length &&
+                    filteredData.length > 0
+                  }
                 />
               </th>
-              <th className="p-3 font-medium text-black dark:text-white">Image</th>
-              <th className="p-3 font-medium text-black dark:text-white">Title</th>
-              <th className="p-3 font-medium text-black dark:text-white">Program</th>
-              <th className="p-3 font-medium text-black dark:text-white">QR Code</th>
-              <th className="p-3 text-center font-medium text-black dark:text-white">Actions</th>
+              <th className="p-3 font-medium text-black dark:text-white">
+                Image
+              </th>
+              <th className="p-3 font-medium text-black dark:text-white">
+                Title
+              </th>
+              <th className="p-3 font-medium text-black dark:text-white">
+                Program
+              </th>
+              <th className="p-3 font-medium text-black dark:text-white">
+                QR Code
+              </th>
+              <th className="p-3 text-center font-medium text-black dark:text-white">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={6} className="text-center p-10">Loading...</td></tr>
+              <tr>
+                <td colSpan={6} className="text-center p-10">
+                  Loading...
+                </td>
+              </tr>
             ) : filteredData.length === 0 ? (
-              <tr><td colSpan={6} className="text-center p-10 text-gray-500 italic">No exhibitors found.</td></tr>
+              <tr>
+                <td
+                  colSpan={6}
+                  className="text-center p-10 text-gray-500 italic"
+                >
+                  No exhibitors found.
+                </td>
+              </tr>
             ) : (
               currentData.map((e) => (
-                <tr key={e.id} className="border-b border-stroke hover:bg-gray-50 dark:hover:bg-gray-800">
+                <tr
+                  key={e.id}
+                  className="border-b border-stroke hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
                   <td className="p-3">
                     <input
                       type="checkbox"
@@ -328,11 +379,21 @@ const ExhibitorsTable = () => {
                     />
                   </td>
                   <td className="p-3">
-                    <img src={e.image} className="h-10 w-10 rounded object-cover border" alt={e.title} />
+                    <img
+                      src={e.image}
+                      className="h-10 w-10 rounded object-cover border"
+                      alt={e.title}
+                    />
                   </td>
-                  <td className="p-3 font-medium text-black dark:text-white">{e.title}</td>
-                  <td className="p-3 text-black dark:text-white">{e.program}</td>
-                  <td className="p-3 font-mono text-xs text-black dark:text-white">{e.qrCode}</td>
+                  <td className="p-3 font-medium text-black dark:text-white">
+                    {e.title}
+                  </td>
+                  <td className="p-3 text-black dark:text-white">
+                    {e.program}
+                  </td>
+                  <td className="p-3 font-mono text-xs text-black dark:text-white">
+                    {e.qrCode}
+                  </td>
                   <td className="p-3 flex justify-center gap-3">
                     <button
                       onClick={() => setSelectedExhibitor(e)}
@@ -341,7 +402,10 @@ const ExhibitorsTable = () => {
                       <Eye size={16} /> View
                     </button>
                     <button
-                      onClick={() => { setSelectedForUpdate(e); setShowUpdate(true); }}
+                      onClick={() => {
+                        setSelectedForUpdate(e);
+                        setShowUpdate(true);
+                      }}
                       className="text-yellow-600 hover:underline flex items-center gap-1"
                     >
                       <SquarePen size={16} /> Edit
@@ -372,7 +436,9 @@ const ExhibitorsTable = () => {
           >
             ←
           </button>
-          <span className="py-1 dark:text-white">Page {page} of {totalPages || 1}</span>
+          <span className="py-1 dark:text-white">
+            Page {page} of {totalPages || 1}
+          </span>
           <button
             disabled={page === totalPages || totalPages === 0}
             onClick={() => setPage(page + 1)}
@@ -383,9 +449,17 @@ const ExhibitorsTable = () => {
         </div>
       </div>
 
-      {showAdd && <AddExhibitor onClose={() => setShowAdd(false)} onAdd={fetchExhibitors} />}
+      {showAdd && (
+        <AddExhibitor
+          onClose={() => setShowAdd(false)}
+          onAdd={fetchExhibitors}
+        />
+      )}
       {selectedExhibitor && (
-        <ViewExhibitor exhibitor={selectedExhibitor} onClose={() => setSelectedExhibitor(null)} />
+        <ViewExhibitor
+          exhibitor={selectedExhibitor}
+          onClose={() => setSelectedExhibitor(null)}
+        />
       )}
       {selectedForUpdate && showUpdate && (
         <UpdateExhibitor

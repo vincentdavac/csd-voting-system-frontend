@@ -5,6 +5,7 @@ import PieChartTotalVotesPerProgram from './PieChartTotalVotesPerProgram';
 import TotalRevenuePerHour from './TotalRevenuePerHour';
 import { useAuth } from '../../../context/AuthContext';
 import API_BASE_URL from '../../../config/api';
+import VotingLoader from '../../../common/Loader/VotingLoader';
 
 const Dashboard = () => {
   const { authUser } = useAuth();
@@ -36,7 +37,12 @@ const Dashboard = () => {
   }, [authUser?.token]);
 
   if (loading || !stats) {
-    return <div className="flex h-screen items-center justify-center text-xl font-semibold">Loading Dashboard...</div>;
+    return (
+      <VotingLoader
+        title="Loading Dashboard"
+        description="Fetching dashboard records..."
+      />
+    );
   }
 
   return (

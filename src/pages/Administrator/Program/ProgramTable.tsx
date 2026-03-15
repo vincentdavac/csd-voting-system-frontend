@@ -23,7 +23,7 @@ const ProgramTable = () => {
   const [selectedProgram, setSelectedProgram] = useState<PROGRAM | null>(null);
   const [selectedProgramForUpdate, setSelectedProgramForUpdate] =
     useState<PROGRAM | null>(null);
-  
+
   const rowsPerPage = 10;
 
   const fetchPrograms = async () => {
@@ -35,7 +35,7 @@ const ProgramTable = () => {
         },
       });
       const json = await res.json();
-      
+
       if (json.data) {
         const mapped = json.data.map((p: any) => ({
           id: p.id,
@@ -114,16 +114,25 @@ const ProgramTable = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={6} className="text-center p-10">Loading programs...</td>
+                <td colSpan={6} className="text-center p-10">
+                  Loading programs...
+                </td>
               </tr>
             ) : currentData.length === 0 ? (
-               <tr>
-                <td colSpan={6} className="text-center p-10 text-gray-500 italic">No programs found.</td>
+              <tr>
+                <td
+                  colSpan={6}
+                  className="text-center p-10 text-gray-500 italic"
+                >
+                  No programs found.
+                </td>
               </tr>
             ) : (
               currentData.map((p, index) => (
                 <tr key={p.id} className="border-b border-stroke">
-                  <td className="p-3">{(page - 1) * rowsPerPage + index + 1}</td>
+                  <td className="p-3">
+                    {(page - 1) * rowsPerPage + index + 1}
+                  </td>
                   <td className="p-3">
                     <img
                       src={p.image}
@@ -131,8 +140,12 @@ const ProgramTable = () => {
                       alt={p.name}
                     />
                   </td>
-                  <td className="p-3 font-medium text-black dark:text-white">{p.name}</td>
-                  <td className="p-3 max-w-[200px] truncate">{p.description}</td>
+                  <td className="p-3 font-medium text-black dark:text-white">
+                    {p.name}
+                  </td>
+                  <td className="p-3 max-w-[200px] truncate">
+                    {p.description}
+                  </td>
                   <td className="p-3">{p.dateTime}</td>
 
                   <td className="p-3 flex justify-center gap-3">
@@ -180,10 +193,7 @@ const ProgramTable = () => {
       </div>
 
       {showAdd && (
-        <AddProgram
-          onClose={() => setShowAdd(false)}
-          onAdd={fetchPrograms}
-        />
+        <AddProgram onClose={() => setShowAdd(false)} onAdd={fetchPrograms} />
       )}
 
       {selectedProgram && (

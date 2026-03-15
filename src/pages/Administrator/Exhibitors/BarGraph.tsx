@@ -27,27 +27,33 @@ const BarGraph: React.FC = () => {
     const fetchGraphData = async () => {
       if (!authUser?.token) return;
       try {
-        const res = await fetch(`${API_BASE_URL}/exhibitors/grouped-by-program`, {
-          headers: {
-            Authorization: `Bearer ${authUser.token}`,
-            Accept: 'application/json',
+        const res = await fetch(
+          `${API_BASE_URL}/exhibitors/grouped-by-program`,
+          {
+            headers: {
+              Authorization: `Bearer ${authUser.token}`,
+              Accept: 'application/json',
+            },
           },
-        });
+        );
         const json = await res.json();
 
         if (json.data) {
           // Extract categories (Program Names)
           const categories = json.data.map((item: any) => item.program.name);
-          
+
           // Extract Exhibitor Counts
-          const exhibitorsCount = json.data.map((item: any) => item.exhibitors.length);
-          
+          const exhibitorsCount = json.data.map(
+            (item: any) => item.exhibitors.length,
+          );
+
           // Extract Total Votes per program (FIXED: Added Number() to prevent string concatenation)
           const votesCount = json.data.map((item: any) =>
             item.exhibitors.reduce(
-              (sum: number, ex: any) => sum + (Number(ex.attributes.votes_sum) || 0),
-              0
-            )
+              (sum: number, ex: any) =>
+                sum + (Number(ex.attributes.votes_sum) || 0),
+              0,
+            ),
           );
 
           setChartData({

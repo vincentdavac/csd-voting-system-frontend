@@ -6,6 +6,7 @@ import { useState, useEffect, useCallback } from 'react';
 import API_BASE_URL from '../../../config/api';
 import { useAuth } from '../../../context/AuthContext';
 import { useAlert } from '../../../components/Alert/AlertContext';
+import VotingLoader from '../../../common/Loader/VotingLoader';
 
 export interface TRANSACTION {
   id: number;
@@ -92,17 +93,27 @@ const Transactions = () => {
 
   return (
     <div>
-      <Breadcrumb pageName="Transactions" />
-      <div className="grid grid-cols-12 gap-4 md:gap-6 2xl:gap-7.5 mb-4">
-        <BarChart transactions={transactions} />
-        <PieChart transactions={transactions} />
-      </div>
+      {isFetching ? (
+        <VotingLoader
+          title="Loading Transactions"
+          description="Fetching transactions records..."
+        />
+      ) : (
+        <>
+          <Breadcrumb pageName="Transactions" />
 
-      <TransactionsTable
-        transactions={transactions}
-        fetchTransactions={fetchTransactions}
-        isFetching={isFetching}
-      />
+          <div className="grid grid-cols-12 gap-4 md:gap-6 2xl:gap-7.5 mb-4">
+            <BarChart transactions={transactions} />
+            <PieChart transactions={transactions} />
+          </div>
+
+          <TransactionsTable
+            transactions={transactions}
+            fetchTransactions={fetchTransactions}
+            isFetching={isFetching}
+          />
+        </>
+      )}
     </div>
   );
 };
