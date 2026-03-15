@@ -1,33 +1,26 @@
-import { Search, FileDown, SquarePen, Wallet } from 'lucide-react';
+import { Search, FileDown, SquarePen, Wallet, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import TopUpModal from './TopUpModal';
 import UpdateModal from './UpdateModal';
+import { TRANSACTION } from './Transactions';
 
-interface TRANSACTION {
-  program: string;
-  studentNo: string;
-  idPicture: string;
-  fullName: string;
-  amountPaid: number;
-  votesGiven: number;
-  datetime: string;
+interface TransactionsTableProps {
+  transactions: TRANSACTION[];
+  fetchTransactions: () => void;
+  isFetching: boolean;
 }
-
-const transactionsData: TRANSACTION[] = Array.from({ length: 30 }, (_, i) => ({
-  program: i % 2 === 0 ? 'BSIT' : 'BSBA',
-  studentNo: '2023-00' + (i + 1),
-  idPicture: 'https://via.placeholder.com/40',
-  fullName: 'Student ' + (i + 1),
-  amountPaid: 50,
-  votesGiven: 10,
-  datetime: `2026-03-${(i % 9) + 1} 10:30 AM`,
-}));
 
 const rowsPerPage = 10;
 
-const TransactionsTable = () => {
-  const [showTopUp, setShowTopUp] = useState(false);
+const getYearLevelLabel = (yearLevel: number | null): string =>
+  yearLevel === null ? 'Visitor' : `Year ${yearLevel}`;
 
+const TransactionsTable: React.FC<TransactionsTableProps> = ({
+  transactions,
+  fetchTransactions,
+  isFetching,
+}) => {
+  const [showTopUp, setShowTopUp] = useState(false);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [dateFilter, setDateFilter] = useState('');
@@ -35,31 +28,40 @@ const TransactionsTable = () => {
   const [selectedTransaction, setSelectedTransaction] =
     useState<TRANSACTION | null>(null);
 
-  // Filter
-  const filteredData = transactionsData.filter((t) => {
+  // Filtered & paginated data
+  const filteredData = transactions.filter((t) => {
     const matchSearch =
       t.fullName.toLowerCase().includes(search.toLowerCase()) ||
-      t.studentNo.toLowerCase().includes(search.toLowerCase());
+      t.email.toLowerCase().includes(search.toLowerCase());
 
-    const matchDate = dateFilter ? t.datetime.includes(dateFilter) : true;
+    const matchDate = dateFilter
+      ? (() => {
+          const txnDate = new Date(t.datetime);
+          const selectedDate = new Date(dateFilter);
+          return (
+            txnDate.getFullYear() === selectedDate.getFullYear() &&
+            txnDate.getMonth() === selectedDate.getMonth() &&
+            txnDate.getDate() === selectedDate.getDate()
+          );
+        })()
+      : true;
 
     return matchSearch && matchDate;
   });
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-
   const currentData = filteredData.slice(
     (page - 1) * rowsPerPage,
     page * rowsPerPage,
   );
 
-  // Revenue Calculations
   const totalRevenue = filteredData.reduce((sum, t) => sum + t.amountPaid, 0);
-
-  const revenuePerProgram = filteredData.reduce((acc: any, t) => {
-    acc[t.program] = (acc[t.program] || 0) + t.amountPaid;
-    return acc;
-  }, {});
+  const studentRevenue = filteredData
+    .filter((t) => t.yearLevel !== null)
+    .reduce((sum, t) => sum + t.amountPaid, 0);
+  const visitorRevenue = filteredData
+    .filter((t) => t.yearLevel === null)
+    .reduce((sum, t) => sum + t.amountPaid, 0);
 
   return (
     <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-4 shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -103,6 +105,7 @@ const TransactionsTable = () => {
               Top Up Points
             </button>
           </div>
+
           {/* Generate PDF */}
           <button className="flex items-center gap-2 rounded bg-primary px-4 py-2 text-white hover:bg-opacity-90">
             <FileDown size={18} />
@@ -118,60 +121,182 @@ const TransactionsTable = () => {
           <h3 className="text-xl font-bold">₱{totalRevenue}</h3>
         </div>
 
-        {Object.entries(revenuePerProgram).map(([program, value]) => (
-          <div key={program} className="rounded border p-4">
-            <p className="text-sm text-gray-500">Revenue - {program}</p>
-            <h3 className="text-xl font-bold">₱{value as number}</h3>
-          </div>
-        ))}
+        <div className="rounded border p-4">
+          <p className="text-sm text-gray-500">Revenue - Students</p>
+          <h3 className="text-xl font-bold">₱{studentRevenue}</h3>
+        </div>
+
+        <div className="rounded border p-4">
+          <p className="text-sm text-gray-500">Revenue - Visitors</p>
+          <h3 className="text-xl font-bold">₱{visitorRevenue}</h3>
+        </div>
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto ">
+      <div className="overflow-x-auto">
         <table className="w-full table-auto text-sm">
           <thead>
             <tr className="bg-gray-2 dark:bg-meta-4 text-left">
-              <th className="p-3">No.</th>
-              <th className="p-3">ID Picture</th>
-              <th className="p-3">Student No.</th>
-              <th className="p-3">Full Name</th>
-              <th className="p-3">Amount Paid</th>
-              <th className="p-3">Vote Given</th>
-              <th className="p-3">Date - Time</th>
-              <th className="p-3 text-center">Actions</th>
+              <th className="p-3 whitespace-nowrap">No.</th>
+              <th className="p-3 whitespace-nowrap">ID Picture</th>
+              <th className="p-3 whitespace-nowrap">Full Name</th>
+              <th className="p-3 whitespace-nowrap">Email</th>
+              <th className="p-3 whitespace-nowrap">Contact</th>
+              <th className="p-3 whitespace-nowrap">Year Level</th>
+              <th className="p-3 whitespace-nowrap">Remaining Votes</th>
+              <th className="p-3 whitespace-nowrap">Total Purchased</th>
+              <th className="p-3 whitespace-nowrap">Amount Paid</th>
+              <th className="p-3 whitespace-nowrap">Votes Given</th>
+              <th className="p-3 whitespace-nowrap">Handled By</th>
+              <th className="p-3 whitespace-nowrap">Date</th>
+              <th className="p-3 whitespace-nowrap">Time</th>
+              <th className="p-3 whitespace-nowrap text-center">Actions</th>
             </tr>
           </thead>
 
           <tbody>
-            {currentData.map((t, index) => (
-              <tr key={index} className="border-b border-stroke">
-                <td className="p-3">{(page - 1) * rowsPerPage + index + 1}</td>
-
-                <td className="p-3">
-                  <img src={t.idPicture} className="h-10 w-10 rounded-full" />
-                </td>
-
-                <td className="p-3">{t.studentNo}</td>
-                <td className="p-3">{t.fullName}</td>
-                <td className="p-3">₱{t.amountPaid}</td>
-                <td className="p-3">{t.votesGiven}</td>
-                <td className="p-3">{t.datetime}</td>
-
-                {/* Action */}
-                <td className="p-3 flex justify-center">
-                  <button
-                    onClick={() => {
-                      setSelectedTransaction(t);
-                      setShowUpdate(true);
-                    }}
-                    className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
-                  >
-                    <SquarePen size={16} />
-                    Update
-                  </button>
+            {isFetching && (
+              <tr>
+                <td colSpan={14} className="p-8 text-center text-gray-500">
+                  <div className="flex items-center justify-center gap-2">
+                    <RefreshCw size={18} className="animate-spin" />
+                    Loading transactions...
+                  </div>
                 </td>
               </tr>
-            ))}
+            )}
+
+            {!isFetching && currentData.length === 0 && (
+              <tr>
+                <td colSpan={14} className="p-8 text-center text-gray-500">
+                  No transactions found.
+                </td>
+              </tr>
+            )}
+
+            {!isFetching &&
+              currentData.map((t, index) => (
+                <tr
+                  key={t.id}
+                  className="border-b border-stroke dark:border-strokedark hover:bg-gray-50 dark:hover:bg-meta-4 transition"
+                >
+                  {/* No. */}
+                  <td className="p-3 text-gray-500 whitespace-nowrap">
+                    {(page - 1) * rowsPerPage + index + 1}
+                  </td>
+
+                  {/* ID Picture */}
+                  <td className="p-3">
+                    {t.idPicture ? (
+                      <img
+                        src={t.idPicture}
+                        alt={t.fullName}
+                        className="h-10 w-10 rounded-full object-cover border"
+                      />
+                    ) : (
+                      <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-500">
+                        N/A
+                      </div>
+                    )}
+                  </td>
+
+                  {/* Full Name */}
+                  <td className="p-3 font-medium text-black dark:text-white whitespace-nowrap">
+                    {t.fullName}
+                  </td>
+
+                  {/* Email */}
+                  <td className="p-3 text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                    {t.email}
+                  </td>
+
+                  {/* Contact */}
+                  <td className="p-3 whitespace-nowrap">{t.contactNumber}</td>
+
+                  {/* Year Level */}
+                  <td className="p-3 text-center whitespace-nowrap">
+                    <span
+                      className={`inline-block rounded-full text-xs font-semibold px-2 py-0.5 ${
+                        t.yearLevel !== null
+                          ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                          : 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300'
+                      }`}
+                    >
+                      {getYearLevelLabel(t.yearLevel)}
+                    </span>
+                  </td>
+
+                  {/* Remaining Votes */}
+                  <td className="p-3 text-center whitespace-nowrap">
+                    <span className="inline-block rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-semibold px-2 py-0.5">
+                      {t.remainingVotes}
+                    </span>
+                  </td>
+
+                  {/* Total Purchased */}
+                  <td className="p-3 text-center whitespace-nowrap">
+                    <span className="inline-block rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold px-2 py-0.5">
+                      {t.totalVotesPurchased}
+                    </span>
+                  </td>
+
+                  {/* Amount Paid */}
+                  <td className="p-3 font-semibold text-green-600 dark:text-green-400 whitespace-nowrap">
+                    ₱{t.amountPaid}
+                  </td>
+
+                  {/* Votes Given */}
+                  <td className="p-3 font-semibold text-blue-600 dark:text-blue-400 whitespace-nowrap">
+                    {t.votesGiven}
+                  </td>
+
+                  {/* Handled By */}
+                  <td className="p-3 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      {t.handlerImage ? (
+                        <img
+                          src={t.handlerImage}
+                          alt={t.handlerFullName}
+                          className="h-7 w-7 rounded-full object-cover border shrink-0"
+                        />
+                      ) : (
+                        <div className="h-7 w-7 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-500 shrink-0">
+                          ?
+                        </div>
+                      )}
+                      <span className="text-gray-600 dark:text-gray-300 text-xs">
+                        {t.handlerFullName}
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* Date */}
+                  <td className="p-3 text-gray-500 text-xs whitespace-nowrap">
+                    {t.createdDate}
+                  </td>
+
+                  {/* Time */}
+                  <td className="p-3 text-gray-500 text-xs whitespace-nowrap">
+                    {t.createdTime}
+                  </td>
+
+                  {/* Actions */}
+                  <td className="p-3 whitespace-nowrap">
+                    <div className="flex justify-center">
+                      <button
+                        onClick={() => {
+                          setSelectedTransaction(t);
+                          setShowUpdate(true);
+                        }}
+                        className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
+                      >
+                        <SquarePen size={16} />
+                        Update
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
@@ -200,16 +325,23 @@ const TransactionsTable = () => {
       </div>
 
       {/* Show Modal */}
-      {showTopUp && <TopUpModal onClose={() => setShowTopUp(false)} />}
+      {showTopUp && (
+        <TopUpModal
+          onClose={() => {
+            setShowTopUp(false);
+            fetchTransactions();
+          }}
+        />
+      )}
+
       {showUpdate && selectedTransaction && (
         <UpdateModal
           transaction={selectedTransaction}
           onClose={() => setShowUpdate(false)}
           onUpdate={(amount) => {
             console.log('Updated Amount:', amount);
-            console.log('Student:', selectedTransaction.studentNo);
-
-            // API update here
+            console.log('Student:', selectedTransaction.fullName);
+            fetchTransactions();
           }}
         />
       )}
