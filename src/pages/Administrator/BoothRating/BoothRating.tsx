@@ -1,5 +1,5 @@
 import Breadcrumb from '../../../components/Breadcrumbs/Breadcrumb';
-import BarGraphOverRanking from './BarGraphOverAllRanking';
+import BarGraphOverAllRanking from './BarGraphOverAllRanking';
 import BarGraphPerProgram from './BarGraphPerProgram';
 import BoothTable from './BoothTable';
 
@@ -9,12 +9,13 @@ const BoothRating = () => {
       <Breadcrumb pageName="Booth Rating" />
 
       <div className="grid grid-cols-12 gap-4 md:gap-6 2xl:gap-7.5 mb-4">
-        <BarGraphOverRanking />
-        <BarGraphPerProgram />
-        <BarGraphPerProgram />
-        <BarGraphPerProgram />
-        <BarGraphPerProgram />
+        <BarGraphOverAllRanking />
+        <BarGraphPerProgram programName="IT" />
+        <BarGraphPerProgram programName="CS" />
+        <BarGraphPerProgram programName="IS" />
+        <BarGraphPerProgram programName="EMC" />
       </div>
+
       <BoothTable />
     </div>
   );

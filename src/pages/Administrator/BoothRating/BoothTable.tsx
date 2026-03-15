@@ -1,28 +1,65 @@
 import { Search, FileText } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../../../context/AuthContext';
+import API_BASE_URL from '../../../config/api';
 
-interface VOTE {
-  image: string;
-  fullName: string;
-  rating: number; // Using voteCount as rating
-  dateTime: string;
+interface ApiBoothRating {
+  client: {
+    id: number;
+    full_name: string;
+    email: string;
+  };
+  exhibitor: {
+    id: number;
+    project_title: string;
+  };
+  rating: number | null;
+  createdDate: string;
+  createdTime: string;
 }
-
-const votesData: VOTE[] = Array.from({ length: 20 }, (_, i) => ({
-  image: 'https://via.placeholder.com/50',
-  fullName: `Voter ${i + 1}`,
-  rating: Math.floor(Math.random() * 10) + 1, // static rating for now
-  dateTime: new Date().toLocaleString(),
-}));
 
 const rowsPerPage = 10;
 
 const BoothTable = () => {
+  const { authUser } = useAuth();
+  const [ratingsData, setRatingsData] = useState<ApiBoothRating[]>([]);
+  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
 
-  const filteredData = votesData.filter((v) =>
-    v.fullName.toLowerCase().includes(search.toLowerCase()),
+  useEffect(() => {
+    const fetchRatings = async () => {
+      if (!authUser?.token) return;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/booth-ratings`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${authUser.token}`,
+            Accept: 'application/json',
+          },
+        });
+
+        if (res.ok) {
+          const responseData = await res.json();
+          setRatingsData(responseData.data || []);
+        } else {
+          console.error('Failed to fetch booth ratings');
+        }
+      } catch (error) {
+        console.error('Error fetching booth ratings:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRatings();
+  }, [authUser]);
+
+  const filteredData = ratingsData.filter(
+    (v) =>
+      v.client.full_name.toLowerCase().includes(search.toLowerCase()) ||
+      v.exhibitor.project_title.toLowerCase().includes(search.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
@@ -44,7 +81,7 @@ const BoothTable = () => {
         <div className="relative w-72">
           <input
             type="text"
-            placeholder="Search voter..."
+            placeholder="Search rater or project..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -73,28 +110,33 @@ const BoothTable = () => {
           <thead>
             <tr className="bg-gray-2 dark:bg-meta-4 text-left">
               <th className="p-3">No.</th>
-              <th className="p-3">Image</th>
               <th className="p-3">Full Name</th>
+              <th className="p-3">Rated Exhibitor</th>
               <th className="p-3">Rating</th>
               <th className="p-3">Date - Time</th>
             </tr>
           </thead>
 
           <tbody>
-            {currentData.map((v, index) => (
-              <tr key={index} className="border-b border-stroke">
-                <td className="p-3">{(page - 1) * rowsPerPage + index + 1}</td>
-                <td className="p-3">
-                  <img
-                    src={v.image}
-                    className="h-10 w-10 rounded object-cover"
-                  />
-                </td>
-                <td className="p-3 font-medium">{v.fullName}</td>
-                <td className="p-3 font-medium">{v.rating}</td>
-                <td className="p-3">{v.dateTime}</td>
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="text-center py-4">Loading data...</td>
               </tr>
-            ))}
+            ) : currentData.length > 0 ? (
+              currentData.map((v, index) => (
+                <tr key={index} className="border-b border-stroke">
+                  <td className="p-3">{(page - 1) * rowsPerPage + index + 1}</td>
+                  <td className="p-3 font-medium">{v.client.full_name}</td>
+                  <td className="p-3">{v.exhibitor.project_title}</td>
+                  <td className="p-3 font-medium">{v.rating ?? 'N/A'}</td>
+                  <td className="p-3">{v.createdDate} - {v.createdTime}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} className="text-center py-4">No booth ratings found.</td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
