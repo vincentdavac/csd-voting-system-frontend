@@ -11,7 +11,7 @@ const PageNotFound: React.FC = () => {
   const firstSegment = location.pathname.split('/')[1]; // e.g., "admin" or "client"
 
   // Decide where to redirect based on segment
-  let redirectTo = '/';
+  let redirectTo = '/client/signin'; 
   if (firstSegment === 'admin') redirectTo = '/admin/signin';
   else if (firstSegment === 'client') redirectTo = '/client/signin';
 
