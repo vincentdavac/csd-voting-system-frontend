@@ -16,6 +16,7 @@ interface EXHIBITOR {
   description: string;
   program: string;
   qrCode: string;
+  hasRated?: boolean;
 }
 
 interface CastVoteProps {
@@ -128,9 +129,20 @@ const CastVote = ({ exhibitor, remainingVotes, onClose, onSubmit }: CastVoteProp
 
             <div className="flex items-center gap-2 px-3 py-1 rounded bg-gray-100 dark:bg-gray-800">
               <Tickets size={20} className="text-gray-500 dark:text-gray-400" />
-              <span className="font-semibold text-gray-800 dark:text-gray-200">
-                {votes}
-              </span>
+              <input
+                type="number"
+                value={votes === 0 ? '' : votes} // Shows blank instead of 0 for easier quick typing
+                placeholder="0"
+                onChange={(e) => {
+                  const val = parseInt(e.target.value);
+                  if (isNaN(val)) setVotes(0);
+                  else if (val <= remainingVotes) setVotes(val);
+                  else setVotes(remainingVotes); // Prevent exceeding limit
+                }}
+                className="w-16 bg-transparent text-center font-semibold text-gray-800 dark:text-gray-200 outline-none focus:ring-1 focus:ring-gray-400 rounded hide-arrows"
+                min="0"
+                max={remainingVotes}
+              />
             </div>
 
             <button
@@ -143,45 +155,51 @@ const CastVote = ({ exhibitor, remainingVotes, onClose, onSubmit }: CastVoteProp
           </div>
           
           <div className="text-center text-xs text-red-500 font-medium h-4">
-             {votes >= remainingVotes && `You only have ${remainingVotes} votes available.`}
+             {votes >= remainingVotes && remainingVotes > 0 && `You only have ${remainingVotes} votes available.`}
           </div>
 
-          {/* 5-Star Rating */}
-          <div className="text-center text-gray-700 dark:text-gray-300 mt-2 mb-1">
-            Rate the booth for{' '}
-            <span className="font-semibold">Best Booth Award</span>
-          </div>
-          <div className="flex items-center justify-center gap-2 text-3xl">
-            {Array.from({ length: 5 }, (_, i) => i + 1).map((i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => setRating(i)}
-                onMouseEnter={() => setHoverRating(i)}
-                onMouseLeave={() => setHoverRating(0)}
-                className={`transition-colors ${
-                  i <= (hoverRating || rating)
-                    ? 'text-yellow-400'
-                    : 'text-gray-300 dark:text-gray-500'
-                }`}
-              >
-                ★
-              </button>
-            ))}
+          {/* 5-Star Rating (Hidden if already rated) */}
+          <div className="mt-8 pt-4 border-t border-gray-100 dark:border-strokedark">
+            <div className="text-center text-gray-700 dark:text-gray-300 mb-1">
+              Rate the booth for <span className="font-semibold">Best Booth Award</span>
+            </div>
+          
+            {exhibitor.hasRated ? (
+              <div className="flex flex-col items-center justify-center p-4 bg-green-50 dark:bg-green-900/20 rounded-xl">
+                <span className="text-green-600 dark:text-green-400 font-bold text-sm">✓ ALREADY RATED</span>
+                <p className="text-[10px] text-green-500">You've already submitted your rating for this project.</p>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-center gap-2 text-3xl">
+                  {Array.from({ length: 5 }, (_, i) => i + 1).map((i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setRating(i)}
+                      onMouseEnter={() => setHoverRating(i)}
+                      onMouseLeave={() => setHoverRating(0)}
+                      className={`transition-colors ${
+                        i <= (hoverRating || rating) ? 'text-yellow-400' : 'text-gray-300'
+                      }`}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+                <div className="text-center text-gray-500 text-sm mt-1">{rating} / 5</div>
+              </>
+            )}
           </div>
 
-          {/* Rating Value */}
-          <div className="text-center text-gray-500 dark:text-gray-400">
-            {rating} / 5
-          </div>
           {/* Comment Box */}
-          <div className="text-gray-700 dark:text-gray-300 mb-1 text-sm">
+          <div className="text-gray-700 dark:text-gray-300 mb-1 text-sm mt-4">
             Leave a comment to help the exhibitor improve their system
           </div>
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            className="w-full rounded-lg border p-3 outline-none focus:ring-2 focus:ring-primary dark:border-strokedark dark:bg-boxdark dark:text-white"
+            className="w-full rounded-lg border p-3 outline-none focus:ring-2 focus:ring-[#071c4f] dark:border-strokedark dark:bg-boxdark dark:text-white"
             placeholder="Write a comment..."
             rows={4}
           />

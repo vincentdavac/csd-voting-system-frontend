@@ -1,34 +1,69 @@
 import { Search, FileText } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../../../context/AuthContext';
+import API_BASE_URL from '../../../config/api';
 
-interface VOTE {
-  image: string;
-  fullName: string;
-  votedExhibitor: string;
-  comment: string;
-  voteCount: number;
-  dateTime: string;
+interface ApiVote {
+  client: {
+    id: number;
+    full_name: string;
+    email: string;
+    remaining_votes: number;
+  };
+  exhibitor: {
+    id: number;
+    project_title: string;
+    total_votes: number;
+  };
+  votes_casted: number | null;
+  comment: string | null;
+  rating: number | null;
+  createdDate: string;
+  createdTime: string;
 }
-
-const votesData: VOTE[] = Array.from({ length: 20 }, (_, i) => ({
-  image: 'https://via.placeholder.com/50',
-  fullName: `Voter ${i + 1}`,
-  votedExhibitor: `Project ${(i % 10) + 1}`,
-  comment: i % 2 === 0 ? 'Great project!' : 'Interesting idea',
-  voteCount: Math.floor(Math.random() * 10) + 1,
-  dateTime: new Date().toLocaleString(),
-}));
 
 const rowsPerPage = 10;
 
 const VotingTable = () => {
+  const { authUser } = useAuth();
+  const [votesData, setVotesData] = useState<ApiVote[]>([]);
+  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
 
+  useEffect(() => {
+    const fetchVotes = async () => {
+      if (!authUser?.token) return;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/votes`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${authUser.token}`,
+            Accept: 'application/json',
+          },
+        });
+
+        if (res.ok) {
+          const responseData = await res.json();
+          setVotesData(responseData.data || []);
+        } else {
+          console.error('Failed to fetch voting transactions');
+        }
+      } catch (error) {
+        console.error('Error fetching votes:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVotes();
+  }, [authUser]);
+
   const filteredData = votesData.filter(
     (v) =>
-      v.fullName.toLowerCase().includes(search.toLowerCase()) ||
-      v.votedExhibitor.toLowerCase().includes(search.toLowerCase()),
+      v.client.full_name.toLowerCase().includes(search.toLowerCase()) ||
+      v.exhibitor.project_title.toLowerCase().includes(search.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
@@ -79,7 +114,6 @@ const VotingTable = () => {
           <thead>
             <tr className="bg-gray-2 dark:bg-meta-4 text-left">
               <th className="p-3">No.</th>
-              <th className="p-3">Image</th>
               <th className="p-3">Full Name</th>
               <th className="p-3">Voted Exhibitor</th>
               <th className="p-3">Comment</th>
@@ -89,22 +123,26 @@ const VotingTable = () => {
           </thead>
 
           <tbody>
-            {currentData.map((v, index) => (
-              <tr key={index} className="border-b border-stroke">
-                <td className="p-3">{(page - 1) * rowsPerPage + index + 1}</td>
-                <td className="p-3">
-                  <img
-                    src={v.image}
-                    className="h-10 w-10 rounded object-cover"
-                  />
-                </td>
-                <td className="p-3 font-medium">{v.fullName}</td>
-                <td className="p-3">{v.votedExhibitor}</td>
-                <td className="p-3 max-w-[200px] truncate">{v.comment}</td>
-                <td className="p-3 font-medium">{v.voteCount}</td>
-                <td className="p-3">{v.dateTime}</td>
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="text-center py-4">Loading data...</td>
               </tr>
-            ))}
+            ) : currentData.length > 0 ? (
+              currentData.map((v, index) => (
+                <tr key={index} className="border-b border-stroke">
+                  <td className="p-3">{(page - 1) * rowsPerPage + index + 1}</td>
+                  <td className="p-3 font-medium">{v.client.full_name}</td>
+                  <td className="p-3">{v.exhibitor.project_title}</td>
+                  <td className="p-3 max-w-[200px] truncate">{v.comment || 'N/A'}</td>
+                  <td className="p-3 font-medium">{v.votes_casted ?? 0}</td>
+                  <td className="p-3">{v.createdDate} - {v.createdTime}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} className="text-center py-4">No votes found.</td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

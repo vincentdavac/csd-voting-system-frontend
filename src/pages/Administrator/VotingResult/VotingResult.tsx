@@ -3,6 +3,8 @@ import BarGraphOverRanking from './BarGraphOverRanking';
 import BarGraphPerProgram from './BarGraphPerProgram';
 import VotingTable from './VotingTable';
 
+const programs = ['IT', 'CS', 'IS', 'EMC'];
+
 const VotingResult = () => {
   return (
     <div>
@@ -10,10 +12,10 @@ const VotingResult = () => {
 
       <div className="grid grid-cols-12 gap-4 md:gap-6 2xl:gap-7.5 mb-4">
         <BarGraphOverRanking />
-        <BarGraphPerProgram />
-        <BarGraphPerProgram />
-        <BarGraphPerProgram />
-        <BarGraphPerProgram />
+
+        {programs.map((program) => (
+          <BarGraphPerProgram key={program} programName={program} />
+        ))}
       </div>
 
       <VotingTable />
