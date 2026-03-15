@@ -21,10 +21,12 @@ const DropdownNotification = () => {
         },
       });
       const json = await res.json();
-      
+
       if (json.data) {
-        const notifsArray = Array.isArray(json.data) ? json.data : (json.data.data || []);
-        
+        const notifsArray = Array.isArray(json.data)
+          ? json.data
+          : json.data.data || [];
+
         setNotifications(notifsArray);
         setNotifying(notifsArray.length > 0);
       }
@@ -51,7 +53,7 @@ const DropdownNotification = () => {
           Accept: 'application/json',
         },
       });
-      
+
       const updated = notifications.filter((n) => n.id !== id);
       setNotifications(updated);
       setNotifying(updated.length > 0);
@@ -128,11 +130,14 @@ const DropdownNotification = () => {
                     <div className="flex items-start gap-3 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4">
                       {/* Sender Avatar */}
                       <img
-                        src={notif.attributes.sender?.image || '/user-profile.png'}
-                        alt="sender"
-                        className="h-10 w-10 rounded-full object-cover border border-stroke"
+                        src={
+                          notif.attributes.sender?.id_picture ||
+                          '/user-profile.png'
+                        }
+                        alt="user"
+                        className="h-10 w-10 rounded-full object-cover"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/user-profile.png';
+                          e.currentTarget.src = '/user-profile.png';
                         }}
                       />
 
@@ -145,7 +150,8 @@ const DropdownNotification = () => {
                           {notif.attributes.body}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {notif.attributes.createdDate} at {notif.attributes.createdTime}
+                          {notif.attributes.createdDate} at{' '}
+                          {notif.attributes.createdTime}
                         </p>
                       </div>
 
