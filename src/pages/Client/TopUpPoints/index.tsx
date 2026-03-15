@@ -12,8 +12,8 @@ const TopUpPoints = () => {
     qrCodeString: 'IT-2026-001',
   };
 
-  return (
-    <div className="min-h-screen dark:bg-gray-900 flex flex-col items-center justify-center">
+ return (
+    <div className="min-h-screen dark:bg-gray-900 flex flex-col items-center">
       {/* Header */}
       <div className="w-full max-w-4xl px-4 mt-4 text-center">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#071c4f] mb-2">
@@ -26,9 +26,9 @@ const TopUpPoints = () => {
 
       {/* Student QR Card */}
       <div className="w-full max-w-sm px-4 mt-8">
-        <div className="bg-white dark:bg-boxdark rounded-2xl shadow-2xl p-6 flex flex-col items-center justify-center transition-transform hover:scale-105">
+        <div className="bg-white dark:bg-boxdark rounded-2xl shadow-2xl p-6 flex flex-col items-center transition-transform hover:scale-105">
           {/* QR Code */}
-          <div className="bg-gradient-to-r   rounded-xl mb-4">
+          <div className="bg-gradient-to-r rounded-xl mb-4">
             <img
               src={student.qrCodeImage}
               alt="QR Code"
