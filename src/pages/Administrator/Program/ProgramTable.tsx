@@ -1,10 +1,11 @@
 import { Search, Plus, Eye, SquarePen } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AddProgram from './AddProgram';
 import ViewProgram from './ViewProgram';
 import UpdateProgram from './UpdateProgram';
+import API_BASE_URL from '../../../config/api';
 
-interface PROGRAM {
+export interface PROGRAM {
   id: number;
   image: string;
   name: string;
@@ -13,16 +14,8 @@ interface PROGRAM {
 }
 
 const ProgramTable = () => {
-  const [programsData, setProgramsData] = useState<PROGRAM[]>(
-    Array.from({ length: 20 }, (_, i) => ({
-      id: i + 1,
-      image: 'https://via.placeholder.com/50',
-      name: `Program ${i + 1}`,
-      description:
-        i % 2 === 0 ? 'Smart IoT Project' : 'Innovative Tech Project',
-      dateTime: new Date().toLocaleString(),
-    })),
-  );
+  const [programsData, setProgramsData] = useState<PROGRAM[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -30,7 +23,39 @@ const ProgramTable = () => {
   const [selectedProgram, setSelectedProgram] = useState<PROGRAM | null>(null);
   const [selectedProgramForUpdate, setSelectedProgramForUpdate] =
     useState<PROGRAM | null>(null);
+  
   const rowsPerPage = 10;
+
+  const fetchPrograms = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE_URL}/programs`, {
+        headers: {
+          Accept: 'application/json',
+        },
+      });
+      const json = await res.json();
+      
+      if (json.data) {
+        const mapped = json.data.map((p: any) => ({
+          id: p.id,
+          image: p.attributes.image || 'https://via.placeholder.com/50',
+          name: p.attributes.name,
+          description: p.attributes.description,
+          dateTime: `${p.attributes.createdDate} - ${p.attributes.createdTime}`,
+        }));
+        setProgramsData(mapped);
+      }
+    } catch (error) {
+      console.error('Error fetching programs:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPrograms();
+  }, []);
 
   const filteredData = programsData.filter(
     (p) =>
@@ -44,32 +69,9 @@ const ProgramTable = () => {
     page * rowsPerPage,
   );
 
-  // Function to handle adding a new program
-  const handleAddProgram = (newProgram: {
-    image: string;
-    name: string;
-    description: string;
-  }) => {
-    const nextId =
-      programsData.length > 0
-        ? programsData[programsData.length - 1].id + 1
-        : 1;
-    const newEntry: PROGRAM = {
-      id: nextId,
-      image: newProgram.image || 'https://via.placeholder.com/50',
-      name: newProgram.name,
-      description: newProgram.description,
-      dateTime: new Date().toLocaleString(),
-    };
-    setProgramsData([newEntry, ...programsData]); // Add to the top
-    setShowAdd(false); // Close modal
-  };
-
   return (
     <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-4 shadow-default dark:border-strokedark dark:bg-boxdark">
-      {/* TOP CONTROLS */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-        {/* SEARCH */}
         <div className="relative w-72">
           <input
             type="text"
@@ -87,7 +89,6 @@ const ProgramTable = () => {
           />
         </div>
 
-        {/* ADD PROGRAM BUTTON */}
         <button
           onClick={() => setShowAdd(true)}
           className="flex items-center gap-2 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
@@ -97,7 +98,6 @@ const ProgramTable = () => {
         </button>
       </div>
 
-      {/* TABLE */}
       <div className="overflow-x-auto">
         <table className="w-full table-auto text-sm">
           <thead>
@@ -112,42 +112,51 @@ const ProgramTable = () => {
           </thead>
 
           <tbody>
-            {currentData.map((p, index) => (
-              <tr key={p.id} className="border-b border-stroke">
-                <td className="p-3">{(page - 1) * rowsPerPage + index + 1}</td>
-                <td className="p-3">
-                  <img
-                    src={p.image}
-                    className="h-10 w-10 rounded object-cover"
-                  />
-                </td>
-                <td className="p-3 font-medium">{p.name}</td>
-                <td className="p-3 max-w-[200px] truncate">{p.description}</td>
-                <td className="p-3">{p.dateTime}</td>
-
-                {/* ACTIONS */}
-                <td className="p-3 flex justify-center gap-3">
-                  <button
-                    onClick={() => setSelectedProgram(p)}
-                    className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                  >
-                    <Eye size={16} /> View
-                  </button>
-
-                  <button
-                    onClick={() => setSelectedProgramForUpdate(p)}
-                    className="text-yellow-600 hover:text-yellow-800 flex items-center gap-1"
-                  >
-                    <SquarePen size={16} /> Update
-                  </button>
-                </td>
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="text-center p-10">Loading programs...</td>
               </tr>
-            ))}
+            ) : currentData.length === 0 ? (
+               <tr>
+                <td colSpan={6} className="text-center p-10 text-gray-500 italic">No programs found.</td>
+              </tr>
+            ) : (
+              currentData.map((p, index) => (
+                <tr key={p.id} className="border-b border-stroke">
+                  <td className="p-3">{(page - 1) * rowsPerPage + index + 1}</td>
+                  <td className="p-3">
+                    <img
+                      src={p.image}
+                      className="h-10 w-10 rounded object-cover border"
+                      alt={p.name}
+                    />
+                  </td>
+                  <td className="p-3 font-medium text-black dark:text-white">{p.name}</td>
+                  <td className="p-3 max-w-[200px] truncate">{p.description}</td>
+                  <td className="p-3">{p.dateTime}</td>
+
+                  <td className="p-3 flex justify-center gap-3">
+                    <button
+                      onClick={() => setSelectedProgram(p)}
+                      className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                    >
+                      <Eye size={16} /> View
+                    </button>
+
+                    <button
+                      onClick={() => setSelectedProgramForUpdate(p)}
+                      className="text-yellow-600 hover:text-yellow-800 flex items-center gap-1"
+                    >
+                      <SquarePen size={16} /> Update
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
-      {/* PAGINATION */}
       <div className="mt-4 flex items-center justify-center gap-4">
         <button
           disabled={page === 1}
@@ -170,15 +179,13 @@ const ProgramTable = () => {
         </button>
       </div>
 
-      {/* ADD PROGRAM MODAL */}
       {showAdd && (
         <AddProgram
           onClose={() => setShowAdd(false)}
-          onAdd={handleAddProgram}
+          onAdd={fetchPrograms}
         />
       )}
 
-      {/* VIEW PROGRAM MODAL */}
       {selectedProgram && (
         <ViewProgram
           program={selectedProgram}
@@ -190,13 +197,7 @@ const ProgramTable = () => {
         <UpdateProgram
           program={selectedProgramForUpdate}
           onClose={() => setSelectedProgramForUpdate(null)}
-          onUpdate={(updatedProgram) => {
-            setProgramsData((prev) =>
-              prev.map((p) =>
-                p.id === updatedProgram.id ? updatedProgram : p,
-              ),
-            );
-          }}
+          onUpdate={fetchPrograms}
         />
       )}
     </div>
