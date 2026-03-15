@@ -1,18 +1,110 @@
 import { useEffect, useRef, useState } from 'react';
 import { BrowserQRCodeReader } from '@zxing/browser';
-import { X } from 'lucide-react';
+import CastVote from '../../Client/CastVote/CastVote';
+import { useAuth } from '../../../context/AuthContext';
+import { useAlert } from '../../../components/Alert/AlertContext';
+import API_BASE_URL from '../../../config/api';
+
+interface EXHIBITOR {
+  id: number;
+  image: string;
+  title: string;
+  description: string;
+  program: string;
+  qrCode: string;
+}
 
 const QRCodeScanner = () => {
+  const { authUser } = useAuth();
+  const { showAlert } = useAlert();
+
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const codeReader = useRef(new BrowserQRCodeReader());
   const controlsRef = useRef<any>(null);
 
-  const [scannedValue, setScannedValue] = useState<string | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [exhibitors, setExhibitors] = useState<EXHIBITOR[]>([]);
+  const [selectedExhibitor, setSelectedExhibitor] = useState<EXHIBITOR | null>(null);
+  const [remainingVotes, setRemainingVotes] = useState<number>(0);
+  const [clientId, setClientId] = useState<number | null>(null);
+
+  const exhibitorsRef = useRef<EXHIBITOR[]>([]);
+  const isProcessingRef = useRef<boolean>(false); 
+
+  useEffect(() => {
+    exhibitorsRef.current = exhibitors;
+  }, [exhibitors]);
+
+  useEffect(() => {
+    isProcessingRef.current = !!selectedExhibitor;
+  }, [selectedExhibitor]);
+
+  const fetchData = async () => {
+    if (!authUser?.token) return;
+
+    try {
+      const exhRes = await fetch(`${API_BASE_URL}/exhibitors`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${authUser.token}`,
+          'Accept': 'application/json',
+        },
+      });
+
+      if (exhRes.ok) {
+        const exhJson = await exhRes.json();
+        const exhData = exhJson.data || exhJson;
+        const mappedExhibitors: EXHIBITOR[] = exhData.map((item: any) => ({
+          id: item.id,
+          image: item.attributes.image || 'https://via.placeholder.com/150',
+          title: item.attributes.project_title,
+          description: item.attributes.project_description,
+          program: item.attributes.program?.name || 'Unknown Program',
+          qrCode: item.attributes.qr_string,
+        }));
+        setExhibitors(mappedExhibitors);
+      }
+
+      const clientRes = await fetch(`${API_BASE_URL}/clients/me`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${authUser.token}`,
+          'Accept': 'application/json',
+        },
+      });
+
+      if (clientRes.ok) {
+        const clientJson = await clientRes.json();
+        const currentVotes = clientJson.data?.client?.attributes?.remaining_votes 
+                          ?? clientJson.data?.client?.remaining_votes 
+                          ?? 0;
+        setRemainingVotes(currentVotes);
+
+        const currentId = clientJson.data?.client?.id ?? clientJson.data?.id;
+        setClientId(currentId);
+      }
+
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [authUser]);
 
   const handleScan = (data: string) => {
-    setScannedValue(data);
-    setModalOpen(true);
+    const foundExhibitor = exhibitorsRef.current.find((ex) => ex.qrCode === data);
+
+    if (foundExhibitor) {
+      setSelectedExhibitor(foundExhibitor);
+    } else {
+      isProcessingRef.current = true;
+      showAlert('error', 'Invalid QR Code or Exhibitor not found.');
+      
+      setTimeout(() => {
+        isProcessingRef.current = false;
+      }, 3000);
+    }
   };
 
   useEffect(() => {
@@ -21,7 +113,6 @@ const QRCodeScanner = () => {
 
       try {
         const devices = await BrowserQRCodeReader.listVideoInputDevices();
-
         const backCamera =
           devices.find((device) =>
             device.label.toLowerCase().includes('back'),
@@ -31,13 +122,13 @@ const QRCodeScanner = () => {
           backCamera.deviceId,
           videoRef.current,
           (result) => {
-            if (result) {
+            if (result && !isProcessingRef.current) {
               handleScan(result.getText());
             }
           },
         );
       } catch (error) {
-        console.error(error);
+        console.error('Camera initialization failed:', error);
       }
     };
 
@@ -50,8 +141,52 @@ const QRCodeScanner = () => {
     };
   }, []);
 
+  const handleSubmitVote = async (votes: number, rating: number, comment: string) => {
+    if (!selectedExhibitor || !authUser?.token) return;
+    
+    if (!clientId) {
+      showAlert('error', 'Client ID not found. Please refresh the page and try again.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/votes/cast`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authUser.token}`,
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          client_id: clientId,
+          exhibitor_id: selectedExhibitor.id,
+          votes_casted: votes,
+          rating: rating,
+          comment: comment,
+        }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(json.message || 'Failed to cast vote.');
+      }
+
+      showAlert('success', json.message || 'Vote cast successfully.');
+      setSelectedExhibitor(null); 
+      
+      await fetchData(); 
+
+      window.dispatchEvent(new Event('votesUpdated'));
+
+    } catch (error: any) {
+      console.error('Error casting vote:', error);
+      showAlert('error', error.message || 'An error occurred while casting your vote.');
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start bg-gray-50 dark:bg-gray-900 py-6">
+    <div className="min-h-screen flex flex-col items-center justify-start py-6">
       {/* Header */}
       <div className="w-full max-w-4xl px-4 text-center mb-6">
         <h1 className="text-2xl sm:text-3xl font-extrabold text-[#071c4f] mb-2">
@@ -64,7 +199,7 @@ const QRCodeScanner = () => {
 
       {/* QR Scanner */}
       <div className="w-full max-w-lg px-4">
-        <div className="bg-white dark:bg-boxdark rounded-2xl shadow-2xl overflow-hidden aspect-square flex items-center justify-center">
+        <div className="bg-white dark:bg-boxdark rounded-2xl shadow-2xl overflow-hidden aspect-square flex items-center justify-center border border-stroke dark:border-strokedark">
           <video ref={videoRef} className="w-full h-full object-cover" />
         </div>
 
@@ -74,33 +209,14 @@ const QRCodeScanner = () => {
         </p>
       </div>
 
-      {/* Modal */}
-      {modalOpen && scannedValue && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white dark:bg-boxdark rounded-xl shadow-2xl w-11/12 max-w-sm p-6 text-center relative">
-            <button
-              onClick={() => setModalOpen(false)}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-            >
-              <X size={20} />
-            </button>
-
-            <h2 className="text-lg font-semibold text-[#071c4f] mb-4">
-              QR Code Scanned!
-            </h2>
-
-            <p className="text-sm text-gray-700 mb-6 break-words">
-              {scannedValue}
-            </p>
-
-            <button
-              onClick={() => setModalOpen(false)}
-              className="bg-[#071c4f] text-white px-6 py-2 rounded-full shadow-md hover:shadow-xl transition-all font-semibold"
-            >
-              Close
-            </button>
-          </div>
-        </div>
+      {/* CastVote Modal */}
+      {selectedExhibitor && (
+        <CastVote
+          exhibitor={selectedExhibitor}
+          remainingVotes={remainingVotes}
+          onClose={() => setSelectedExhibitor(null)}
+          onSubmit={handleSubmitVote}
+        />
       )}
     </div>
   );

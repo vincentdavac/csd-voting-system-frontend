@@ -10,6 +10,7 @@ import {
 import ConfirmationModal from './ConfirmationModal';
 
 interface EXHIBITOR {
+  id: number;
   image: string;
   title: string;
   description: string;
@@ -19,19 +20,26 @@ interface EXHIBITOR {
 
 interface CastVoteProps {
   exhibitor: EXHIBITOR;
+  remainingVotes: number;
   onClose: () => void;
   onSubmit: (votes: number, rating: number, comment: string) => void;
 }
 
-const CastVote = ({ exhibitor, onClose, onSubmit }: CastVoteProps) => {
+const CastVote = ({ exhibitor, remainingVotes, onClose, onSubmit }: CastVoteProps) => {
   const [votes, setVotes] = useState(0);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const increaseVotes = () => setVotes((prev) => prev + 1);
+  const increaseVotes = () => {
+    if (votes < remainingVotes) {
+      setVotes((prev) => prev + 1);
+    }
+  };
+  
   const decreaseVotes = () => setVotes((prev) => (prev > 0 ? prev - 1 : 0));
+
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
       <div className="relative w-full max-w-2xl rounded-2xl bg-white dark:bg-boxdark shadow-2xl p-6 overflow-y-auto max-h-[90vh]">
@@ -111,7 +119,6 @@ const CastVote = ({ exhibitor, onClose, onSubmit }: CastVoteProps) => {
             <span className="font-semibold">People's Choice Award</span>
           </div>
           <div className="flex justify-center items-center gap-4 mt-2">
-            {/* Decrease button */}
             <button
               onClick={decreaseVotes}
               className="bg-gray-200 dark:bg-gray-700 rounded px-3 py-1 hover:bg-gray-300 dark:hover:bg-gray-600"
@@ -119,7 +126,6 @@ const CastVote = ({ exhibitor, onClose, onSubmit }: CastVoteProps) => {
               –
             </button>
 
-            {/* Ticket icon + value */}
             <div className="flex items-center gap-2 px-3 py-1 rounded bg-gray-100 dark:bg-gray-800">
               <Tickets size={20} className="text-gray-500 dark:text-gray-400" />
               <span className="font-semibold text-gray-800 dark:text-gray-200">
@@ -127,13 +133,17 @@ const CastVote = ({ exhibitor, onClose, onSubmit }: CastVoteProps) => {
               </span>
             </div>
 
-            {/* Increase button */}
             <button
               onClick={increaseVotes}
-              className="bg-gray-200 dark:bg-gray-700 rounded px-3 py-1 hover:bg-gray-300 dark:hover:bg-gray-600"
+              disabled={votes >= remainingVotes}
+              className="bg-gray-200 dark:bg-gray-700 rounded px-3 py-1 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               +
             </button>
+          </div>
+          
+          <div className="text-center text-xs text-red-500 font-medium h-4">
+             {votes >= remainingVotes && `You only have ${remainingVotes} votes available.`}
           </div>
 
           {/* 5-Star Rating */}
@@ -187,7 +197,13 @@ const CastVote = ({ exhibitor, onClose, onSubmit }: CastVoteProps) => {
           </button>
 
           <button
-            onClick={() => setShowConfirm(true)}
+            onClick={() => {
+               if (votes === 0 && rating === 0) {
+                 alert("Please provide either votes or a rating.");
+                 return;
+               }
+               setShowConfirm(true);
+            }}
             className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2"
           >
             Submit Vote

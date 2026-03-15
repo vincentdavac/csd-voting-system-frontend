@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ClickOutside from '../ClickOutside';
-import UserOne from '../../images/user/user-01.png';
+import UserOne from '../../images/user/user-01.png'; 
 import { LogOut, QrCode, ScanQrCode } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useAlert } from '../Alert/AlertContext';
+import API_BASE_URL from '../../config/api';
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const { logout } = useAuth();
+  const { authUser, logout } = useAuth();
   const { showAlert } = useAlert();
   const navigate = useNavigate();
 
@@ -17,6 +18,16 @@ const DropdownUser = () => {
     showAlert('success', 'Logged out successfully!');
     navigate('/client/signin');
   };
+
+  const client = authUser?.user as any;
+  const fullName = client ? `${client.first_name || ''} ${client.last_name || ''}`.trim() : 'Loading...';
+  const programName = client?.program?.name || 'Voter';
+  
+  let profilePic = UserOne;
+  const dbImage = client?.id_picture || client?.image;
+  if (dbImage) {
+    profilePic = dbImage.startsWith('http') ? dbImage : `${API_BASE_URL}/storage/${dbImage}`;
+  }
 
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
@@ -27,13 +38,17 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
-            Thomas Anree
+            {fullName}
           </span>
-          <span className="block text-xs">UX Designer</span>
+          <span className="block text-xs">{programName}</span>
         </span>
 
-        <span className="h-12 w-12 rounded-full">
-          <img src={UserOne} alt="User" />
+        <span className="h-12 w-12 rounded-full overflow-hidden border border-stroke dark:border-strokedark">
+          <img 
+            src={profilePic} 
+            alt="User" 
+            className="h-full w-full object-cover"
+          />
         </span>
 
         <svg
@@ -53,7 +68,7 @@ const DropdownUser = () => {
         </svg>
       </Link>
 
-      {/* <!-- Dropdown Start --> */}
+      {/* */}
       {dropdownOpen && (
         <div
           className={`absolute right-0 mt-4 flex w-62.5 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark`}
@@ -63,6 +78,7 @@ const DropdownUser = () => {
               <Link
                 to="/client/top-up-points"
                 className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+                onClick={() => setDropdownOpen(false)}
               >
                 <QrCode />
                 Top-Up Points
@@ -72,6 +88,7 @@ const DropdownUser = () => {
               <Link
                 to="/client/qr-code-scanner"
                 className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+                onClick={() => setDropdownOpen(false)}
               >
                 <ScanQrCode />
                 QR Code Scanner
@@ -87,7 +104,7 @@ const DropdownUser = () => {
           </button>
         </div>
       )}
-      {/* <!-- Dropdown End --> */}
+      {/* */}
     </ClickOutside>
   );
 };

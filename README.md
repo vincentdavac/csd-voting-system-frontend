@@ -99,3 +99,324 @@ React and Tailwind are two popular technologies that have taken the web developm
 ### Version 1.0.0 - Initial Release - [Mar 13, 2023]
 
 - Initial release of TailAdmin React.
+
+```
+csd-voting-system-frontend
+├─ .env
+├─ .env.hosting
+├─ .hintrc
+├─ .prettierrc
+├─ LICENSE.md
+├─ README.md
+├─ index.html
+├─ package-lock.json
+├─ package.json
+├─ postcss.config.cjs
+├─ public
+│  ├─ csd_logo.svg
+│  ├─ data.json
+│  └─ user-profile.png
+├─ src
+│  ├─ App.tsx
+│  ├─ common
+│  │  └─ Loader
+│  │     └─ index.tsx
+│  ├─ components
+│  │  ├─ Alert
+│  │  │  ├─ AlertContainer.tsx
+│  │  │  ├─ AlertContext.tsx
+│  │  │  └─ index.tsx
+│  │  ├─ Breadcrumbs
+│  │  │  └─ Breadcrumb.tsx
+│  │  ├─ CardDataStats.tsx
+│  │  ├─ Charts
+│  │  │  ├─ ChartOne.tsx
+│  │  │  ├─ ChartThree.tsx
+│  │  │  └─ ChartTwo.tsx
+│  │  ├─ Chat
+│  │  │  └─ ChatCard.tsx
+│  │  ├─ Checkboxes
+│  │  │  ├─ CheckboxFive.tsx
+│  │  │  ├─ CheckboxFour.tsx
+│  │  │  ├─ CheckboxOne.tsx
+│  │  │  ├─ CheckboxThree.tsx
+│  │  │  └─ CheckboxTwo.tsx
+│  │  ├─ ClickOutside.tsx
+│  │  ├─ ClientHeader
+│  │  │  ├─ DropdownNotification.tsx
+│  │  │  ├─ DropdownUser.tsx
+│  │  │  └─ index.tsx
+│  │  ├─ Dropdowns
+│  │  │  └─ DropdownDefault.tsx
+│  │  ├─ Forms
+│  │  │  ├─ DatePicker
+│  │  │  │  ├─ DatePickerOne.tsx
+│  │  │  │  └─ DatePickerTwo.tsx
+│  │  │  ├─ MultiSelect.tsx
+│  │  │  └─ SelectGroup
+│  │  │     ├─ SelectGroupOne.tsx
+│  │  │     └─ SelectGroupTwo.tsx
+│  │  ├─ Header
+│  │  │  ├─ DarkModeSwitcher.tsx
+│  │  │  ├─ DropdownMessage.tsx
+│  │  │  ├─ DropdownNotification.tsx
+│  │  │  ├─ DropdownUser.tsx
+│  │  │  └─ index.tsx
+│  │  ├─ Maps
+│  │  │  └─ MapOne.tsx
+│  │  ├─ ModalSettings.tsx
+│  │  ├─ PageTitle.tsx
+│  │  ├─ Sidebar
+│  │  │  ├─ SidebarLinkGroup.tsx
+│  │  │  └─ index.tsx
+│  │  ├─ Switchers
+│  │  │  ├─ SwitcherFour.tsx
+│  │  │  ├─ SwitcherOne.tsx
+│  │  │  ├─ SwitcherThree.tsx
+│  │  │  └─ SwitcherTwo.tsx
+│  │  ├─ TableSettings.tsx
+│  │  └─ Tables
+│  │     ├─ TableOne.tsx
+│  │     ├─ TableThree.tsx
+│  │     └─ TableTwo.tsx
+│  ├─ config
+│  │  └─ api.ts
+│  ├─ context
+│  │  └─ AuthContext.tsx
+│  ├─ css
+│  │  ├─ satoshi.css
+│  │  └─ style.css
+│  ├─ fonts
+│  │  ├─ Satoshi-Black.eot
+│  │  ├─ Satoshi-Black.ttf
+│  │  ├─ Satoshi-Black.woff
+│  │  ├─ Satoshi-Black.woff2
+│  │  ├─ Satoshi-BlackItalic.eot
+│  │  ├─ Satoshi-BlackItalic.ttf
+│  │  ├─ Satoshi-BlackItalic.woff
+│  │  ├─ Satoshi-BlackItalic.woff2
+│  │  ├─ Satoshi-Bold.eot
+│  │  ├─ Satoshi-Bold.ttf
+│  │  ├─ Satoshi-Bold.woff
+│  │  ├─ Satoshi-Bold.woff2
+│  │  ├─ Satoshi-BoldItalic.eot
+│  │  ├─ Satoshi-BoldItalic.ttf
+│  │  ├─ Satoshi-BoldItalic.woff
+│  │  ├─ Satoshi-BoldItalic.woff2
+│  │  ├─ Satoshi-Italic.eot
+│  │  ├─ Satoshi-Italic.ttf
+│  │  ├─ Satoshi-Italic.woff
+│  │  ├─ Satoshi-Italic.woff2
+│  │  ├─ Satoshi-Light.eot
+│  │  ├─ Satoshi-Light.ttf
+│  │  ├─ Satoshi-Light.woff
+│  │  ├─ Satoshi-Light.woff2
+│  │  ├─ Satoshi-LightItalic.eot
+│  │  ├─ Satoshi-LightItalic.ttf
+│  │  ├─ Satoshi-LightItalic.woff
+│  │  ├─ Satoshi-LightItalic.woff2
+│  │  ├─ Satoshi-Medium.eot
+│  │  ├─ Satoshi-Medium.ttf
+│  │  ├─ Satoshi-Medium.woff
+│  │  ├─ Satoshi-Medium.woff2
+│  │  ├─ Satoshi-MediumItalic.eot
+│  │  ├─ Satoshi-MediumItalic.ttf
+│  │  ├─ Satoshi-MediumItalic.woff
+│  │  ├─ Satoshi-MediumItalic.woff2
+│  │  ├─ Satoshi-Regular.eot
+│  │  ├─ Satoshi-Regular.ttf
+│  │  ├─ Satoshi-Regular.woff
+│  │  ├─ Satoshi-Regular.woff2
+│  │  ├─ Satoshi-Variable.eot
+│  │  ├─ Satoshi-Variable.ttf
+│  │  ├─ Satoshi-Variable.woff
+│  │  ├─ Satoshi-Variable.woff2
+│  │  ├─ Satoshi-VariableItalic.eot
+│  │  ├─ Satoshi-VariableItalic.ttf
+│  │  ├─ Satoshi-VariableItalic.woff
+│  │  └─ Satoshi-VariableItalic.woff2
+│  ├─ global.d.ts
+│  ├─ hooks
+│  │  ├─ fireToast.tsx
+│  │  ├─ useColorMode.tsx
+│  │  └─ useLocalStorage.tsx
+│  ├─ images
+│  │  ├─ brand
+│  │  │  ├─ brand-01.svg
+│  │  │  ├─ brand-02.svg
+│  │  │  ├─ brand-03.svg
+│  │  │  ├─ brand-04.svg
+│  │  │  └─ brand-05.svg
+│  │  ├─ cards
+│  │  │  ├─ cards-01.png
+│  │  │  ├─ cards-02.png
+│  │  │  ├─ cards-03.png
+│  │  │  ├─ cards-04.png
+│  │  │  ├─ cards-05.png
+│  │  │  └─ cards-06.png
+│  │  ├─ country
+│  │  │  ├─ country-01.svg
+│  │  │  ├─ country-02.svg
+│  │  │  ├─ country-03.svg
+│  │  │  ├─ country-04.svg
+│  │  │  ├─ country-05.svg
+│  │  │  └─ country-06.svg
+│  │  ├─ cover
+│  │  │  └─ cover-01.png
+│  │  ├─ favicon.ico
+│  │  ├─ icon
+│  │  │  ├─ icon-arrow-down.svg
+│  │  │  ├─ icon-calendar.svg
+│  │  │  ├─ icon-copy-alt.svg
+│  │  │  ├─ icon-moon.svg
+│  │  │  └─ icon-sun.svg
+│  │  ├─ logo
+│  │  │  ├─ cs_logo.svg
+│  │  │  ├─ csd_logo.svg
+│  │  │  ├─ csd_logo_darkmode.svg
+│  │  │  ├─ csd_logo_lightmode.svg
+│  │  │  ├─ emc_logo.svg
+│  │  │  ├─ is_logo.svg
+│  │  │  ├─ it_logo.svg
+│  │  │  ├─ logo-dark.svg
+│  │  │  ├─ logo-icon.svg
+│  │  │  ├─ mobile-view-dark.svg
+│  │  │  ├─ mobile-view-light.svg
+│  │  │  └─ ucc_logo.svg
+│  │  ├─ product
+│  │  │  ├─ product-01.png
+│  │  │  ├─ product-02.png
+│  │  │  ├─ product-03.png
+│  │  │  ├─ product-04.png
+│  │  │  └─ product-thumb.png
+│  │  ├─ task
+│  │  │  └─ task-01.jpg
+│  │  └─ user
+│  │     ├─ user-01.png
+│  │     ├─ user-02.png
+│  │     ├─ user-03.png
+│  │     ├─ user-04.png
+│  │     ├─ user-05.png
+│  │     ├─ user-06.png
+│  │     ├─ user-07.png
+│  │     ├─ user-08.png
+│  │     ├─ user-09.png
+│  │     ├─ user-10.png
+│  │     ├─ user-11.png
+│  │     ├─ user-12.png
+│  │     └─ user-13.png
+│  ├─ js
+│  │  └─ us-aea-en.js
+│  ├─ jsvectormap.d.ts
+│  ├─ layout
+│  │  ├─ ClientLayout.tsx
+│  │  └─ DefaultLayout.tsx
+│  ├─ lib.d.ts
+│  ├─ main.tsx
+│  ├─ pages
+│  │  ├─ 404PageNotFound
+│  │  │  └─ 404PageNotFound.tsx
+│  │  ├─ Administrator
+│  │  │  ├─ Authentication
+│  │  │  │  ├─ ForgetPassword.tsx
+│  │  │  │  ├─ SelectProgram.tsx
+│  │  │  │  ├─ SignIn.tsx
+│  │  │  │  ├─ SignUp.tsx
+│  │  │  │  └─ YearLevel.tsx
+│  │  │  ├─ BoothRating
+│  │  │  │  ├─ BarGraphOverAllRanking.tsx
+│  │  │  │  ├─ BarGraphPerProgram.tsx
+│  │  │  │  ├─ BoothRating.tsx
+│  │  │  │  └─ BoothTable.tsx
+│  │  │  ├─ Dashboard
+│  │  │  │  ├─ BarGraphTopExhibitors.tsx
+│  │  │  │  ├─ Dashboard.tsx
+│  │  │  │  ├─ DashboardCards.tsx
+│  │  │  │  ├─ PieChartTotalVotesPerProgram.tsx
+│  │  │  │  └─ TotalRevenuePerHour.tsx
+│  │  │  ├─ Exhibitors
+│  │  │  │  ├─ AddExhibitor.tsx
+│  │  │  │  ├─ BarGraph.tsx
+│  │  │  │  ├─ Exhibitors.tsx
+│  │  │  │  ├─ ExhibitorsTable.tsx
+│  │  │  │  ├─ GenerateQrCode.tsx
+│  │  │  │  ├─ PieChart.tsx
+│  │  │  │  ├─ UpdateExhibitor.tsx
+│  │  │  │  └─ ViewExhibitor.tsx
+│  │  │  ├─ Program
+│  │  │  │  ├─ AddProgram.tsx
+│  │  │  │  ├─ Progam.tsx
+│  │  │  │  ├─ ProgramTable.tsx
+│  │  │  │  ├─ UpdateProgram.tsx
+│  │  │  │  └─ ViewProgram.tsx
+│  │  │  ├─ Transactions
+│  │  │  │  ├─ BarChart.tsx
+│  │  │  │  ├─ PieChart.tsx
+│  │  │  │  ├─ TopUpConfirmation.tsx
+│  │  │  │  ├─ TopUpModal.tsx
+│  │  │  │  ├─ Transactions.tsx
+│  │  │  │  ├─ TransactionsTable.tsx
+│  │  │  │  └─ UpdateModal.tsx
+│  │  │  ├─ UserManagement
+│  │  │  │  ├─ Administrators
+│  │  │  │  │  ├─ AdminTable.tsx
+│  │  │  │  │  └─ Administrators.tsx
+│  │  │  │  └─ Voters
+│  │  │  │     ├─ ArchiveModal.tsx
+│  │  │  │     ├─ LineChart.tsx
+│  │  │  │     ├─ PieChart.tsx
+│  │  │  │     ├─ RestoreModal.tsx
+│  │  │  │     ├─ ViewModal.tsx
+│  │  │  │     ├─ Voters.tsx
+│  │  │  │     └─ VotersTable.tsx
+│  │  │  └─ VotingResult
+│  │  │     ├─ BarGraphOverRanking.tsx
+│  │  │     ├─ BarGraphPerProgram.tsx
+│  │  │     ├─ VotingResult.tsx
+│  │  │     └─ VotingTable.tsx
+│  │  ├─ Calendar.tsx
+│  │  ├─ Chart.tsx
+│  │  ├─ Client
+│  │  │  ├─ Authentication
+│  │  │  │  ├─ ForgetPassword.tsx
+│  │  │  │  ├─ SelectProgram.tsx
+│  │  │  │  ├─ SignIn.tsx
+│  │  │  │  ├─ SignUp.tsx
+│  │  │  │  └─ YearLevel.tsx
+│  │  │  ├─ CastVote
+│  │  │  │  ├─ CastVote.tsx
+│  │  │  │  └─ ConfirmationModal.tsx
+│  │  │  ├─ Dashboard
+│  │  │  │  └─ index.tsx
+│  │  │  ├─ QRCodeScanner
+│  │  │  │  └─ index.tsx
+│  │  │  └─ TopUpPoints
+│  │  │     └─ index.tsx
+│  │  ├─ Dashboard
+│  │  │  └─ ECommerce.tsx
+│  │  ├─ Form
+│  │  │  ├─ FormElements.tsx
+│  │  │  └─ FormLayout.tsx
+│  │  ├─ Profile.tsx
+│  │  ├─ Settings.tsx
+│  │  ├─ Tables.tsx
+│  │  └─ UiElements
+│  │     ├─ Alerts.tsx
+│  │     └─ Buttons.tsx
+│  ├─ react-app-env.d.ts
+│  ├─ routes
+│  │  └─ ProtectedRoute.tsx
+│  ├─ types
+│  │  ├─ brand.ts
+│  │  ├─ chat.ts
+│  │  ├─ crypto-js.d.ts
+│  │  ├─ package.ts
+│  │  ├─ product.ts
+│  │  └─ user.ts
+│  └─ vite-env.d.ts
+├─ tailwind.config.cjs
+├─ tsconfig.json
+├─ tsconfig.node.json
+└─ vite.config.js
+
+```

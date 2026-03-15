@@ -1,18 +1,74 @@
-const TopUpPoints = () => {
-  // Example student data
-  const student = {
-    program: 'BS in Information Technology',
-    yearLevel: '3rd Year',
-    studentNo: 'IT-2026-001',
-    fullName: 'Juan Dela Cruz',
-    email: 'juan.delacruz@example.com',
-    contactNumber: '09123456789',
-    qrCodeImage:
-      'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=IT-2026-001',
-    qrCodeString: 'IT-2026-001',
-  };
+import { useState, useEffect } from 'react';
+import { useAuth } from '../../../context/AuthContext';
+import API_BASE_URL from '../../../config/api';
 
- return (
+const TopUpPoints = () => {
+  const { authUser } = useAuth();
+  const [studentData, setStudentData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchClientProfile = async () => {
+      if (!authUser?.token) return;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/clients/me`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${authUser.token}`,
+            'Accept': 'application/json',
+          },
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          // Extract the client attributes depending on exactly how ClientResource is structured
+          const clientObj = json.data?.client?.attributes || json.data?.client || null;
+          setStudentData(clientObj);
+        }
+      } catch (error) {
+        console.error('Failed to fetch client profile', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchClientProfile();
+  }, [authUser]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen dark:bg-gray-900 flex items-center justify-center py-6">
+        <p className="text-xl text-[#071c4f] dark:text-white font-semibold">Loading QR Code...</p>
+      </div>
+    );
+  }
+
+  if (!studentData) {
+    return (
+      <div className="min-h-screen dark:bg-gray-900 flex items-center justify-center py-6">
+        <p className="text-xl text-red-500 font-semibold">Unable to load student data. Please log in again.</p>
+      </div>
+    );
+  }
+
+  // Safely map the backend data to display variables
+  const fullName = `${studentData.first_name || ''} ${studentData.last_name || ''}`.trim();
+  const program = studentData.program?.name || 'Assigned Program';
+  const yearLevel = studentData.year_level ? `${studentData.year_level} Year` : '';
+  const studentNo = studentData.student_id || 'N/A';
+  const email = studentData.email || 'N/A';
+  const contactNumber = studentData.contact_number || 'N/A';
+  const qrCodeString = studentData.qr_string || 'N/A';
+
+  // Depending on if your backend returns the full URL or just the storage path
+  // we ensure it formats to a valid image source.
+  let qrCodeImage = studentData.qr_image || studentData.qr_image_path || '';
+  if (qrCodeImage && !qrCodeImage.startsWith('http')) {
+    qrCodeImage = `${API_BASE_URL}/storage/${qrCodeImage}`;
+  }
+
+  return (
     <div className="min-h-screen dark:bg-gray-900 flex flex-col items-center">
       {/* Header */}
       <div className="w-full max-w-4xl px-4 mt-4 text-center">
@@ -29,33 +85,39 @@ const TopUpPoints = () => {
         <div className="bg-white dark:bg-boxdark rounded-2xl shadow-2xl p-6 flex flex-col items-center transition-transform hover:scale-105">
           {/* QR Code */}
           <div className="bg-gradient-to-r rounded-xl mb-4">
-            <img
-              src={student.qrCodeImage}
-              alt="QR Code"
-              className="h-48 w-48 rounded-lg bg-white"
-            />
+            {qrCodeImage ? (
+              <img
+                src={qrCodeImage}
+                alt="Your QR Code"
+                className="h-48 w-48 rounded-lg bg-white p-2 object-contain"
+              />
+            ) : (
+              <div className="h-48 w-48 rounded-lg bg-gray-200 flex items-center justify-center text-sm text-gray-500 text-center px-4">
+                QR Code Not Available
+              </div>
+            )}
           </div>
 
           {/* Student Info */}
           <h3 className="font-bold text-sm sm:text-base text-[#071c4f] text-center">
-            {student.fullName}
+            {fullName}
           </h3>
           <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 text-center">
-            {student.studentNo}
+            {studentNo}
           </p>
           <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 text-center">
-            {student.program} - {student.yearLevel}
+            {program} {yearLevel ? `- ${yearLevel}` : ''}
           </p>
           <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 text-center">
-            {student.email}
+            {email}
           </p>
           <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-4 text-center">
-            {student.contactNumber}
+            {contactNumber}
           </p>
 
           {/* QR Code String */}
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 text-center">
-            {student.qrCodeString}
+            {qrCodeString}
           </p>
 
           {/* Thank You Message */}
