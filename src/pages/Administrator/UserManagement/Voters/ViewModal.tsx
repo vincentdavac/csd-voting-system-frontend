@@ -11,17 +11,21 @@ import {
   Computer,
 } from 'lucide-react';
 
-interface VOTER {
+export interface VOTER {
+  id: number;
   studentNo: string;
   fullName: string;
   program: string;
+  yearLevel: number;       // Add this
   email: string;
   qrCode: string;
-  contactNumber: string;
+  qrImage: string;         // Add this
+  contactNumber: string;   // renamed from 'contact'
   idPicture: string;
   remainingVotes: number;
   totalVotesPurchased: number;
   datetime: string;
+  isActive: boolean;
 }
 
 interface ViewModalProps {
@@ -57,74 +61,57 @@ const ViewModal = ({ voter, onClose }: ViewModalProps) => {
           </p>
         </div>
 
-        {/* Voter Info Containers */}
+        {/* Info Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Program */}
-          <div className="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-strokedark p-4 shadow-sm bg-gray-50 dark:bg-gray-800">
+          {/* Program + Year Level */}
+          <div className="flex items-center gap-3 rounded-lg border p-4 bg-gray-50 dark:bg-gray-800">
             <Computer size={20} className="text-gray-500 dark:text-gray-400" />
             <span className="text-gray-700 dark:text-gray-300 font-medium">
-              {voter.program}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-strokedark p-4 shadow-sm bg-gray-50 dark:bg-gray-800">
-            <Computer size={20} className="text-gray-500 dark:text-gray-400" />
-            <span className="text-gray-700 dark:text-gray-300 font-medium">
-              Year Level
+              {voter.program} - Year {voter.yearLevel}
             </span>
           </div>
 
           {/* Student Number */}
-          <div className="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-strokedark p-4 shadow-sm bg-gray-50 dark:bg-gray-800">
-            <IdCardLanyard
-              size={20}
-              className="text-gray-500 dark:text-gray-400"
-            />
+          <div className="flex items-center gap-3 rounded-lg border p-4 bg-gray-50 dark:bg-gray-800">
+            <IdCardLanyard size={20} className="text-gray-500 dark:text-gray-400" />
             <span className="text-gray-700 dark:text-gray-300 font-medium">
               {voter.studentNo}
             </span>
           </div>
 
           {/* Full Name */}
-          <div className="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-strokedark p-4 shadow-sm bg-gray-50 dark:bg-gray-800">
-            <SquareUser
-              size={20}
-              className="text-gray-500 dark:text-gray-400"
-            />
+          <div className="flex items-center gap-3 rounded-lg border p-4 bg-gray-50 dark:bg-gray-800">
+            <SquareUser size={20} className="text-gray-500 dark:text-gray-400" />
             <span className="text-gray-700 dark:text-gray-300 font-medium">
               {voter.fullName}
             </span>
           </div>
 
           {/* Email */}
-          <div className="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-strokedark p-4 shadow-sm bg-gray-50 dark:bg-gray-800">
+          <div className="flex items-center gap-3 rounded-lg border p-4 bg-gray-50 dark:bg-gray-800">
             <Mail size={20} className="text-gray-500 dark:text-gray-400" />
-            <span className="text-gray-700 dark:text-gray-300 font-medium">
-              {voter.email}
-            </span>
+            <span className="text-gray-700 dark:text-gray-300 font-medium">{voter.email}</span>
           </div>
 
           {/* Contact Number */}
-          <div className="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-strokedark p-4 shadow-sm bg-gray-50 dark:bg-gray-800">
-            <Smartphone
-              size={20}
-              className="text-gray-500 dark:text-gray-400"
-            />
-            <span className="text-gray-700 dark:text-gray-300 font-medium">
-              {voter.contactNumber}
-            </span>
+          <div className="flex items-center gap-3 rounded-lg border p-4 bg-gray-50 dark:bg-gray-800">
+            <Smartphone size={20} className="text-gray-500 dark:text-gray-400" />
+            <span className="text-gray-700 dark:text-gray-300 font-medium">{voter.contactNumber}</span>
           </div>
 
           {/* QR Code */}
-          <div className="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-strokedark p-4 shadow-sm bg-gray-50 dark:bg-gray-800">
+          <div className="flex flex-col items-center gap-2 rounded-lg border p-4 bg-gray-50 dark:bg-gray-800">
             <QrCode size={20} className="text-gray-500 dark:text-gray-400" />
-            <span className="text-gray-700 dark:text-gray-300 font-medium">
-              {voter.qrCode}
-            </span>
+            <img
+              src={voter.qrImage}
+              alt={voter.fullName + ' QR'}
+              className="h-24 w-24 mt-2"
+            />
+            <span className="text-gray-700 dark:text-gray-300 font-medium">{voter.qrCode}</span>
           </div>
 
           {/* Remaining Votes */}
-          <div className="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-strokedark p-4 shadow-sm bg-gray-50 dark:bg-gray-800">
+          <div className="flex items-center gap-3 rounded-lg border p-4 bg-gray-50 dark:bg-gray-800">
             <Vote size={20} className="text-gray-500 dark:text-gray-400" />
             <span className="text-gray-700 dark:text-gray-300 font-medium">
               Remaining Votes: {voter.remainingVotes}
@@ -132,18 +119,17 @@ const ViewModal = ({ voter, onClose }: ViewModalProps) => {
           </div>
 
           {/* Total Votes Purchased */}
-          <div className="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-strokedark p-4 shadow-sm bg-gray-50 dark:bg-gray-800">
+          <div className="flex items-center gap-3 rounded-lg border p-4 bg-gray-50 dark:bg-gray-800">
             <Wallet size={20} className="text-gray-500 dark:text-gray-400" />
             <span className="text-gray-700 dark:text-gray-300 font-medium">
               Total Votes Purchased: {voter.totalVotesPurchased}
             </span>
           </div>
 
-          <div className="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-strokedark p-4 shadow-sm bg-gray-50 dark:bg-gray-800">
+          {/* Date/Time */}
+          <div className="flex items-center gap-3 rounded-lg border p-4 bg-gray-50 dark:bg-gray-800">
             <Calendar size={20} className="text-gray-500 dark:text-gray-400" />
-            <span className="text-gray-700 dark:text-gray-300 font-medium">
-              {voter.datetime}
-            </span>
+            <span className="text-gray-700 dark:text-gray-300 font-medium">{voter.datetime}</span>
           </div>
         </div>
 
@@ -151,7 +137,7 @@ const ViewModal = ({ voter, onClose }: ViewModalProps) => {
         <div className="mt-6 flex justify-end">
           <button
             onClick={onClose}
-            className="flex items-center gap-2 rounded-lg border border-strokedark px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+            className="flex items-center gap-2 rounded-lg border px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
           >
             <XCircle size={18} /> Close
           </button>

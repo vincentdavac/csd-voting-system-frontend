@@ -1,51 +1,104 @@
 import { Archive, ArchiveRestore, Search, SquareUser } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ViewModal from './ViewModal'; // import the modal
 import RestoreModal from './RestoreModal'; // adjust path if needed
 import ArchiveModal from './ArchiveModal';
+import { useAlert } from '../../../../components/Alert/AlertContext';
+import API_BASE_URL from '../../../../config/api';
+import { useAuth } from '../../../../context/AuthContext';
 
 export interface VOTER {
+  id: number;
   studentNo: string;
   fullName: string;
   program: string;
+  yearLevel: number;
   email: string;
   qrCode: string;
-  contact: string; // consistent name
+  qrImage: string;
+  contactNumber: string;
   idPicture: string;
   remainingVotes: number;
   totalVotesPurchased: number;
   datetime: string;
+  isActive: boolean;
 }
-
-const votersData: VOTER[] = Array.from({ length: 25 }, (_, i) => ({
-  program: 'BSIT',
-  studentNo: '2023-000' + (i + 1),
-  idPicture: 'https://via.placeholder.com/40',
-  fullName: 'Student ' + (i + 1),
-  email: `student${i + 1}@gmail.com`,
-  qrCode: 'QR-' + (i + 1),
-  contact: '09123456789',
-  remainingVotes: 3,
-  totalVotesPurchased: 10,
-  datetime: '2026-03-08 10:30 AM',
-}));
 
 const rowsPerPage = 10;
 
 const VotersTable = () => {
+  const { showAlert } = useAlert();
+  const [votersData, setVotersData] = useState<VOTER[]>([]);
+  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [selectedVoter, setSelectedVoter] = useState<VOTER | null>(null);
   const [showViewModal, setShowViewModal] = useState(false);
-  const [selectedVoter, setSelectedVoter] = useState<any>(null);
   const [showRestore, setShowRestore] = useState(false);
   const [showArchive, setShowArchive] = useState(false);
+  const { authUser } = useAuth();
+  const token = authUser?.token;
+
+  // Fetch clients from API
+  useEffect(() => {
+    const fetchVoters = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_BASE_URL}/clients`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.status === 'success') {
+          const voters: VOTER[] = data.data.map((item: any) => ({
+            id: item.id,
+            studentNo: item.attributes.student_id,
+            fullName: item.attributes.full_name,
+            program: item.attributes.program?.name || 'N/A',
+            yearLevel: item.attributes.year_level, // added
+            email: item.attributes.email,
+            qrCode: item.attributes.qr_string,
+            qrImage: item.attributes.qr_image, // added
+            contactNumber: item.attributes.contact_number, // renamed from 'contact'
+            idPicture: item.attributes.id_picture,
+            remainingVotes: item.attributes.remaining_votes,
+            totalVotesPurchased: item.attributes.total_votes_purchased,
+            datetime: `${item.attributes.createdDate} ${item.attributes.createdTime}`,
+            isActive: item.attributes.is_active,
+          }));
+
+          setVotersData(voters);
+        } else {
+          showAlert('error', data.message || 'Failed to fetch clients');
+        }
+      } catch (err) {
+        console.error(err);
+        showAlert('error', 'Something went wrong while fetching clients.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVoters();
+  }, [showAlert]);
 
   const handleRestoreUser = (restoredVoter: VOTER) => {
-    alert(`${restoredVoter.fullName} has been restored!`);
-    // TODO: update your state or call API here to mark user as active
+    showAlert('success', `${restoredVoter.fullName} has been restored!`);
+    // Update the state to mark as active
+    setVotersData((prev) =>
+      prev.map((v) =>
+        v.id === restoredVoter.id ? { ...v, isActive: true } : v,
+      ),
+    );
   };
 
-  // Filter voters
+  // Filter and paginate
   const filteredData = votersData.filter(
     (voter) =>
       voter.fullName.toLowerCase().includes(search.toLowerCase()) ||
@@ -55,7 +108,6 @@ const VotersTable = () => {
   );
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-
   const currentData = filteredData.slice(
     (page - 1) * rowsPerPage,
     page * rowsPerPage,
@@ -76,7 +128,6 @@ const VotersTable = () => {
             }}
             className="w-full rounded-lg border border-stroke bg-transparent py-2 pl-10 pr-4 outline-none focus:border-primary dark:border-strokedark"
           />
-
           <Search
             size={18}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
@@ -107,30 +158,29 @@ const VotersTable = () => {
           <tbody>
             {currentData.map((voter, index) => (
               <tr
-                key={index}
+                key={voter.id}
                 className="border-b border-stroke dark:border-strokedark"
               >
                 <td className="p-3">{(page - 1) * rowsPerPage + index + 1}</td>
-
                 <td className="p-3">
                   <img
                     src={voter.idPicture}
                     className="h-10 w-10 rounded-full"
                   />
                 </td>
-
                 <td className="p-3">{voter.studentNo}</td>
                 <td className="p-3">{voter.fullName}</td>
                 <td className="p-3">{voter.program}</td>
                 <td className="p-3">{voter.email}</td>
                 <td className="p-3">{voter.qrCode}</td>
-                <td className="p-3">{voter.contact}</td>
-                <td className="p-3">Active</td>
+                <td className="p-3">{voter.contactNumber}</td>
+                <td className="p-3">
+                  {voter.isActive ? 'Active' : 'Inactive'}
+                </td>
                 <td className="p-3">{voter.remainingVotes}</td>
                 <td className="p-3">{voter.totalVotesPurchased}</td>
                 <td className="p-3">{voter.datetime}</td>
                 <td className="p-3 flex gap-4 justify-center">
-                  {/* VIEW / UPDATE */}
                   <button
                     className="flex items-center gap-1 text-blue-600 hover:text-blue-800 transition"
                     title="View Voter"
@@ -143,7 +193,6 @@ const VotersTable = () => {
                     View
                   </button>
 
-                  {/* RESTORE */}
                   <button
                     className="flex items-center gap-1 text-green-600 hover:text-green-800 transition"
                     title="Restore User"
@@ -156,7 +205,6 @@ const VotersTable = () => {
                     Restore
                   </button>
 
-                  {/* ARCHIVE */}
                   <button
                     className="flex items-center gap-1 text-red-600 hover:text-red-800 transition"
                     title="Archive User"
@@ -207,10 +255,10 @@ const VotersTable = () => {
 
       {showRestore && selectedVoter && (
         <RestoreModal
-          voter={selectedVoter} // pass the voter from this row
+          voter={selectedVoter}
           onClose={() => setShowRestore(false)}
           onRestore={(restoredVoter) => {
-            handleRestoreUser(restoredVoter); // call the defined handler
+            handleRestoreUser(restoredVoter);
             setShowRestore(false);
           }}
         />
@@ -221,8 +269,15 @@ const VotersTable = () => {
           voter={selectedVoter}
           onClose={() => setShowArchive(false)}
           onArchive={(archivedVoter) => {
-            // handle the archive logic here
-            alert(`${archivedVoter.fullName} has been archived!`);
+            showAlert(
+              'success',
+              `${archivedVoter.fullName} has been archived!`,
+            );
+            setVotersData((prev) =>
+              prev.map((v) =>
+                v.id === archivedVoter.id ? { ...v, isActive: false } : v,
+              ),
+            );
             setShowArchive(false);
           }}
         />

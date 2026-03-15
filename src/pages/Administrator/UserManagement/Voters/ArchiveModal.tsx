@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { XCircle, Archive, User, IdCardLanyard } from 'lucide-react';
-import { VOTER } from './VotersTable'; // import your shared VOTER type
+import { VOTER } from './VotersTable';
+import { useAlert } from '../../../../components/Alert/AlertContext';
+import API_BASE_URL from '../../../../config/api';
+import { useAuth } from '../../../../context/AuthContext';
 
 interface ArchiveModalProps {
   voter: VOTER;
@@ -11,14 +14,47 @@ interface ArchiveModalProps {
 const ArchiveModal = ({ voter, onClose, onArchive }: ArchiveModalProps) => {
   const [loading, setLoading] = useState(false);
 
-  const handleArchive = () => {
+  const { showAlert } = useAlert();
+  const { authUser } = useAuth();
+  const token = authUser?.token;
+
+  const handleArchive = async () => {
+    if (!token) {
+      showAlert('error', 'Unauthorized. Please login again.');
+      return;
+    }
+
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      onArchive(voter);
-      setLoading(false);
+
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/clients/archive/${voter.id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to archive user');
+      }
+
+      showAlert('success', data.message || 'User archived successfully.');
+
+      onArchive(voter); // update table state
       onClose();
-    }, 1000);
+    } catch (error: any) {
+      console.error(error);
+      showAlert('error', error.message || 'Something went wrong.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -81,12 +117,14 @@ const ArchiveModal = ({ voter, onClose, onArchive }: ArchiveModalProps) => {
           >
             <XCircle size={18} /> Cancel
           </button>
+
           <button
             onClick={handleArchive}
             disabled={loading}
             className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700 transition disabled:opacity-50"
           >
-            <Archive size={18} /> {loading ? 'Archiving...' : 'Archive'}
+            <Archive size={18} />
+            {loading ? 'Archiving...' : 'Archive'}
           </button>
         </div>
       </div>
