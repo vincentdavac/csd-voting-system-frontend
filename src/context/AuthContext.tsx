@@ -64,8 +64,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             token,
             user:
               role === 'admin'
-                ? data.data.user.attributes
-                : data.data.client.attributes,
+                ? { id: data.data.user.id, ...data.data.user.attributes }
+                : { id: data.data.client.id, ...data.data.client.attributes },
           });
         } catch {
           localStorage.removeItem('authToken');

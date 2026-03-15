@@ -1,16 +1,68 @@
 import { CheckCircle, XCircle } from 'lucide-react';
+import { useAlert } from '../../../components/Alert/AlertContext';
+import API_BASE_URL from '../../../config/api';
+import { useAuth } from '../../../context/AuthContext';
+import { useState } from 'react';
 
 interface Props {
   voter: any;
   amount: number;
   onClose: () => void;
+  onSuccess?: () => void; // simplified — parent handles refetch
 }
 
-const TopUpConfirmation = ({ voter, amount, onClose }: Props) => {
-  const handleConfirm = () => {
-    // Call API to top up points here
-    alert(`Added ${amount} credits to ${voter.fullName}`);
-    onClose();
+const TopUpConfirmation = ({ voter, amount, onClose, onSuccess }: Props) => {
+  const { showAlert } = useAlert();
+  const { authUser } = useAuth();
+  const token = authUser?.token;
+  const [loading, setLoading] = useState(false);
+
+  const userId = authUser?.user.id;
+
+  const handleConfirm = async () => {
+    if (!token) {
+      showAlert('error', 'Unauthorized. Please login again.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/purchase-transactions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          client_id: voter.id,
+          amount_paid: amount,
+          handled_by: userId,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to top up credits.');
+      }
+
+      showAlert(
+        'success',
+        data.message || `Added ${amount} credits successfully.`,
+      );
+
+      // Let parent refetch fresh voter data
+      if (onSuccess) onSuccess();
+
+      onClose();
+    } catch (error: any) {
+      console.error(error);
+      showAlert('error', error.message || 'Something went wrong.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -60,10 +112,11 @@ const TopUpConfirmation = ({ voter, amount, onClose }: Props) => {
           </button>
           <button
             onClick={handleConfirm}
-            className="flex items-center gap-1 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700 transition"
+            disabled={loading}
+            className="flex items-center gap-1 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700 transition disabled:opacity-50"
           >
             <CheckCircle size={18} />
-            Confirm
+            {loading ? 'Processing...' : 'Confirm'}
           </button>
         </div>
       </div>
