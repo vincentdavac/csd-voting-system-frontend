@@ -14,6 +14,7 @@ interface UpdateProgramProps {
 const UpdateProgram = ({ program, onClose, onUpdate }: UpdateProgramProps) => {
   const { authUser } = useAuth();
   const { showAlert } = useAlert();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [imagePreview, setImagePreview] = useState<string>(program.image);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -37,6 +38,7 @@ const UpdateProgram = ({ program, onClose, onUpdate }: UpdateProgramProps) => {
 
   const handleConfirm = async () => {
     if (!authUser?.token) return;
+    setIsSubmitting(true);
 
     const formData = new FormData();
     formData.append('name', name);
@@ -65,11 +67,12 @@ const UpdateProgram = ({ program, onClose, onUpdate }: UpdateProgramProps) => {
       } else {
         const errorData = await res.json();
         showAlert('error', errorData.message || 'Failed to update program.');
-        setShowConfirm(false);
       }
     } catch (error) {
       console.error('Update failed', error);
       showAlert('error', 'An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
       setShowConfirm(false);
     }
   };
@@ -182,9 +185,10 @@ const UpdateProgram = ({ program, onClose, onUpdate }: UpdateProgramProps) => {
               </button>
               <button
                 onClick={handleConfirm}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                disabled={isSubmitting}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-70"
               >
-                Confirm Update
+                {isSubmitting ? 'Updating...' : 'Confirm Update'}
               </button>
             </div>
           </div>

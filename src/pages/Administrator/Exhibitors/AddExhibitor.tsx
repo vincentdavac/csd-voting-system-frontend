@@ -24,6 +24,7 @@ interface AddExhibitorProps {
 const AddExhibitor = ({ onClose, onAdd }: AddExhibitorProps) => {
   const { authUser } = useAuth(); //
   const { showAlert } = useAlert();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [title, setTitle] = useState('');
@@ -60,6 +61,7 @@ const AddExhibitor = ({ onClose, onAdd }: AddExhibitorProps) => {
 
   const handleConfirm = async () => {
     if (!authUser?.token) return; //
+    setIsSubmitting(true);
 
     const formData = new FormData();
     formData.append('project_title', title);
@@ -91,6 +93,8 @@ const AddExhibitor = ({ onClose, onAdd }: AddExhibitorProps) => {
     } catch (error) {
       console.error('Creation failed', error);
       showAlert('error', 'An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
       setShowConfirm(false);
     }
   };
@@ -225,9 +229,10 @@ const AddExhibitor = ({ onClose, onAdd }: AddExhibitorProps) => {
               </button>
               <button
                 onClick={handleConfirm}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                disabled={isSubmitting}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
               >
-                Confirm Add
+                {isSubmitting ? 'Processing...' : 'Confirm Add'}
               </button>
             </div>
           </div>

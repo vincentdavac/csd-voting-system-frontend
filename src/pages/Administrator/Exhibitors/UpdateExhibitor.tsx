@@ -21,6 +21,7 @@ interface Program {
 const UpdateExhibitor = ({ exhibitor, onClose, onUpdate }: any) => {
   const { authUser } = useAuth();
   const { showAlert } = useAlert();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState(exhibitor.image);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [title, setTitle] = useState(exhibitor.title);
@@ -48,6 +49,7 @@ const UpdateExhibitor = ({ exhibitor, onClose, onUpdate }: any) => {
 
   const handleConfirm = async () => {
     if (!authUser?.token) return;
+    setIsSubmitting(true);
 
     const formData = new FormData();
     formData.append('_method', 'PATCH');
@@ -75,6 +77,8 @@ const UpdateExhibitor = ({ exhibitor, onClose, onUpdate }: any) => {
     } catch (error) {
       console.error('Update failed', error);
       showAlert('error', 'An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
       setShowConfirm(false);
     }
   };
@@ -161,8 +165,12 @@ const UpdateExhibitor = ({ exhibitor, onClose, onUpdate }: any) => {
               <button onClick={() => setShowConfirm(false)} className="px-4 py-2 border rounded-lg dark:text-white">
                 Cancel
               </button>
-              <button onClick={handleConfirm} className="px-4 py-2 bg-yellow-600 text-white rounded-lg">
-                Yes, Update
+              <button
+                onClick={handleConfirm}
+                disabled={isSubmitting}
+                className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50"
+              >
+                {isSubmitting ? 'Saving Changes...' : 'Yes, Update'}
               </button>
             </div>
           </div>
