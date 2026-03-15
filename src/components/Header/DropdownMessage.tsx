@@ -18,7 +18,7 @@ const DropdownMessage = () => {
           onClick={() => {
             setNotifying(false);
             setDropdownOpen(!dropdownOpen);
-          }}
+          }}D
           className="relative flex h-8.5 w-8.5 items-center justify-center rounded-full border-[0.5px] border-stroke bg-gray hover:text-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
           to="#"
         >
