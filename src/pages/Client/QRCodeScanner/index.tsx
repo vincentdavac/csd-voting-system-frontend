@@ -28,12 +28,19 @@ const QRCodeScanner = () => {
   const [clientId, setClientId] = useState<number | null>(null);
 
   const exhibitorsRef = useRef<EXHIBITOR[]>([]);
+  const isProcessingRef = useRef<boolean>(false); // Soft pause reference
   const scanCooldown = 2000;
   const lastScanRef = useRef<number>(0);
 
+  // Keep refs synced with state
   useEffect(() => {
     exhibitorsRef.current = exhibitors;
   }, [exhibitors]);
+
+  // Sync the soft pause with the modal state
+  useEffect(() => {
+    isProcessingRef.current = !!selectedExhibitor;
+  }, [selectedExhibitor]);
 
   const stopScanner = () => {
     if (controlsRef.current) {
@@ -59,6 +66,9 @@ const QRCodeScanner = () => {
         (result) => {
           if (!result) return;
 
+          // SOFT PAUSE: If the modal is open, completely ignore the scan
+          if (isProcessingRef.current) return;
+
           const now = Date.now();
 
           // prevent duplicate scans
@@ -71,25 +81,17 @@ const QRCodeScanner = () => {
       );
     } catch (error) {
       console.error('Camera initialization failed:', error);
+      showAlert('error', 'Camera initialization failed. Please ensure permissions are granted.');
     }
   };
 
+  // Only start/stop the camera when the component mounts/unmounts
   useEffect(() => {
     startScanner();
-
     return () => {
       stopScanner();
     };
   }, []);
-
-  // Pause scanner when modal opens
-  useEffect(() => {
-    if (selectedExhibitor) {
-      stopScanner();
-    } else {
-      startScanner();
-    }
-  }, [selectedExhibitor]);
 
   const fetchData = async () => {
     if (!authUser?.token) return;
@@ -156,7 +158,32 @@ const QRCodeScanner = () => {
     if (foundExhibitor) {
       setSelectedExhibitor(foundExhibitor);
     } else {
+      isProcessingRef.current = true; // Briefly pause to prevent alert spam
       showAlert('error', 'Invalid QR Code or Exhibitor not found.');
+      setTimeout(() => {
+        // Only unpause if the user didn't open a modal in the meantime
+        if (!selectedExhibitor) isProcessingRef.current = false;
+      }, 3000);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const objectUrl = URL.createObjectURL(file);
+    
+    try {
+      const result = await codeReader.current.decodeFromImageUrl(objectUrl);
+      if (result) {
+        handleScan(result.getText());
+      }
+    } catch (error) {
+      console.error('Error decoding uploaded image:', error);
+      showAlert('error', 'Could not detect a valid QR code in the uploaded image.');
+    } finally {
+      URL.revokeObjectURL(objectUrl);
+      e.target.value = '';
     }
   };
 
@@ -216,7 +243,6 @@ const QRCodeScanner = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-start py-6">
-      {/* Header */}
       <div className="w-full max-w-4xl px-4 text-center mb-6">
         <h1 className="text-2xl sm:text-3xl font-extrabold text-[#071c4f] mb-2">
           QR Code Scanner
@@ -226,9 +252,8 @@ const QRCodeScanner = () => {
         </p>
       </div>
 
-      {/* Scanner */}
-      <div className="w-full max-w-lg px-4">
-        <div className="bg-white dark:bg-boxdark rounded-2xl shadow-2xl overflow-hidden aspect-square flex items-center justify-center border border-stroke dark:border-strokedark">
+      <div className="w-full max-w-lg px-4 flex flex-col items-center">
+        <div className="bg-white dark:bg-boxdark rounded-2xl shadow-2xl overflow-hidden aspect-square flex items-center justify-center border border-stroke dark:border-strokedark w-full">
           <video
             ref={videoRef}
             className="w-full h-full object-cover"
@@ -241,9 +266,24 @@ const QRCodeScanner = () => {
           <span className="font-semibold">Note:</span> Move your camera closer
           to the QR code for faster and more accurate scanning.
         </p>
+
+        {/* Image Upload Fallback UI */}
+        <div className="mt-6 flex flex-col items-center border-t border-stroke dark:border-strokedark pt-4 w-full">
+          <span className="text-sm text-gray-600 dark:text-gray-400 mb-3 text-center">
+            Camera not working? Upload a picture of the QR code instead:
+          </span>
+          <label className="cursor-pointer bg-[#071c4f] hover:bg-[#1a2b6f] text-white px-6 py-2 rounded-full shadow-md transition-all font-medium text-sm">
+            Upload QR Image
+            <input 
+              type="file" 
+              accept="image/*" 
+              className="hidden" 
+              onChange={handleImageUpload} 
+            />
+          </label>
+        </div>
       </div>
 
-      {/* Cast Vote Modal */}
       {selectedExhibitor && (
         <CastVote
           exhibitor={selectedExhibitor}
