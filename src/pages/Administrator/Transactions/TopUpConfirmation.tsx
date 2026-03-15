@@ -17,13 +17,13 @@ const TopUpConfirmation = ({ voter, amount, onClose, onSuccess }: Props) => {
   const token = authUser?.token;
   const [loading, setLoading] = useState(false);
 
-  const userId = authUser?.user.id;
-
   const handleConfirm = async () => {
-    if (!token) {
+    if (!token || !authUser?.user?.id) {
       showAlert('error', 'Unauthorized. Please login again.');
       return;
     }
+
+    const userId = authUser.user.id; // compute here, guaranteed to exist
 
     setLoading(true);
 
@@ -44,18 +44,14 @@ const TopUpConfirmation = ({ voter, amount, onClose, onSuccess }: Props) => {
 
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.message || 'Failed to top up credits.');
-      }
+      if (!res.ok) throw new Error(data.message || 'Failed to top up credits.');
 
       showAlert(
         'success',
         data.message || `Added ${amount} credits successfully.`,
       );
 
-      // Let parent refetch fresh voter data
       if (onSuccess) onSuccess();
-
       onClose();
     } catch (error: any) {
       console.error(error);
@@ -64,7 +60,6 @@ const TopUpConfirmation = ({ voter, amount, onClose, onSuccess }: Props) => {
       setLoading(false);
     }
   };
-
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
       <div className="relative w-full max-w-md rounded-2xl bg-white dark:bg-boxdark shadow-2xl p-6 overflow-hidden">
