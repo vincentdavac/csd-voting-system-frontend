@@ -20,6 +20,7 @@
     "flatpickr": "^4.6.13",
     "headlessui": "^0.0.0",
     "jspdf": "^4.2.0",
+    "jspdf-autotable": "^5.0.7",
     "jsvectormap": "^1.5.3",
     "lucide-react": "^0.577.0",
     "match-sorter": "^6.3.1",
