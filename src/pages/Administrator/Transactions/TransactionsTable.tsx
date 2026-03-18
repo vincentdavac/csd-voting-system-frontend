@@ -143,25 +143,33 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
             className="rounded border px-3 py-2 bg-transparent dark:border-strokedark dark:[color-scheme:dark]"
           />
 
-          <div>
+          <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
             {/* Top Up Points Button */}
             <button
               onClick={() => setShowTopUp(true)}
-              className="flex items-center gap-2 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+              className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-green-600 
+               px-3 py-2 sm:px-5 sm:py-2.5 
+               text-xs sm:text-sm font-semibold text-white 
+               transition-all hover:bg-green-700 active:scale-95 shadow-sm"
             >
-              <Wallet size={18} />
-              Top Up Points
+              <Wallet className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
+              <span>Top Up</span>
+            </button>
+
+            {/* Generate PDF Button */}
+            <button
+              onClick={handleGeneratePDF}
+              className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-primary 
+               px-3 py-2 sm:px-5 sm:py-2.5 
+               text-xs sm:text-sm font-semibold text-white 
+               transition-all hover:bg-opacity-90 active:scale-95 
+               disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              disabled={isGeneratingPDF}
+            >
+              <FileDown className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
+              <span>{isGeneratingPDF ? '...' : 'PDF'}</span>
             </button>
           </div>
-
-          <button
-            onClick={handleGeneratePDF}
-            className="flex items-center gap-2 rounded bg-primary px-4 py-2 text-white hover:bg-opacity-90"
-            disabled={isGeneratingPDF}
-          >
-            <FileDown size={18} />
-            {isGeneratingPDF ? 'Generating...' : 'Generate PDF'}
-          </button>
         </div>
       </div>
 
