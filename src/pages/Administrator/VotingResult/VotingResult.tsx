@@ -1,11 +1,57 @@
+import React, { useState, useEffect } from 'react';
 import Breadcrumb from '../../../components/Breadcrumbs/Breadcrumb';
 import BarGraphOverRanking from './BarGraphOverRanking';
 import BarGraphPerProgram from './BarGraphPerProgram';
 import VotingTable from './VotingTable';
-
-const programs = ['IT', 'CS', 'IS', 'EMC'];
+import { useAuth } from '../../../context/AuthContext';
+import API_BASE_URL from '../../../config/api';
 
 const VotingResult = () => {
+  const { authUser } = useAuth();
+  const [programs, setPrograms] = useState<string[]>([]);
+  
+  const [exhibitorsData, setExhibitorsData] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (!authUser?.token) return;
+
+      try {
+        const [programsRes, exhibitorsRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/programs`, {
+            method: 'GET',
+            headers: { Accept: 'application/json' },
+          }),
+          fetch(`${API_BASE_URL}/exhibitors`, {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${authUser.token}`,
+              Accept: 'application/json',
+            },
+          }),
+        ]);
+
+        if (programsRes.ok && exhibitorsRes.ok) {
+          const programsJson = await programsRes.json();
+          const exhibitorsJson = await exhibitorsRes.json();
+
+          const programNames = programsJson.data
+            .map((prog: any) => prog.name || prog.attributes?.name)
+            .filter(Boolean);
+          setPrograms(programNames);
+
+          setExhibitorsData(exhibitorsJson.data || []);
+        } else {
+          console.error('Failed to fetch dashboard data');
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      }
+    };
+
+    fetchDashboardData();
+  }, [authUser]);
+
   return (
     <div>
       <Breadcrumb pageName="Voting Result" />
@@ -14,7 +60,11 @@ const VotingResult = () => {
         <BarGraphOverRanking />
 
         {programs.map((program) => (
-          <BarGraphPerProgram key={program} programName={program} />
+          <BarGraphPerProgram 
+            key={program} 
+            programName={program} 
+            exhibitorsData={exhibitorsData} 
+          />
         ))}
       </div>
 
