@@ -1,8 +1,6 @@
 import { ApexOptions } from 'apexcharts';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import ReactApexChart from 'react-apexcharts';
-import { useAuth } from '../../../context/AuthContext';
-import API_BASE_URL from '../../../config/api';
 
 interface BoothRatingData {
   id: number;
@@ -17,59 +15,30 @@ interface BoothRatingData {
 
 interface BarGraphPerProgramProps {
   programName: string;
+  exhibitorsData: BoothRatingData[];
 }
 
-const BarGraphPerProgram: React.FC<BarGraphPerProgramProps> = ({ programName }) => {
-  const { authUser } = useAuth();
+const BarGraphPerProgram: React.FC<BarGraphPerProgramProps> = ({ 
+  programName, 
+  exhibitorsData 
+}) => {
   const [filter, setFilter] = useState<'top5' | 'top10' | 'all'>('top5');
-  const [exhibitors, setExhibitors] = useState<BoothRatingData[]>([]);
 
-  useEffect(() => {
-    const fetchExhibitors = async () => {
-      if (!authUser?.token) return;
-
-      try {
-        const res = await fetch(`${API_BASE_URL}/booth-ratings/summary`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${authUser.token}`,
-            Accept: 'application/json',
-          },
-        });
-
-        if (res.ok) {
-          const responseData = await res.json();
-          setExhibitors(responseData.data || []);
-        } else {
-          console.error(`Failed to fetch booth ratings for ${programName}`);
-        }
-      } catch (error) {
-        console.error(`Error fetching booth ratings for ${programName}:`, error);
-      }
-    };
-
-    fetchExhibitors();
-  }, [authUser, programName]);
-
-  // 1. Filter by specific program
-  const programExhibitors = exhibitors.filter((ex) => {
-    const progName = ex.attributes.program?.name || '';
+  const programExhibitors = exhibitorsData.filter((ex) => {
+    const progName = ex.attributes?.program?.name || '';
     return progName.toUpperCase().includes(programName.toUpperCase());
   });
 
-  // 2. Sort descending by ratings_sum
   const sortedExhibitors = [...programExhibitors].sort(
-    (a, b) => (b.attributes.ratings_sum || 0) - (a.attributes.ratings_sum || 0)
+    (a, b) => (b.attributes?.ratings_sum || 0) - (a.attributes?.ratings_sum || 0)
   );
 
-  // 3. Apply filter
   let displayedExhibitors = sortedExhibitors;
   if (filter === 'top5') displayedExhibitors = sortedExhibitors.slice(0, 5);
   else if (filter === 'top10') displayedExhibitors = sortedExhibitors.slice(0, 10);
 
-  // 4. Map categories and series
-  const categories = displayedExhibitors.map((ex) => ex.attributes.project_title);
-  const data = displayedExhibitors.map((ex) => ex.attributes.ratings_sum || 0);
+  const categories = displayedExhibitors.map((ex) => ex.attributes?.project_title);
+  const data = displayedExhibitors.map((ex) => ex.attributes?.ratings_sum || 0);
 
   const series = [{ name: 'Rating', data }];
 

@@ -20,8 +20,15 @@ const DropdownUser = () => {
   };
 
   const client = authUser?.user as any;
+  const studentRole = client?.student_role;
   const fullName = client ? `${client.first_name || ''} ${client.last_name || ''}`.trim() : 'Loading...';
   const programName = client?.program?.name || 'Voter';
+
+  console.log("ETO PO ANG ROLE:" + studentRole);
+  console.log("HELLOW PO");
+
+  console.log("AUTH USER:", authUser);
+console.log("CLIENT:", client);
   
   let profilePic = UserOne;
   const dbImage = client?.id_picture || client?.image;
@@ -95,16 +102,19 @@ const DropdownUser = () => {
               </Link>
             </li>
 
-             <li>
-              <Link
-                to="/client/transactions"
-                className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
-                onClick={() => setDropdownOpen(false)}
-              >
-               <TicketCheck />
-                Transactions
-              </Link>
-            </li>
+            {/* Conditional rendering – only show for non-student roles (e.g. president) */}
+            {studentRole === 'president' && (
+              <li>
+                <Link
+                  to="/client/transactions"
+                  className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  <TicketCheck />
+                  Transactions
+                </Link>
+              </li>
+            )}
           </ul>
           <button
             onClick={handleLogout}
