@@ -20,14 +20,16 @@ const DropdownUser = () => {
 
   // Extract user details securely from context
   const user = authUser?.user;
-  const userName = user?.first_name 
-    ? `${user.first_name} ${user.last_name}` 
-    : ((user as any)?.name || 'Administrator');
-  
+  const userName = user?.first_name
+    ? `${user.first_name} ${user.last_name}`
+    : (user as any)?.name || 'Administrator';
+
   // Safely construct the image URL
   const backendBaseUrl = API_BASE_URL.replace(/\/api\/?$/, '');
-  const userImage = user?.image 
-    ? (user.image.startsWith('http') ? user.image : `${backendBaseUrl}/storage/${user.image}`)
+  const userImage = user?.image
+    ? user.image.startsWith('http')
+      ? user.image
+      : `${backendBaseUrl}/storage/${user.image}`
     : '/user-profile.png';
 
   return (
@@ -45,9 +47,9 @@ const DropdownUser = () => {
         </span>
 
         <span className="h-12 w-12 rounded-full overflow-hidden border border-stroke dark:border-strokedark">
-          <img 
-            src={userImage} 
-            alt="User" 
+          <img
+            src={userImage}
+            alt="User"
             className="h-full w-full object-cover"
             onError={(e) => {
               (e.target as HTMLImageElement).src = '/user-profile.png';
@@ -75,7 +77,7 @@ const DropdownUser = () => {
       {/* Dropdown Menu */}
       {dropdownOpen && (
         <div className="absolute right-0 mt-4 flex w-62.5 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-          <ul className="flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark">
+          {/* <ul className="flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark">
             <li>
               <Link
                 to="/admin/settings"
@@ -85,7 +87,7 @@ const DropdownUser = () => {
                 My Profile
               </Link>
             </li>
-          </ul>
+          </ul> */}
           <button
             onClick={handleLogout}
             className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
