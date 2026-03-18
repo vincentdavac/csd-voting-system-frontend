@@ -73,8 +73,43 @@ const VotingTable = () => {
     page * rowsPerPage,
   );
 
-  const handleGenerateResult = () => {
-    alert('Generate result functionality goes here!');
+  const handleGenerateResult = async () => {
+    if (!authUser?.token) {
+      console.error('No authorization token found.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/votes-transactions/pdf`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${authUser.token}`,
+          Accept: 'application/pdf', 
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to generate PDF');
+      }
+
+      const blob = await res.blob();
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Voting_Transactions.pdf');
+      
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+      
+    } catch (error) {
+      console.error('Error generating result:', error);
+      alert('Failed to generate the PDF report.');
+    }
   };
 
   return (

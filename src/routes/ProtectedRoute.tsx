@@ -6,12 +6,14 @@ interface ProtectedRouteProps {
   role?: 'admin' | 'client';
   guestOnly?: boolean;
   redirectPath?: string;
+  superAdminOnly?: boolean;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   role,
   guestOnly = false,
   redirectPath,
+  superAdminOnly = false,
 }) => {
   const { authUser } = useAuth();
   const location = useLocation();
@@ -50,6 +52,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     const loginPage =
       authUser.role === 'admin' ? '/admin/signin' : '/client/signin';
     return <Navigate to={loginPage} replace />;
+  }
+
+  if (superAdminOnly && authUser.user.role !== 'super_admin') {
+    return <Navigate to="/admin/dashboard" replace />;
   }
 
   return <Outlet />;

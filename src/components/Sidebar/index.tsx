@@ -13,6 +13,7 @@ import {
   UsersRound,
   Vote,
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -22,6 +23,7 @@ interface SidebarProps {
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const location = useLocation();
   const { pathname } = location;
+  const { authUser } = useAuth();
 
   const trigger = useRef<any>(null);
   const sidebar = useRef<any>(null);
@@ -73,7 +75,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
-      {/* <!-- SIDEBAR HEADER --> */}
+      {/* */}
       <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
         <NavLink to="/">
           <img src={Logo} alt="Logo" />
@@ -101,12 +103,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           </svg>
         </button>
       </div>
-      {/* <!-- SIDEBAR HEADER --> */}
+      {/* */}
 
       <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
-        {/* <!-- Sidebar Menu --> */}
+        {/* */}
         <nav className="mt-5 py-4 px-4 lg:mt-9 lg:px-6">
-          {/* <!-- Menu Group --> */}
+          {/* */}
           <div>
             <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
               MENU
@@ -126,7 +128,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li>
 
-              {/* <!-- Menu Item Dashboard --> */}
+              {/* */}
               <SidebarLinkGroup
                 activeCondition={
                   pathname === '/admin/user-management' ||
@@ -170,7 +172,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                           />
                         </svg>
                       </NavLink>
-                      {/* <!-- Dropdown Menu Start --> */}
+                      {/* */}
                       <div
                         className={`translate transform overflow-hidden ${
                           !open && 'hidden'
@@ -190,27 +192,30 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             </NavLink>
                           </li>
                         </ul>
-                        <ul className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
-                          <li>
-                            <NavLink
-                              to="/admin/user-management/administrators"
-                              className={({ isActive }) =>
-                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
-                                (isActive && '!text-white')
-                              }
-                            >
-                              <ShieldUser />
-                              Administrators
-                            </NavLink>
-                          </li>
-                        </ul>
+                        {/* SUPER ADMIN ONLY: Administrators Link */}
+                        {authUser?.user?.role === 'super_admin' && (
+                          <ul className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
+                            <li>
+                              <NavLink
+                                to="/admin/user-management/administrators"
+                                className={({ isActive }) =>
+                                  'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
+                                  (isActive && '!text-white')
+                                }
+                              >
+                                <ShieldUser />
+                                Administrators
+                              </NavLink>
+                            </li>
+                          </ul>
+                        )}
                       </div>
-                      {/* <!-- Dropdown Menu End --> */}
+                      {/* */}
                     </React.Fragment>
                   );
                 }}
               </SidebarLinkGroup>
-              {/* <!-- Menu Item Dashboard --> */}
+              {/* */}
 
               <li>
                 <NavLink
@@ -225,44 +230,53 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li>
 
-              <li>
-                <NavLink
-                  to="/admin/exhibitors"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                    pathname.includes('admin/exhibitors') &&
-                    'bg-graydark dark:bg-meta-4'
-                  }`}
-                >
-                  <QrCode />
-                  Exhibitors
-                </NavLink>
-              </li>
+              {/* SUPER ADMIN ONLY: Exhibitors Link */}
+              {authUser?.user?.role === 'super_admin' && (
+                <li>
+                  <NavLink
+                    to="/admin/exhibitors"
+                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                      pathname.includes('admin/exhibitors') &&
+                      'bg-graydark dark:bg-meta-4'
+                    }`}
+                  >
+                    <QrCode />
+                    Exhibitors
+                  </NavLink>
+                </li>
+              )}
 
-              <li>
-                <NavLink
-                  to="/admin/voting-results"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                    pathname.includes('admin/voting-results') &&
-                    'bg-graydark dark:bg-meta-4'
-                  }`}
-                >
-                  <Vote />
-                  People's Choice
-                </NavLink>
-              </li>
+              {/* SUPER ADMIN ONLY: People's Choice Link */}
+              {authUser?.user?.role === 'super_admin' && (
+                <li>
+                  <NavLink
+                    to="/admin/voting-results"
+                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                      pathname.includes('admin/voting-results') &&
+                      'bg-graydark dark:bg-meta-4'
+                    }`}
+                  >
+                    <Vote />
+                    People's Choice
+                  </NavLink>
+                </li>
+              )}
 
-              <li>
-                <NavLink
-                  to="/admin/booth-rating"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                    pathname.includes('admin/booth-rating') &&
-                    'bg-graydark dark:bg-meta-4'
-                  }`}
-                >
-                  <Star />
-                  Best Booth
-                </NavLink>
-              </li>
+              {/* SUPER ADMIN ONLY: Best Booth Link */}
+              {authUser?.user?.role === 'super_admin' && (
+                <li>
+                  <NavLink
+                    to="/admin/booth-rating"
+                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                      pathname.includes('admin/booth-rating') &&
+                      'bg-graydark dark:bg-meta-4'
+                    }`}
+                  >
+                    <Star />
+                    Best Booth
+                  </NavLink>
+                </li>
+              )}
 
               <li>
                 <NavLink
@@ -276,8 +290,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   Programs
                 </NavLink>
               </li>
-
-             
             </ul>
           </div>
         </nav>

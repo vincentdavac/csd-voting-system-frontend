@@ -60,6 +60,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const responseJson = await res.json();
           const data = responseJson.data;
 
+          const isActive = role === 'admin' ? data.user.attributes.is_active : data.client.attributes.is_active;
+          
+          if (!isActive) {
+            throw new Error('Account deactivated');
+          }
+
           setAuthUser({
             role,
             token,
@@ -72,7 +78,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     student_role: data.student_role 
                   },
           });
-        } catch {
+        } catch (error) {
+          console.error("Authentication Error:", error);
           localStorage.removeItem('authToken');
           localStorage.removeItem('authRole');
           setAuthUser(null);

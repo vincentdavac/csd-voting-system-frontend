@@ -119,14 +119,17 @@ function App() {
           />
           <Route path="admin/dashboard" element={<Dashboard />} />
           <Route path="admin/user-management/voters" element={<Voters />} />
-          <Route
-            path="admin/user-management/administrators"
-            element={<Administrators />}
-          />
+          <Route element={<ProtectedRoute superAdminOnly />}>
+            <Route
+              path="admin/user-management/administrators"
+              element={<Administrators />}
+            />
+            <Route path="admin/exhibitors" element={<Exhibitors />} />
+            <Route path="admin/voting-results" element={<VotingResult />} />
+            <Route path="admin/booth-rating" element={<BoothRating />} />
+          </Route>
           <Route path="admin/transactions" element={<Transactions />} />
-          <Route path="admin/exhibitors" element={<Exhibitors />} />
-          <Route path="admin/voting-results" element={<VotingResult />} />
-          <Route path="admin/booth-rating" element={<BoothRating />} />
+          
           <Route path="admin/programs" element={<ProgramTable />} />
           <Route path="admin/voters" element={<Voters />} />
         </Route>
