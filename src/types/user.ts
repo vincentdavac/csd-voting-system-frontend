@@ -22,6 +22,7 @@ export interface ClientProgram {
 }
 
 export interface Client extends BaseUser {
+  student_role: string;
   program_id: number;
   program?: ClientProgram;
   student_id: string;
