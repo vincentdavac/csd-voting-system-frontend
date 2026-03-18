@@ -61,7 +61,7 @@ const TopUpPoints = () => {
   const fullName = `${studentData.first_name || ''} ${
     studentData.last_name || ''
   }`.trim();
-  const program = studentData.program?.name || 'Assigned Program';
+  const program = studentData.program?.name || 'External Guest';
   const yearLevel = studentData.year_level
     ? `${studentData.year_level} Year`
     : '';
