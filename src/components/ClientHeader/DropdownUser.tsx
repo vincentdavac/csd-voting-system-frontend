@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ClickOutside from '../ClickOutside';
 import UserOne from '../../images/user/user-01.png'; 
-import { LogOut, QrCode, ScanQrCode } from 'lucide-react';
+import { LogOut, QrCode, ScanQrCode, TicketCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useAlert } from '../Alert/AlertContext';
 import API_BASE_URL from '../../config/api';
@@ -92,6 +92,17 @@ const DropdownUser = () => {
               >
                 <ScanQrCode />
                 QR Code Scanner
+              </Link>
+            </li>
+
+             <li>
+              <Link
+                to="/client/transactions"
+                className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+                onClick={() => setDropdownOpen(false)}
+              >
+               <TicketCheck />
+                Transactions
               </Link>
             </li>
           </ul>
