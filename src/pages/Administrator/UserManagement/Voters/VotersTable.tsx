@@ -175,7 +175,15 @@ const VotersTable = () => {
                 <td className="p-3">{voter.qrCode}</td>
                 <td className="p-3">{voter.contactNumber}</td>
                 <td className="p-3">
-                  {voter.isActive ? 'Active' : 'Inactive'}
+                  <span
+                    className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
+                      voter.isActive
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                        : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                    }`}
+                  >
+                    {voter.isActive ? 'Active' : 'Inactive'}
+                  </span>
                 </td>
                 <td className="p-3">{voter.remainingVotes}</td>
                 <td className="p-3">{voter.totalVotesPurchased}</td>
@@ -193,29 +201,31 @@ const VotersTable = () => {
                     View
                   </button>
 
-                  <button
-                    className="flex items-center gap-1 text-green-600 hover:text-green-800 transition"
-                    title="Restore User"
-                    onClick={() => {
-                      setSelectedVoter(voter);
-                      setShowRestore(true);
-                    }}
-                  >
-                    <ArchiveRestore size={16} />
-                    Restore
-                  </button>
-
-                  <button
-                    className="flex items-center gap-1 text-red-600 hover:text-red-800 transition"
-                    title="Archive User"
-                    onClick={() => {
-                      setSelectedVoter(voter);
-                      setShowArchive(true);
-                    }}
-                  >
-                    <Archive size={16} />
-                    Archive
-                  </button>
+                  {voter.isActive ? (
+                    <button
+                      className="flex items-center gap-1 text-red-600 hover:text-red-800 transition"
+                      title="Archive User"
+                      onClick={() => {
+                        setSelectedVoter(voter);
+                        setShowArchive(true);
+                      }}
+                    >
+                      <Archive size={16} />
+                      Archive
+                    </button>
+                  ) : (
+                    <button
+                      className="flex items-center gap-1 text-green-600 hover:text-green-800 transition"
+                      title="Restore User"
+                      onClick={() => {
+                        setSelectedVoter(voter);
+                        setShowRestore(true);
+                      }}
+                    >
+                      <ArchiveRestore size={16} />
+                      Restore
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
