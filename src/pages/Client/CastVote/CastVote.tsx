@@ -8,6 +8,7 @@ import {
   Tickets,
 } from 'lucide-react';
 import ConfirmationModal from './ConfirmationModal';
+import { useAlert } from '../../../components/Alert/AlertContext';
 
 interface EXHIBITOR {
   id: number;
@@ -26,7 +27,12 @@ interface CastVoteProps {
   onSubmit: (votes: number, rating: number, comment: string) => void;
 }
 
-const CastVote = ({ exhibitor, remainingVotes, onClose, onSubmit }: CastVoteProps) => {
+const CastVote = ({
+  exhibitor,
+  remainingVotes,
+  onClose,
+  onSubmit,
+}: CastVoteProps) => {
   const [votes, setVotes] = useState(0);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
@@ -38,7 +44,8 @@ const CastVote = ({ exhibitor, remainingVotes, onClose, onSubmit }: CastVoteProp
       setVotes((prev) => prev + 1);
     }
   };
-  
+  const { showAlert } = useAlert();
+
   const decreaseVotes = () => setVotes((prev) => (prev > 0 ? prev - 1 : 0));
 
   return (
@@ -153,21 +160,28 @@ const CastVote = ({ exhibitor, remainingVotes, onClose, onSubmit }: CastVoteProp
               +
             </button>
           </div>
-          
+
           <div className="text-center text-xs text-red-500 font-medium h-4">
-             {votes >= remainingVotes && remainingVotes > 0 && `You only have ${remainingVotes} votes available.`}
+            {votes >= remainingVotes &&
+              remainingVotes > 0 &&
+              `You only have ${remainingVotes} votes available.`}
           </div>
 
           {/* 5-Star Rating (Hidden if already rated) */}
           <div className="mt-8 pt-4 border-t border-gray-100 dark:border-strokedark">
             <div className="text-center text-gray-700 dark:text-gray-300 mb-1">
-              Rate the booth for <span className="font-semibold">Best Booth Award</span>
+              Rate the booth for{' '}
+              <span className="font-semibold">Best Booth Award</span>
             </div>
-          
+
             {exhibitor.hasRated ? (
               <div className="flex flex-col items-center justify-center p-4 bg-green-50 dark:bg-green-900/20 rounded-xl">
-                <span className="text-green-600 dark:text-green-400 font-bold text-sm">✓ ALREADY RATED</span>
-                <p className="text-[10px] text-green-500">You've already submitted your rating for this project.</p>
+                <span className="text-green-600 dark:text-green-400 font-bold text-sm">
+                  ✓ ALREADY RATED
+                </span>
+                <p className="text-[10px] text-green-500">
+                  You've already submitted your rating for this project.
+                </p>
               </div>
             ) : (
               <>
@@ -180,14 +194,18 @@ const CastVote = ({ exhibitor, remainingVotes, onClose, onSubmit }: CastVoteProp
                       onMouseEnter={() => setHoverRating(i)}
                       onMouseLeave={() => setHoverRating(0)}
                       className={`transition-colors ${
-                        i <= (hoverRating || rating) ? 'text-yellow-400' : 'text-gray-300'
+                        i <= (hoverRating || rating)
+                          ? 'text-yellow-400'
+                          : 'text-gray-300'
                       }`}
                     >
                       ★
                     </button>
                   ))}
                 </div>
-                <div className="text-center text-gray-500 text-sm mt-1">{rating} / 5</div>
+                <div className="text-center text-gray-500 text-sm mt-1">
+                  {rating} / 5
+                </div>
               </>
             )}
           </div>
@@ -216,11 +234,14 @@ const CastVote = ({ exhibitor, remainingVotes, onClose, onSubmit }: CastVoteProp
 
           <button
             onClick={() => {
-               if (votes === 0 && rating === 0) {
-                 alert("Please provide either votes or a rating.");
-                 return;
-               }
-               setShowConfirm(true);
+              if (votes === 0 && rating === 0) {
+                showAlert(
+                  'warning',
+                  'Please provide either votes or a rating.',
+                );
+                return;
+              }
+              setShowConfirm(true);
             }}
             className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2"
           >
