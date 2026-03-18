@@ -15,23 +15,7 @@ import {
 import { useAlert } from '../../../../components/Alert/AlertContext';
 import API_BASE_URL from '../../../../config/api';
 import { useAuth } from '../../../../context/AuthContext';
-
-export interface VOTER {
-  id: number;
-  studentNo: string;
-  fullName: string;
-  program: string;
-  yearLevel: number;
-  email: string;
-  qrCode: string;
-  qrImage: string;
-  contactNumber: string;
-  idPicture: string;
-  remainingVotes: number;
-  totalVotesPurchased: number;
-  datetime: string;
-  isActive: boolean;
-}
+import { VOTER } from './VotersTable';
 
 interface RestoreModalProps {
   voter: VOTER;
