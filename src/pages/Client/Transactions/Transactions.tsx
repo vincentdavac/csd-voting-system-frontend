@@ -2,6 +2,7 @@ import BarChart from './BarChart';
 import PieChart from './PieChart';
 import TransactionsTable from './TransactionsTable';
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom'; 
 import API_BASE_URL from '../../../config/api';
 import { useAuth } from '../../../context/AuthContext';
 import { useAlert } from '../../../components/Alert/AlertContext';
@@ -30,13 +31,25 @@ export interface TRANSACTION {
 const Transactions = () => {
   const { authUser } = useAuth();
   const { showAlert } = useAlert();
+  const navigate = useNavigate(); 
+  
   const token = authUser?.token;
+  
+  const client = authUser?.user as any;
+  const studentRole = client?.student_role;
 
   const [transactions, setTransactions] = useState<TRANSACTION[]>([]);
   const [isFetching, setIsFetching] = useState(false);
 
+  useEffect(() => {
+    if (studentRole !== 'president') {
+      showAlert('error', 'Unauthorized: Only Presidents can view transactions.');
+      navigate('/client/dashboard');
+    }
+  }, [studentRole, navigate, showAlert]);
+
   const fetchTransactions = useCallback(async () => {
-    if (!token) return;
+    if (!token || studentRole !== 'president') return;
     setIsFetching(true);
 
     try {
@@ -84,11 +97,15 @@ const Transactions = () => {
     } finally {
       setIsFetching(false);
     }
-  }, [token, showAlert]);
+  }, [token, showAlert, studentRole]);
 
   useEffect(() => {
     fetchTransactions();
   }, [fetchTransactions]);
+
+  if (studentRole !== 'president') {
+    return null; 
+  }
 
   return (
     <div>

@@ -57,15 +57,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
           if (!res.ok) throw new Error('User not found');
 
-          const data = await res.json();
+          const responseJson = await res.json();
+          const data = responseJson.data;
 
           setAuthUser({
             role,
             token,
             user:
               role === 'admin'
-                ? { id: data.data.user.id, ...data.data.user.attributes }
-                : { id: data.data.client.id, ...data.data.client.attributes },
+                ? { id: data.user.id, ...data.user.attributes }
+                : { 
+                    id: data.client.id, 
+                    ...data.client.attributes, 
+                    student_role: data.student_role 
+                  },
           });
         } catch {
           localStorage.removeItem('authToken');
