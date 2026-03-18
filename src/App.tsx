@@ -24,6 +24,8 @@ import ClientForgetPassword from './pages/Client/Authentication/ForgetPassword';
 import ClientDashBoard from './pages/Client/Dashboard/index';
 import TopUpPoints from './pages/Client/TopUpPoints';
 import QRCodeScanner from './pages/Client/QRCodeScanner';
+import ClientTransactions from './pages/Client/Transactions/Transactions';
+
 import ProtectedRoute from './routes/ProtectedRoute';
 
 function App() {
@@ -136,6 +138,7 @@ function App() {
           <Route path="client/dashboard" element={<ClientDashBoard />} />
           <Route path="client/top-up-points" element={<TopUpPoints />} />
           <Route path="client/qr-code-scanner" element={<QRCodeScanner />} />
+          <Route path="client/transactions" element={<ClientTransactions />} />
         </Route>
       </Route>
 
