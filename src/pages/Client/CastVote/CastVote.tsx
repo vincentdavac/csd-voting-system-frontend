@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   XCircle,
   BookOpen,
@@ -6,9 +6,11 @@ import {
   GraduationCap,
   QrCode,
   Tickets,
+  ClockAlert
 } from 'lucide-react';
 import ConfirmationModal from './ConfirmationModal';
 import { useAlert } from '../../../components/Alert/AlertContext';
+import API_BASE_URL from '../../../config/api';
 
 interface EXHIBITOR {
   id: number;
@@ -39,12 +41,47 @@ const CastVote = ({
   const [comment, setComment] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
 
+  // NEW: Global Settings State
+  const [isVotingOpen, setIsVotingOpen] = useState<boolean | null>(null);
+  const [scheduleMsg, setScheduleMsg] = useState('Checking voting schedule...');
+
+  const { showAlert } = useAlert();
+
+  // Fetch Voting Status on Mount
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/settings/status`);
+        if (res.ok) {
+          const data = await res.json();
+          setIsVotingOpen(data.is_open);
+          
+          if (!data.is_open && data.settings) {
+            // Format 18:00 to 6:00 PM for nicer display
+            const formatTime = (timeStr: string) => {
+              const [hours, minutes] = timeStr.split(':');
+              const h = parseInt(hours);
+              const ampm = h >= 12 ? 'PM' : 'AM';
+              const formattedH = h % 12 || 12;
+              return `${formattedH}:${minutes} ${ampm}`;
+            };
+            setScheduleMsg(`Voting is closed. Polls are open daily from ${formatTime(data.settings.daily_start_time)} to ${formatTime(data.settings.daily_end_time)}.`);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch voting status', err);
+        setIsVotingOpen(false); // Failsafe: lock it down if API fails
+        setScheduleMsg('Unable to connect to the voting server.');
+      }
+    };
+    fetchStatus();
+  }, []);
+
   const increaseVotes = () => {
     if (votes < remainingVotes) {
       setVotes((prev) => prev + 1);
     }
   };
-  const { showAlert } = useAlert();
 
   const decreaseVotes = () => setVotes((prev) => (prev > 0 ? prev - 1 : 0));
 
@@ -63,6 +100,14 @@ const CastVote = ({
           Cast Your Vote
         </h2>
 
+        {/* NEW: VOTING CLOSED BANNER */}
+        {isVotingOpen === false && (
+          <div className="mb-6 flex items-center gap-3 rounded-lg bg-red-50 p-4 border border-red-200 text-red-600 dark:bg-red-900/20 dark:border-red-900/50 dark:text-red-400">
+            <ClockAlert size={24} className="flex-shrink-0" />
+            <p className="text-sm font-medium">{scheduleMsg}</p>
+          </div>
+        )}
+
         {/* Exhibitor Image */}
         <div className="flex justify-center mb-4">
           <img
@@ -76,10 +121,7 @@ const CastVote = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Title */}
           <div className="flex items-start gap-3 rounded-lg border p-4 shadow-sm bg-gray-50 dark:bg-gray-800">
-            <BookOpen
-              size={20}
-              className="text-gray-500 dark:text-gray-400 mt-1 flex-shrink-0"
-            />
+            <BookOpen size={20} className="text-gray-500 dark:text-gray-400 mt-1 flex-shrink-0" />
             <div className="flex-1 min-w-0 text-gray-700 dark:text-gray-300 font-medium break-words overflow-hidden">
               {exhibitor.title}
             </div>
@@ -87,10 +129,7 @@ const CastVote = ({
 
           {/* Program */}
           <div className="flex items-start gap-3 rounded-lg border p-4 shadow-sm bg-gray-50 dark:bg-gray-800">
-            <GraduationCap
-              size={20}
-              className="text-gray-500 dark:text-gray-400 mt-1 flex-shrink-0"
-            />
+            <GraduationCap size={20} className="text-gray-500 dark:text-gray-400 mt-1 flex-shrink-0" />
             <div className="flex-1 min-w-0 text-gray-700 dark:text-gray-300 font-medium break-words overflow-hidden">
               {exhibitor.program}
             </div>
@@ -98,37 +137,24 @@ const CastVote = ({
 
           {/* Description */}
           <div className="flex items-start gap-3 rounded-lg border p-4 shadow-sm bg-gray-50 dark:bg-gray-800 md:col-span-2">
-            <AlignLeft
-              size={20}
-              className="text-gray-500 dark:text-gray-400 mt-1 flex-shrink-0"
-            />
+            <AlignLeft size={20} className="text-gray-500 dark:text-gray-400 mt-1 flex-shrink-0" />
             <div className="flex-1 min-w-0 text-gray-700 dark:text-gray-300 font-medium break-words overflow-hidden">
               {exhibitor.description}
             </div>
           </div>
-
-          {/* QR Code */}
-          <div className="flex items-start gap-3 rounded-lg border p-4 shadow-sm bg-gray-50 dark:bg-gray-800 md:col-span-2">
-            <QrCode
-              size={20}
-              className="text-gray-500 dark:text-gray-400 mt-1 flex-shrink-0"
-            />
-            <div className="flex-1 min-w-0 text-gray-700 dark:text-gray-300 font-medium break-words overflow-hidden">
-              {exhibitor.qrCode}
-            </div>
-          </div>
         </div>
 
-        {/* Voting Controls */}
-        <div className="mt-6 space-y-4">
+        {/* Voting Controls (Disabled if closed) */}
+        <div className={`mt-6 space-y-4 transition-opacity ${isVotingOpen === false ? 'opacity-50 pointer-events-none' : ''}`}>
+          
           {/* Vote Tickets */}
           <div className="text-center text-gray-700 dark:text-gray-300 mb-1">
-            Your vote counts for{' '}
-            <span className="font-semibold">People's Choice Award</span>
+            Your vote counts for <span className="font-semibold">People's Choice Award</span>
           </div>
           <div className="flex justify-center items-center gap-4 mt-2">
             <button
               onClick={decreaseVotes}
+              disabled={isVotingOpen === false}
               className="bg-gray-200 dark:bg-gray-700 rounded px-3 py-1 hover:bg-gray-300 dark:hover:bg-gray-600"
             >
               –
@@ -138,15 +164,16 @@ const CastVote = ({
               <Tickets size={20} className="text-gray-500 dark:text-gray-400" />
               <input
                 type="number"
-                value={votes === 0 ? '' : votes} // Shows blank instead of 0 for easier quick typing
+                value={votes === 0 ? '' : votes}
                 placeholder="0"
+                disabled={isVotingOpen === false}
                 onChange={(e) => {
                   const val = parseInt(e.target.value);
                   if (isNaN(val)) setVotes(0);
                   else if (val <= remainingVotes) setVotes(val);
-                  else setVotes(remainingVotes); // Prevent exceeding limit
+                  else setVotes(remainingVotes);
                 }}
-                className="w-16 bg-transparent text-center font-semibold text-gray-800 dark:text-gray-200 outline-none focus:ring-1 focus:ring-gray-400 rounded hide-arrows"
+                className="w-16 bg-transparent text-center font-semibold text-gray-800 dark:text-gray-200 outline-none focus:ring-1 focus:ring-gray-400 rounded hide-arrows disabled:bg-transparent"
                 min="0"
                 max={remainingVotes}
               />
@@ -154,7 +181,7 @@ const CastVote = ({
 
             <button
               onClick={increaseVotes}
-              disabled={votes >= remainingVotes}
+              disabled={votes >= remainingVotes || isVotingOpen === false}
               className="bg-gray-200 dark:bg-gray-700 rounded px-3 py-1 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               +
@@ -162,16 +189,13 @@ const CastVote = ({
           </div>
 
           <div className="text-center text-xs text-red-500 font-medium h-4">
-            {votes >= remainingVotes &&
-              remainingVotes > 0 &&
-              `You only have ${remainingVotes} votes available.`}
+            {votes >= remainingVotes && remainingVotes > 0 && `You only have ${remainingVotes} votes available.`}
           </div>
 
-          {/* 5-Star Rating (Hidden if already rated) */}
+          {/* 5-Star Rating */}
           <div className="mt-8 pt-4 border-t border-gray-100 dark:border-strokedark">
             <div className="text-center text-gray-700 dark:text-gray-300 mb-1">
-              Rate the booth for{' '}
-              <span className="font-semibold">Best Booth Award</span>
+              Rate the booth for <span className="font-semibold">Best Booth Award</span>
             </div>
 
             {exhibitor.hasRated ? (
@@ -190,22 +214,19 @@ const CastVote = ({
                     <button
                       key={i}
                       type="button"
+                      disabled={isVotingOpen === false}
                       onClick={() => setRating(i)}
                       onMouseEnter={() => setHoverRating(i)}
                       onMouseLeave={() => setHoverRating(0)}
                       className={`transition-colors ${
-                        i <= (hoverRating || rating)
-                          ? 'text-yellow-400'
-                          : 'text-gray-300'
+                        i <= (hoverRating || rating) ? 'text-yellow-400' : 'text-gray-300'
                       }`}
                     >
                       ★
                     </button>
                   ))}
                 </div>
-                <div className="text-center text-gray-500 text-sm mt-1">
-                  {rating} / 5
-                </div>
+                <div className="text-center text-gray-500 text-sm mt-1">{rating} / 5</div>
               </>
             )}
           </div>
@@ -216,8 +237,9 @@ const CastVote = ({
           </div>
           <textarea
             value={comment}
+            disabled={isVotingOpen === false}
             onChange={(e) => setComment(e.target.value)}
-            className="w-full rounded-lg border p-3 outline-none focus:ring-2 focus:ring-[#071c4f] dark:border-strokedark dark:bg-boxdark dark:text-white"
+            className="w-full rounded-lg border p-3 outline-none focus:ring-2 focus:ring-[#071c4f] dark:border-strokedark dark:bg-boxdark dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800"
             placeholder="Write a comment..."
             rows={4}
           />
@@ -233,17 +255,15 @@ const CastVote = ({
           </button>
 
           <button
+            disabled={isVotingOpen === false || isVotingOpen === null}
             onClick={() => {
               if (votes === 0 && rating === 0) {
-                showAlert(
-                  'warning',
-                  'Please provide either votes or a rating.',
-                );
+                showAlert('warning', 'Please provide either votes or a rating.');
                 return;
               }
               setShowConfirm(true);
             }}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2"
+            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2 disabled:opacity-50 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             Submit Vote
           </button>

@@ -17,6 +17,7 @@ import Transactions from './pages/Administrator/Transactions/Transactions';
 import ProgramTable from './pages/Administrator/Program/ProgramTable';
 import VotingResult from './pages/Administrator/VotingResult/VotingResult';
 import BoothRating from './pages/Administrator/BoothRating/BoothRating';
+import GlobalSettings from './pages/Administrator/GlobalSettings/GlobalSettings';
 import ClientLayout from './layout/ClientLayout';
 import ClientSignUp from './pages/Client/Authentication/SignUp';
 import ClientSignIn from './pages/Client/Authentication/SignIn';
@@ -124,6 +125,7 @@ function App() {
               path="admin/user-management/administrators"
               element={<Administrators />}
             />
+            <Route path="admin/global-settings" element={<GlobalSettings />} />
             <Route path="admin/exhibitors" element={<Exhibitors />} />
             <Route path="admin/voting-results" element={<VotingResult />} />
             <Route path="admin/booth-rating" element={<BoothRating />} />
