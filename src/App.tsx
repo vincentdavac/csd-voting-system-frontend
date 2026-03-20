@@ -17,6 +17,7 @@ import Transactions from './pages/Administrator/Transactions/Transactions';
 import ProgramTable from './pages/Administrator/Program/ProgramTable';
 import VotingResult from './pages/Administrator/VotingResult/VotingResult';
 import BoothRating from './pages/Administrator/BoothRating/BoothRating';
+import GlobalSettings from './pages/Administrator/GlobalSettings/GlobalSettings';
 import ClientLayout from './layout/ClientLayout';
 import ClientSignUp from './pages/Client/Authentication/SignUp';
 import ClientSignIn from './pages/Client/Authentication/SignIn';
@@ -119,14 +120,18 @@ function App() {
           />
           <Route path="admin/dashboard" element={<Dashboard />} />
           <Route path="admin/user-management/voters" element={<Voters />} />
-          <Route
-            path="admin/user-management/administrators"
-            element={<Administrators />}
-          />
+          <Route element={<ProtectedRoute superAdminOnly />}>
+            <Route
+              path="admin/user-management/administrators"
+              element={<Administrators />}
+            />
+            <Route path="admin/global-settings" element={<GlobalSettings />} />
+            <Route path="admin/exhibitors" element={<Exhibitors />} />
+            <Route path="admin/voting-results" element={<VotingResult />} />
+            <Route path="admin/booth-rating" element={<BoothRating />} />
+          </Route>
           <Route path="admin/transactions" element={<Transactions />} />
-          <Route path="admin/exhibitors" element={<Exhibitors />} />
-          <Route path="admin/voting-results" element={<VotingResult />} />
-          <Route path="admin/booth-rating" element={<BoothRating />} />
+          
           <Route path="admin/programs" element={<ProgramTable />} />
           <Route path="admin/voters" element={<Voters />} />
         </Route>

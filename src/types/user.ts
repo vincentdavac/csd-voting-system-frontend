@@ -8,6 +8,9 @@ export interface BaseUser {
   contact_number: string;
   image?: string | null;
 
+  role?: string;
+  is_active?: boolean;
+
   createdDate?: string;
   createdTime?: string;
   updatedDate?: string;
