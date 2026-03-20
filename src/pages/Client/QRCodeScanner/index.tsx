@@ -5,6 +5,7 @@ import { useAuth } from '../../../context/AuthContext';
 import { useAlert } from '../../../components/Alert/AlertContext';
 import API_BASE_URL from '../../../config/api';
 import { ArrowLeft, Info, Upload } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface EXHIBITOR {
   id: number;
@@ -34,6 +35,7 @@ const QRCodeScanner = () => {
   const isProcessingRef = useRef<boolean>(false); // Soft pause reference
   const scanCooldown = 2000;
   const lastScanRef = useRef<number>(0);
+  const navigate = useNavigate();
 
   // Keep refs synced with state
   useEffect(() => {
@@ -251,10 +253,9 @@ const QRCodeScanner = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-start py-8 relative transition-colors duration-300">
-      {/* Mobile Back Button (Top Left) */}
       <div className="absolute top-4 left-4 sm:hidden">
         <button
-          onClick={() => window.history.back()}
+          onClick={() => navigate('/client/dashboard')} // Change this to your actual route path
           className="p-2.5 rounded-full bg-white dark:bg-gray-800 shadow-lg text-gray-600 dark:text-gray-300 active:scale-95 transition-all border border-gray-100 dark:border-gray-700"
         >
           <ArrowLeft size={20} />

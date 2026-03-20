@@ -57,6 +57,8 @@ const Transactions = () => {
 
       const mapped: TRANSACTION[] = data.data.map((item: any) => {
         const attrs = item.attributes;
+
+        console.log('Admin attrs handler:', attrs.handler);
         return {
           id: item.id,
           clientId: attrs.client_id,
@@ -70,8 +72,9 @@ const Transactions = () => {
           totalVotesPurchased: attrs.client?.total_votes_purchased ?? 0,
           amountPaid: attrs.amount_paid,
           votesGiven: attrs.votes_given,
-          handlerFullName: attrs.handler?.full_name || 'N/A',
-          handlerImage: attrs.handler?.image || '',
+
+          handlerFullName: attrs.handler?.full_name || 'Name Missing',
+          handlerImage: attrs.handler ? attrs.handler.image : '',
           createdDate: attrs.createdDate,
           createdTime: attrs.createdTime,
           datetime: `${attrs.createdDate} ${attrs.createdTime}`,

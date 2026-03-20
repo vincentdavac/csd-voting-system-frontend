@@ -3,10 +3,13 @@ import { useAuth } from '../../../context/AuthContext';
 import API_BASE_URL from '../../../config/api';
 import VotingLoader from '../../../common/Loader/VotingLoader'; // Import VotingLoader
 import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 const TopUpPoints = () => {
   const { authUser } = useAuth();
   const [studentData, setStudentData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchClientProfile = async () => {
@@ -77,10 +80,9 @@ const TopUpPoints = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center relative transition-colors duration-300">
-      {/* Top Left Button for Mobile */}
       <div className="absolute top-4 left-4 sm:hidden">
         <button
-          onClick={() => window.history.back()}
+          onClick={() => navigate('/client/dashboard')} // Change this to your actual route path
           className="p-2.5 rounded-full bg-white dark:bg-gray-800 shadow-lg text-gray-600 dark:text-gray-300 active:scale-95 transition-all border border-gray-100 dark:border-gray-700"
         >
           <ArrowLeft size={20} />

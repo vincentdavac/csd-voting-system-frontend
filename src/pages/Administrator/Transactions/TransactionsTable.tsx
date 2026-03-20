@@ -42,8 +42,11 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
 
     const matchDate = dateFilter
       ? (() => {
-          const txnDate = new Date(t.datetime);
+          // Create a date object from the DB date
+          const txnDate = new Date(t.createdDate);
+          // Create a date object from the <input type="date"> (YYYY-MM-DD)
           const selectedDate = new Date(dateFilter);
+
           return (
             txnDate.getFullYear() === selectedDate.getFullYear() &&
             txnDate.getMonth() === selectedDate.getMonth() &&

@@ -2,7 +2,7 @@ import BarChart from './BarChart';
 import PieChart from './PieChart';
 import TransactionsTable from './TransactionsTable';
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../../config/api';
 import { useAuth } from '../../../context/AuthContext';
 import { useAlert } from '../../../components/Alert/AlertContext';
@@ -31,10 +31,11 @@ export interface TRANSACTION {
 const Transactions = () => {
   const { authUser } = useAuth();
   const { showAlert } = useAlert();
-  const navigate = useNavigate(); 
-  
+  const navigate = useNavigate();
+
   const token = authUser?.token;
-  
+  const userId = authUser?.user.id;
+
   const client = authUser?.user as any;
   const studentRole = client?.student_role;
 
@@ -43,7 +44,10 @@ const Transactions = () => {
 
   useEffect(() => {
     if (studentRole !== 'president') {
-      showAlert('error', 'Unauthorized: Only Presidents can view transactions.');
+      showAlert(
+        'error',
+        'Unauthorized: Only Presidents can view transactions.',
+      );
       navigate('/client/dashboard');
     }
   }, [studentRole, navigate, showAlert]);
@@ -53,13 +57,16 @@ const Transactions = () => {
     setIsFetching(true);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/purchase-transactions`, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${token}`,
+      const res = await fetch(
+        `${API_BASE_URL}/client/purchase-transactions/${userId}`,
+        {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       const data = await res.json();
 
@@ -104,7 +111,7 @@ const Transactions = () => {
   }, [fetchTransactions]);
 
   if (studentRole !== 'president') {
-    return null; 
+    return null;
   }
 
   return (

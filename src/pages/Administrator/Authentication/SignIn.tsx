@@ -145,7 +145,7 @@ const SignIn: React.FC = () => {
                   </Link>
                 </div>
 
-                {/* Sign Up Link */}
+                {/* Sign Up Link
                 <div className="text-center mt-4 sm:mt-6">
                   <p className="text-sm sm:text-base">
                     Don’t have an account?{' '}
@@ -156,7 +156,7 @@ const SignIn: React.FC = () => {
                       Sign Up
                     </Link>
                   </p>
-                </div>
+                </div> */}
               </form>
             </div>
           </div>

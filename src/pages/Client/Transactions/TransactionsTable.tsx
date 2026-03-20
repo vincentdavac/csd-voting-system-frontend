@@ -6,6 +6,8 @@ import { TRANSACTION } from './Transactions';
 import API_BASE_URL from '../../../config/api';
 import { useAuth } from '../../../context/AuthContext';
 import { useAlert } from '../../../components/Alert/AlertContext';
+import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface TransactionsTableProps {
   transactions: TRANSACTION[];
@@ -60,6 +62,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     (page - 1) * rowsPerPage,
     page * rowsPerPage,
   );
+  const navigate = useNavigate();
 
   const totalRevenue = filteredData.reduce((sum, t) => sum + t.amountPaid, 0);
   const studentRevenue = filteredData
@@ -113,6 +116,15 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   };
   return (
     <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-4 shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="absolute top-4 left-4 sm:hidden">
+        <button
+          onClick={() => navigate('/client/dashboard')} // Change this to your actual route path
+          className="p-2.5 rounded-full bg-white dark:bg-gray-800 shadow-lg text-gray-600 dark:text-gray-300 active:scale-95 transition-all border border-gray-100 dark:border-gray-700"
+        >
+          <ArrowLeft size={20} />
+        </button>
+      </div>
+
       {/* Top Controls */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
         {/* Search */}
