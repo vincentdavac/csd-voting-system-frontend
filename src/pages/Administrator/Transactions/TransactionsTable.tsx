@@ -1,4 +1,13 @@
-import { Search, FileDown, SquarePen, Wallet, RefreshCw } from 'lucide-react';
+import {
+  Search,
+  FileDown,
+  SquarePen,
+  Wallet,
+  RefreshCw,
+  Users,
+  UserCheck,
+  TrendingUp,
+} from 'lucide-react';
 import { useState } from 'react';
 import TopUpModal from './TopUpModal';
 import UpdateModal from './UpdateModal';
@@ -115,278 +124,335 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     }
   };
   return (
-    <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-4 shadow-default dark:border-strokedark dark:bg-boxdark">
-      {/* Top Controls */}
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-        {/* Search */}
-        <div className="relative w-72">
-          <input
-            type="text"
-            placeholder="Search student..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            className="w-full rounded-lg border border-stroke bg-transparent py-2 pl-10 pr-4 outline-none focus:border-primary dark:border-strokedark"
-          />
-          <Search
-            size={18}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
-          />
+    <div className="rounded-[32px] border border-stroke bg-white p-6 shadow-2xl dark:border-strokedark dark:bg-boxdark transition-all">
+      {/* Top Controls: Search & Filters */}
+      <div className="mb-8 flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between border-b border-stroke pb-8 dark:border-strokedark">
+        <div>
+          <h3 className="text-2xl font-black text-black dark:text-white uppercase italic tracking-tighter">
+            Transaction Logs
+          </h3>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
+            Financial Audit & Point Distribution
+          </p>
         </div>
 
-        {/* Right Controls */}
-        <div className="flex items-center gap-3">
-          {/* Date Filter */}
-          <input
-            type="date"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            className="rounded border px-3 py-2 bg-transparent dark:border-strokedark dark:[color-scheme:dark]"
-          />
+        <div className="flex flex-wrap items-center gap-4">
+          {/* Search Input */}
+          <div className="relative group">
+            <input
+              type="text"
+              placeholder="Search student..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="w-full xl:w-72 rounded-2xl border border-stroke bg-gray-50 py-3 pl-12 pr-4 text-sm font-bold uppercase tracking-tight outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-strokedark dark:bg-meta-4 transition-all"
+            />
+            <Search
+              size={18}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors"
+            />
+          </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-            {/* Top Up Points Button */}
+          {/* Date Filter */}
+          <div className="relative">
+            <input
+              type="date"
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className="rounded-2xl border border-stroke bg-gray-50 px-4 py-3 text-xs font-black uppercase tracking-widest outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4 dark:[color-scheme:dark]"
+            />
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setShowTopUp(true)}
-              className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-green-600 
-               px-3 py-2 sm:px-5 sm:py-2.5 
-               text-xs sm:text-sm font-semibold text-white 
-               transition-all hover:bg-green-700 active:scale-95 shadow-sm"
+              className="flex items-center gap-2 rounded-2xl bg-green-600 px-6 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-green-500/20 transition-all hover:bg-green-700 active:scale-95"
             >
-              <Wallet className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
+              <Wallet size={16} />
               <span>Top Up</span>
             </button>
 
-            {/* Generate PDF Button */}
             <button
               onClick={handleGeneratePDF}
-              className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-primary 
-               px-3 py-2 sm:px-5 sm:py-2.5 
-               text-xs sm:text-sm font-semibold text-white 
-               transition-all hover:bg-opacity-90 active:scale-95 
-               disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
               disabled={isGeneratingPDF}
+              className="flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-primary/20 transition-all hover:bg-opacity-90 active:scale-95 disabled:opacity-50"
             >
-              <FileDown className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
-              <span>{isGeneratingPDF ? '...' : 'PDF'}</span>
+              {isGeneratingPDF ? (
+                <RefreshCw size={16} className="animate-spin" />
+              ) : (
+                <FileDown size={16} />
+              )}
+              <span>{isGeneratingPDF ? 'Working...' : 'PDF'}</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Revenue Summary */}
-      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div className="rounded border p-4">
-          <p className="text-sm text-gray-500">Total Revenue</p>
-          <h3 className="text-xl font-bold">₱{totalRevenue}</h3>
-        </div>
-
-        <div className="rounded border p-4">
-          <p className="text-sm text-gray-500">Revenue - Students</p>
-          <h3 className="text-xl font-bold">₱{studentRevenue}</h3>
-        </div>
-
-        <div className="rounded border p-4">
-          <p className="text-sm text-gray-500">Revenue - Visitors</p>
-          <h3 className="text-xl font-bold">₱{visitorRevenue}</h3>
-        </div>
+      {/* Revenue Summary Cards */}
+      <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+        {[
+          {
+            label: 'Total Revenue',
+            val: totalRevenue,
+            color: 'text-primary',
+            bg: 'bg-primary/5',
+            icon: <TrendingUp className="text-primary" />,
+          },
+          {
+            label: 'Revenue - Students',
+            val: studentRevenue,
+            color: 'text-green-600',
+            bg: 'bg-green-50',
+            icon: <UserCheck className="text-green-600" />,
+          },
+          {
+            label: 'Revenue - Visitors',
+            val: visitorRevenue,
+            color: 'text-orange-600',
+            bg: 'bg-orange-50',
+            icon: <Users className="text-orange-600" />,
+          },
+        ].map((card, i) => (
+          <div
+            key={i}
+            className={`rounded-[24px] border border-stroke p-5 dark:border-strokedark transition-all hover:shadow-xl ${card.bg}`}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">
+                {card.label}
+              </span>
+              <div className="p-2 rounded-xl bg-white dark:bg-boxdark shadow-sm">
+                {card.icon}
+              </div>
+            </div>
+            <h3 className={`text-2xl font-black ${card.color}`}>
+              ₱{card.val.toLocaleString()}
+            </h3>
+          </div>
+        ))}
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full table-auto text-sm">
+      {/* Table Section */}
+      <div className="overflow-x-auto rounded-3xl border border-stroke dark:border-strokedark">
+        <table className="w-full table-auto text-left">
           <thead>
-            <tr className="bg-gray-2 dark:bg-meta-4 text-left">
-              <th className="p-3 whitespace-nowrap">No.</th>
-              <th className="p-3 whitespace-nowrap">ID Picture</th>
-              <th className="p-3 whitespace-nowrap">Full Name</th>
-              <th className="p-3 whitespace-nowrap">Email</th>
-              <th className="p-3 whitespace-nowrap">Contact</th>
-              <th className="p-3 whitespace-nowrap">Year Level</th>
-              <th className="p-3 whitespace-nowrap">Remaining Votes</th>
-              <th className="p-3 whitespace-nowrap">Total Purchased</th>
-              <th className="p-3 whitespace-nowrap">Amount Paid</th>
-              <th className="p-3 whitespace-nowrap">Votes Given</th>
-              <th className="p-3 whitespace-nowrap">Handled By</th>
-              <th className="p-3 whitespace-nowrap">Date</th>
-              <th className="p-3 whitespace-nowrap">Time</th>
-              <th className="p-3 whitespace-nowrap text-center">Actions</th>
+            <tr className="bg-gray-50 dark:bg-meta-4 border-b border-stroke dark:border-strokedark">
+              <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                No.
+              </th>
+              <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                Client Info
+              </th>
+              <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                Classification
+              </th>
+              <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-gray-500 text-center">
+                Wallet Status
+              </th>
+              <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                Payment
+              </th>
+              <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                Auditor
+              </th>
+              <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                Timestamp
+              </th>
+              <th className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-gray-500 text-center">
+                Actions
+              </th>
             </tr>
           </thead>
 
           <tbody>
-            {isFetching && (
+            {isFetching ? (
               <tr>
-                <td colSpan={14} className="p-8 text-center text-gray-500">
-                  <div className="flex items-center justify-center gap-2">
-                    <RefreshCw size={18} className="animate-spin" />
-                    Loading transactions...
+                <td colSpan={14} className="p-15 text-center">
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <RefreshCw
+                      size={32}
+                      className="animate-spin text-primary"
+                    />
+                    <p className="text-xs font-black uppercase tracking-widest text-gray-400">
+                      Syncing Ledger...
+                    </p>
                   </div>
                 </td>
               </tr>
-            )}
-
-            {!isFetching && currentData.length === 0 && (
+            ) : currentData.length === 0 ? (
               <tr>
-                <td colSpan={14} className="p-8 text-center text-gray-500">
-                  No transactions found.
+                <td
+                  colSpan={14}
+                  className="p-15 text-center italic text-gray-400 font-bold uppercase text-xs tracking-widest"
+                >
+                  No transaction records found
                 </td>
               </tr>
-            )}
-
-            {!isFetching &&
+            ) : (
               currentData.map((t, index) => (
                 <tr
                   key={t.id}
-                  className="border-b border-stroke dark:border-strokedark hover:bg-gray-50 dark:hover:bg-meta-4 transition"
+                  className="border-b border-stroke dark:border-strokedark hover:bg-gray-50 dark:hover:bg-meta-4 transition-colors group"
                 >
-                  {/* No. */}
-                  <td className="p-3 text-gray-500 whitespace-nowrap">
+                  <td className="px-5 py-4 text-xs font-bold text-gray-400">
                     {(page - 1) * rowsPerPage + index + 1}
                   </td>
 
-                  {/* ID Picture */}
-                  <td className="p-3">
-                    {t.idPicture ? (
-                      <img
-                        src={t.idPicture}
-                        alt={t.fullName}
-                        className="h-10 w-10 rounded-full object-cover border"
-                      />
-                    ) : (
-                      <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-500">
-                        N/A
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full ring-2 ring-gray-100 dark:ring-strokedark">
+                        {t.idPicture ? (
+                          <img
+                            src={t.idPicture}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-gray-200 text-[10px] font-bold dark:bg-gray-700">
+                            NA
+                          </div>
+                        )}
                       </div>
-                    )}
+                      <div>
+                        <p className="text-sm font-black text-black dark:text-white uppercase leading-tight">
+                          {t.fullName}
+                        </p>
+                        <p className="text-[10px] font-bold text-gray-400 lowercase">
+                          {t.email}
+                        </p>
+                      </div>
+                    </div>
                   </td>
 
-                  {/* Full Name */}
-                  <td className="p-3 font-medium text-black dark:text-white whitespace-nowrap">
-                    {t.fullName}
-                  </td>
-
-                  {/* Email */}
-                  <td className="p-3 text-gray-600 dark:text-gray-300 whitespace-nowrap">
-                    {t.email}
-                  </td>
-
-                  {/* Contact */}
-                  <td className="p-3 whitespace-nowrap">{t.contactNumber}</td>
-
-                  {/* Year Level */}
-                  <td className="p-3 text-center whitespace-nowrap">
+                  <td className="px-5 py-4">
                     <span
-                      className={`inline-block rounded-full text-xs font-semibold px-2 py-0.5 ${
+                      className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest ring-1 ring-inset ${
                         t.yearLevel !== null
-                          ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                          : 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300'
+                          ? 'bg-blue-50 text-blue-600 ring-blue-500/20'
+                          : 'bg-orange-50 text-orange-600 ring-orange-500/20'
                       }`}
                     >
                       {getYearLevelLabel(t.yearLevel)}
                     </span>
                   </td>
 
-                  {/* Remaining Votes */}
-                  <td className="p-3 text-center whitespace-nowrap">
-                    <span className="inline-block rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-semibold px-2 py-0.5">
-                      {t.remainingVotes}
-                    </span>
+                  <td className="px-5 py-4">
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-gray-400">
+                          REM:
+                        </span>
+                        <span className="text-xs font-black text-green-600">
+                          {t.remainingVotes}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-gray-400">
+                          PUR:
+                        </span>
+                        <span className="text-xs font-black text-purple-600">
+                          {t.totalVotesPurchased}
+                        </span>
+                      </div>
+                    </div>
                   </td>
 
-                  {/* Total Purchased */}
-                  <td className="p-3 text-center whitespace-nowrap">
-                    <span className="inline-block rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold px-2 py-0.5">
-                      {t.totalVotesPurchased}
-                    </span>
+                  <td className="px-5 py-4">
+                    <div>
+                      <p className="text-sm font-black text-green-600 leading-none">
+                        ₱{t.amountPaid.toLocaleString()}
+                      </p>
+                      <p className="text-[10px] font-bold text-blue-500 mt-1">
+                        +{t.votesGiven} VOTES
+                      </p>
+                    </div>
                   </td>
 
-                  {/* Amount Paid */}
-                  <td className="p-3 font-semibold text-green-600 dark:text-green-400 whitespace-nowrap">
-                    ₱{t.amountPaid}
-                  </td>
-
-                  {/* Votes Given */}
-                  <td className="p-3 font-semibold text-blue-600 dark:text-blue-400 whitespace-nowrap">
-                    {t.votesGiven}
-                  </td>
-
-                  {/* Handled By */}
-                  <td className="p-3 whitespace-nowrap">
+                  <td className="px-5 py-4">
                     <div className="flex items-center gap-2">
-                      {t.handlerImage ? (
-                        <img
-                          src={t.handlerImage}
-                          alt={t.handlerFullName}
-                          className="h-7 w-7 rounded-full object-cover border shrink-0"
-                        />
-                      ) : (
-                        <div className="h-7 w-7 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-500 shrink-0">
-                          ?
-                        </div>
-                      )}
-                      <span className="text-gray-600 dark:text-gray-300 text-xs">
+                      <div className="h-6 w-6 shrink-0 rounded-full border border-stroke">
+                        {t.handlerImage ? (
+                          <img
+                            src={t.handlerImage}
+                            className="h-full w-full rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="bg-gray-200 h-full rounded-full" />
+                        )}
+                      </div>
+                      <span className="text-[10px] font-black uppercase text-gray-500">
                         {t.handlerFullName}
                       </span>
                     </div>
                   </td>
 
-                  {/* Date */}
-                  <td className="p-3 text-gray-500 text-xs whitespace-nowrap">
-                    {t.createdDate}
+                  <td className="px-5 py-4">
+                    <p className="text-[10px] font-black text-black dark:text-white leading-none">
+                      {t.createdDate}
+                    </p>
+                    <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-tighter">
+                      {t.createdTime}
+                    </p>
                   </td>
 
-                  {/* Time */}
-                  <td className="p-3 text-gray-500 text-xs whitespace-nowrap">
-                    {t.createdTime}
-                  </td>
-
-                  {/* Actions */}
-                  <td className="p-3 whitespace-nowrap">
+                  <td className="px-5 py-4">
                     <div className="flex justify-center">
                       <button
+                        disabled={t.handlerType !== 'admin'}
                         onClick={() => {
                           setSelectedTransaction(t);
                           setShowUpdate(true);
                         }}
-                        className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
+                        className={`group/btn flex items-center gap-2 rounded-xl border border-stroke px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all
+                        ${
+                          t.handlerType === 'admin'
+                            ? 'bg-white text-primary hover:bg-primary hover:text-white dark:bg-boxdark'
+                            : 'cursor-not-allowed opacity-30 text-gray-400 bg-gray-50'
+                        }`}
                       >
-                        <SquarePen size={16} />
-                        Update
+                        <SquarePen
+                          size={14}
+                          className="group-hover/btn:scale-110 transition-transform"
+                        />
+                        <span>Edit</span>
                       </button>
                     </div>
                   </td>
                 </tr>
-              ))}
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="mt-4 flex items-center justify-center gap-4">
-        <button
-          disabled={page === 1}
-          onClick={() => setPage(page - 1)}
-          className="rounded border px-4 py-1 disabled:opacity-40"
-        >
-          ←
-        </button>
+      {/* Pagination: Nav Style */}
+      <div className="mt-8 flex items-center justify-between px-2">
+        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+          Showing Page {page} of {totalPages || 1}
+        </p>
 
-        <span className="text-sm">
-          Page {page} of {totalPages || 1}
-        </span>
-
-        <button
-          disabled={page === totalPages || totalPages === 0}
-          onClick={() => setPage(page + 1)}
-          className="rounded border px-4 py-1 disabled:opacity-40"
-        >
-          →
-        </button>
+        <div className="flex gap-2">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-stroke bg-white font-bold transition-all hover:bg-gray-50 disabled:opacity-20 dark:bg-boxdark"
+          >
+            ←
+          </button>
+          <button
+            disabled={page === totalPages || totalPages === 0}
+            onClick={() => setPage(page + 1)}
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-stroke bg-white font-bold transition-all hover:bg-gray-50 disabled:opacity-20 dark:bg-boxdark"
+          >
+            →
+          </button>
+        </div>
       </div>
 
-      {/* Show Modal */}
+      {/* Modals */}
       {showTopUp && (
         <TopUpModal
           onClose={() => {
@@ -400,11 +466,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         <UpdateModal
           transaction={selectedTransaction}
           onClose={() => setShowUpdate(false)}
-          onUpdate={(amount) => {
-            console.log('Updated Amount:', amount);
-            console.log('Student:', selectedTransaction.fullName);
-            fetchTransactions();
-          }}
+          onUpdate={() => fetchTransactions()}
         />
       )}
     </div>

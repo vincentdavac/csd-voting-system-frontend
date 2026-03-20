@@ -1,8 +1,14 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ClickOutside from '../ClickOutside';
-import UserOne from '../../images/user/user-01.png'; 
-import { LogOut, QrCode, ScanQrCode, TicketCheck } from 'lucide-react';
+import UserOne from '../../images/user/user-01.png';
+import {
+  ChevronDown,
+  LogOut,
+  QrCode,
+  ScanQrCode,
+  TicketCheck,
+} from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useAlert } from '../Alert/AlertContext';
 import API_BASE_URL from '../../config/api';
@@ -21,111 +27,137 @@ const DropdownUser = () => {
 
   const client = authUser?.user as any;
   const studentRole = client?.student_role;
-  const fullName = client ? `${client.first_name || ''} ${client.last_name || ''}`.trim() : 'Loading...';
+  const fullName = client
+    ? `${client.first_name || ''} ${client.last_name || ''}`.trim()
+    : 'Loading...';
   const programName = client?.program?.name || 'Voter';
 
-  console.log("ETO PO ANG ROLE:" + studentRole);
-  console.log("HELLOW PO");
+  console.log('ETO PO ANG ROLE:' + studentRole);
+  console.log('HELLOW PO');
 
-  console.log("AUTH USER:", authUser);
-console.log("CLIENT:", client);
-  
+  console.log('AUTH USER:', authUser);
+  console.log('CLIENT:', client);
+
   let profilePic = UserOne;
   const dbImage = client?.id_picture || client?.image;
   if (dbImage) {
-    profilePic = dbImage.startsWith('http') ? dbImage : `${API_BASE_URL}/storage/${dbImage}`;
+    profilePic = dbImage.startsWith('http')
+      ? dbImage
+      : `${API_BASE_URL}/storage/${dbImage}`;
   }
 
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
       <Link
         onClick={() => setDropdownOpen(!dropdownOpen)}
-        className="flex items-center gap-4"
+        className="flex items-center gap-3 sm:gap-4 group transition-all"
         to="#"
       >
-        <span className="hidden text-right lg:block">
-          <span className="block text-sm font-medium text-black dark:text-white">
+        {/* User Info - Hidden on small mobile */}
+        <span className="hidden text-right md:block">
+          <span className="block text-sm font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">
             {fullName}
           </span>
-          <span className="block text-xs">{programName}</span>
+          <span className="block text-[10px] font-mono font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">
+            {programName}
+          </span>
         </span>
 
-        <span className="h-12 w-12 rounded-full overflow-hidden border border-stroke dark:border-strokedark">
-          <img 
-            src={profilePic} 
-            alt="User" 
-            className="h-full w-full object-cover"
+        {/* Profile Image with Tactical Frame */}
+        <div className="relative">
+          <div
+            className={`absolute -inset-1 bg-gradient-to-tr ${
+              studentRole === 'president'
+                ? 'from-amber-500 to-yellow-300'
+                : 'from-blue-600 to-cyan-400'
+            } rounded-2xl opacity-20 group-hover:opacity-40 transition-opacity blur-sm`}
           />
-        </span>
+          <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl overflow-hidden border-2 border-white dark:border-[#020d26] relative z-10 shadow-lg">
+            <img
+              src={profilePic || '/default-avatar.png'}
+              alt="User Node"
+              className="h-full w-full object-cover"
+            />
+          </div>
+          {/* Status Indicator */}
+          <div className="absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full border-2 border-white dark:border-[#020d26] bg-green-500 z-20" />
+        </div>
 
-        <svg
-          className="hidden fill-current sm:block"
-          width="12"
-          height="8"
-          viewBox="0 0 12 8"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M0.410765 0.910734C0.736202 0.585297 1.26384 0.585297 1.58928 0.910734L6.00002 5.32148L10.4108 0.910734C10.7362 0.585297 11.2638 0.585297 11.5893 0.910734C11.9147 1.23617 11.9147 1.76381 11.5893 2.08924L6.58928 7.08924C6.26384 7.41468 5.7362 7.41468 5.41077 7.08924L0.410765 2.08924C0.0853277 1.76381 0.0853277 1.23617 0.410765 0.910734Z"
-            fill=""
-          />
-        </svg>
+        <ChevronDown
+          size={18}
+          className={`hidden sm:block text-slate-400 transition-transform duration-300 ${
+            dropdownOpen ? 'rotate-180' : ''
+          }`}
+        />
       </Link>
 
-      {/* */}
+      {/* Dropdown Menu - Tactical Ledger Style */}
       {dropdownOpen && (
-        <div
-          className={`absolute right-0 mt-4 flex w-62.5 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark`}
-        >
-          <ul className="flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark">
+        <div className="absolute right-0 mt-4 flex w-64 flex-col rounded-[2rem] border-4 border-slate-100 bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200 dark:border-white/5 dark:bg-[#020d26] overflow-hidden">
+          {/* User Role Header (Mobile Only Info) */}
+          <div className="md:hidden px-6 py-4 border-b border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/5">
+            <p className="text-sm font-black text-slate-900 dark:text-white uppercase italic truncate">
+              {fullName}
+            </p>
+            <p className="text-[9px] font-mono font-bold text-blue-600 uppercase">
+              {programName}
+            </p>
+          </div>
+
+          <ul className="flex flex-col border-b border-slate-100 px-3 py-4 dark:border-white/5">
             <li>
               <Link
                 to="/client/top-up-points"
-                className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+                className="flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-blue-600/5 hover:text-blue-600 dark:hover:bg-blue-500/10 transition-all group/item"
                 onClick={() => setDropdownOpen(false)}
               >
-                <QrCode />
-                Top-Up Points
+                <div className="p-2 rounded-lg bg-slate-100 dark:bg-white/5 group-hover/item:bg-blue-600 group-hover/item:text-white transition-colors">
+                  <QrCode size={18} />
+                </div>
+                <span className="uppercase tracking-tight">Top-Up Points</span>
               </Link>
             </li>
             <li>
               <Link
                 to="/client/qr-code-scanner"
-                className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+                className="flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-blue-600/5 hover:text-blue-600 dark:hover:bg-blue-500/10 transition-all group/item"
                 onClick={() => setDropdownOpen(false)}
               >
-                <ScanQrCode />
-                QR Code Scanner
+                <div className="p-2 rounded-lg bg-slate-100 dark:bg-white/5 group-hover/item:bg-blue-600 group-hover/item:text-white transition-colors">
+                  <ScanQrCode size={18} />
+                </div>
+                <span className="uppercase tracking-tight">
+                  QR Code Scanner
+                </span>
               </Link>
             </li>
 
-            {/* Conditional rendering – only show for non-student roles (e.g. president) */}
             {studentRole === 'president' && (
               <li>
                 <Link
                   to="/client/transactions"
-                  className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+                  className="flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-blue-600/5 hover:text-blue-600 dark:hover:bg-blue-500/10 transition-all group/item"
                   onClick={() => setDropdownOpen(false)}
                 >
-                  <TicketCheck />
-                  Transactions
+                  <div className="p-2 rounded-lg bg-slate-100 dark:bg-white/5 group-hover/item:bg-amber-500 group-hover/item:text-white transition-colors">
+                    <TicketCheck size={18} />
+                  </div>
+                  <span className="uppercase tracking-tight">Transactions</span>
                 </Link>
               </li>
             )}
           </ul>
+
+          {/* Logout Action */}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+            className="flex items-center gap-3.5 w-full px-7 py-5 text-sm font-black uppercase tracking-[0.2em] text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all text-left"
           >
-            <LogOut />
-            Log Out
+            <LogOut size={18} />
+            <span>Logout</span>
           </button>
         </div>
       )}
-      {/* */}
     </ClickOutside>
   );
 };

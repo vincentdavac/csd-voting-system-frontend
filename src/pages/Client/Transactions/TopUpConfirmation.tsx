@@ -1,4 +1,4 @@
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, Loader2, ShieldCheck, XCircle, Zap } from 'lucide-react';
 import { useAlert } from '../../../components/Alert/AlertContext';
 import API_BASE_URL from '../../../config/api';
 import { useAuth } from '../../../context/AuthContext';
@@ -17,13 +17,16 @@ const TopUpConfirmation = ({ voter, amount, onClose, onSuccess }: Props) => {
   const token = authUser?.token;
   const [loading, setLoading] = useState(false);
 
-  const handleConfirm = async () => {
+  const handleConfirm = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevents any accidental page refresh
+
     if (!token || !authUser?.user?.id) {
       showAlert('error', 'Unauthorized. Please login again.');
       return;
     }
 
     const userId = authUser.user.id;
+    const userRole = authUser.role;
 
     setLoading(true);
 
@@ -39,12 +42,28 @@ const TopUpConfirmation = ({ voter, amount, onClose, onSuccess }: Props) => {
           client_id: voter.id,
           amount_paid: amount,
           handled_by: userId,
+          handler_type: userRole,
         }),
       });
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.message || 'Failed to top up credits.');
+      // FIX: Check for the `data.errors` object specifically!
+      if (
+        !res.ok ||
+        data.status === 'error' ||
+        data.status === false ||
+        data.errors
+      ) {
+        // Extract the exact validation message (e.g., "Amount paid must be in multiples of 5 pesos.")
+        let errorMsg = data.message || 'Failed to top up credits.';
+        if (data.errors) {
+          // Grabs the very first error string from the errors array
+          errorMsg = Object.values(data.errors).flat()[0] as string;
+        }
+
+        throw new Error(errorMsg);
+      }
 
       showAlert(
         'success',
@@ -52,7 +71,7 @@ const TopUpConfirmation = ({ voter, amount, onClose, onSuccess }: Props) => {
       );
 
       if (onSuccess) onSuccess();
-      onClose();
+      onClose(); // Will ONLY close now if there are absolutely no errors
     } catch (error: any) {
       console.error(error);
       showAlert('error', error.message || 'Something went wrong.');
@@ -61,96 +80,145 @@ const TopUpConfirmation = ({ voter, amount, onClose, onSuccess }: Props) => {
     }
   };
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-md rounded-3xl bg-white dark:bg-boxdark shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-700">
-        {/* Decorative Top Accent */}
-        <div className="h-2 w-full bg-gradient-to-r from-green-400 to-green-600" />
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
+      <div className="relative w-full max-w-md max-h-[90vh] rounded-[32px] bg-white dark:bg-boxdark shadow-2xl overflow-hidden border border-white/10 flex flex-col">
+        {/* FIXED TOP: SECURITY STRIPE */}
+        <div className="shrink-0 h-3 w-full bg-[repeating-linear-gradient(45deg,#22c55e,#22c55e_10px,#16a34a_10px,#16a34a_20px)]" />
 
-        <div className="p-8">
-          {/* Close Button */}
+        {/* SCROLLABLE BODY */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 sm:p-8">
+          {/* CLOSE OVERRIDE */}
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 p-1 rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-red-500 transition-all"
+            className="absolute top-6 right-6 z-20 p-2 rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-red-500 transition-all"
           >
-            <XCircle size={22} />
+            <XCircle size={24} />
           </button>
 
-          {/* Header Section */}
+          {/* HEADER: VALIDATION STATUS */}
           <div className="flex flex-col items-center text-center mb-8">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-50 dark:bg-green-900/20">
-              <CheckCircle
-                size={36}
-                className="text-green-600 dark:text-green-400"
-              />
+            <div className="mb-6 relative">
+              <div className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-3xl bg-green-500/10 border-2 border-green-500/20 text-green-600 dark:text-green-400">
+                <ShieldCheck size={36} className="sm:size-11" />
+              </div>
+              <span className="absolute -top-1 -right-1 flex h-4 w-4">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500"></span>
+              </span>
             </div>
-            <h2 className="text-2xl font-bold text-black dark:text-white">
-              Review Transaction
+            <h2 className="text-2xl sm:text-3xl font-black text-black dark:text-white uppercase tracking-tighter italic">
+              Verify Funds
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Please confirm the top-up details below.
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-2">
+              ID: TXN-{Math.random().toString(36).substr(2, 6).toUpperCase()}
             </p>
           </div>
 
-          {/* Info Card / Receipt Style */}
-          <div className="rounded-2xl bg-gray-50 dark:bg-gray-800/50 p-5 space-y-4 mb-8 border border-gray-100 dark:border-gray-700/50">
-            <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-3">
-              <span className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Student
-              </span>
-              <span className="font-semibold text-black dark:text-white truncate max-w-[180px]">
-                {voter.fullName}
-              </span>
-            </div>
+          {/* VIRTUAL RECEIPT CARD */}
+          <div className="relative rounded-3xl bg-gray-50 dark:bg-meta-4/20 p-5 sm:p-6 mb-8 border border-stroke dark:border-strokedark overflow-hidden">
+            <Zap
+              className="absolute -bottom-4 -right-4 text-gray-200 dark:text-gray-800 opacity-20"
+              size={120}
+            />
 
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Current Balance
-              </span>
-              <span className="font-semibold text-gray-700 dark:text-gray-300">
-                {voter.remainingVotes} votes
-              </span>
-            </div>
+            <div className="relative z-10 space-y-5">
+              <div className="flex justify-between items-end border-b border-dashed border-gray-300 dark:border-gray-600 pb-4">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black text-primary uppercase tracking-widest">
+                    Recipient
+                  </span>
+                  <p className="font-black text-base sm:text-lg text-black dark:text-white leading-none truncate max-w-[150px] sm:max-w-none">
+                    {voter.fullName}
+                  </p>
+                </div>
+                <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400">
+                  {voter.studentNo}
+                </span>
+              </div>
 
-            <div className="pt-2">
-              <div className="flex justify-between items-center rounded-xl bg-green-600/10 dark:bg-green-400/10 p-4 border border-green-200 dark:border-green-900/30">
-                <span className="text-sm font-bold text-green-700 dark:text-green-400 uppercase">
-                  Amount to Add
+              <div className="flex justify-between items-center px-1">
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                  Balance
                 </span>
-                <span className="text-2xl font-black text-green-700 dark:text-green-400">
-                  +{amount}
+                <span className="font-bold text-sm text-black dark:text-white">
+                  {voter.remainingVotes}{' '}
+                  <span className="text-[10px] text-gray-400">VOTES</span>
                 </span>
+              </div>
+
+              <div className="pt-2">
+                <div className="group relative flex justify-between items-center rounded-2xl bg-black dark:bg-white p-4 sm:p-5 shadow-xl transition-transform hover:scale-[1.02]">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-black text-green-500 uppercase tracking-[0.2em]">
+                      Credit Injection
+                    </span>
+                    <p className="text-[10px] text-gray-400 font-bold uppercase italic">
+                      Finalizing
+                    </p>
+                  </div>
+                  <span className="text-3xl sm:text-4xl font-black text-white dark:text-black tracking-tighter">
+                    ₱{amount}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <button
-              onClick={onClose}
-              className="flex-1 order-2 sm:order-1 flex items-center justify-center gap-2 rounded-xl border border-gray-300 dark:border-gray-600 px-5 py-3 text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all active:scale-95"
-            >
-              Cancel
-            </button>
+          {/* DECISION MATRIX */}
+          <div className="flex flex-col gap-3">
             <button
               onClick={handleConfirm}
               disabled={loading}
-              className="flex-1 order-1 sm:order-2 flex items-center justify-center gap-2 rounded-xl bg-green-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-green-600/20 hover:bg-green-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex items-center justify-center gap-3 rounded-2xl bg-green-600 px-8 py-4 sm:py-5 text-sm font-black text-white uppercase tracking-widest shadow-lg hover:bg-green-500 transition-all disabled:opacity-50"
             >
               {loading ? (
-                <span className="flex items-center gap-2">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  Processing
+                <span className="flex items-center gap-3">
+                  <Loader2 size={20} className="animate-spin" />
+                  Updating...
                 </span>
               ) : (
                 <>
-                  <CheckCircle size={18} />
-                  Confirm Top Up
+                  <CheckCircle size={20} />
+                  Confirm & Sync
                 </>
               )}
             </button>
+
+            <button
+              onClick={onClose}
+              className="w-full py-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] hover:text-red-500 transition-colors"
+            >
+              Abort Transaction
+            </button>
           </div>
         </div>
+
+        {/* FIXED FOOTER: SYSTEM LOG */}
+        <div className="shrink-0 bg-gray-50 dark:bg-black/20 px-8 py-4 border-t border-stroke dark:border-strokedark">
+          <p className="text-[9px] font-bold text-gray-400 text-center leading-relaxed">
+            Acknowledging physical receipt of{' '}
+            <span className="text-black dark:text-white">₱{amount}.00</span>.
+          </p>
+        </div>
       </div>
+
+      {/* CUSTOM SCROLLBAR CSS */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(156, 163, 175, 0.3);
+        border-radius: 10px;
+      }
+    `,
+        }}
+      />
     </div>
   );
 };

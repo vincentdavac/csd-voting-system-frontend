@@ -1,4 +1,4 @@
-import { FingerprintPattern, HandCoins, QrCode, Vote } from 'lucide-react';
+import { Fingerprint, Store, Vote, Coins } from 'lucide-react';
 import CardDataStats from '../../../components/CardDataStats';
 
 interface DashboardCardsProps {
@@ -12,18 +12,39 @@ interface DashboardCardsProps {
 
 const DashboardCards = ({ totals }: DashboardCardsProps) => {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
-      <CardDataStats title="Total Voters" total={totals.voters.toLocaleString()} rate="">
-        <FingerprintPattern />
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <CardDataStats
+        title="Verified Voters"
+        total={totals.voters.toLocaleString()}
+        rate="Live Sync"
+        levelUp
+      >
+        <Fingerprint size={24} strokeWidth={2.5} />
       </CardDataStats>
-      <CardDataStats title="Total Exhibitors" total={totals.exhibitors.toLocaleString()} rate="">
-        <QrCode />
+
+      <CardDataStats
+        title="Active Exhibitors"
+        total={totals.exhibitors.toLocaleString()}
+        rate="100% Active"
+      >
+        <Store size={24} strokeWidth={2.5} />
       </CardDataStats>
-      <CardDataStats title="Total Votes Cast" total={totals.votes_cast.toLocaleString()} rate="">
-        <Vote />
+
+      <CardDataStats
+        title="Total Votes"
+        total={totals.votes_cast.toLocaleString()}
+        rate="+12.5%"
+        levelUp
+      >
+        <Vote size={24} strokeWidth={2.5} />
       </CardDataStats>
-      <CardDataStats title="Total Revenue" total={`₱${totals.revenue.toLocaleString()}`} rate="">
-        <HandCoins />
+
+      <CardDataStats
+        title="System Revenue"
+        total={`₱${totals.revenue.toLocaleString()}`}
+        rate="Locked"
+      >
+        <Coins size={24} strokeWidth={2.5} />
       </CardDataStats>
     </div>
   );

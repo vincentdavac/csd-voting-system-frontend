@@ -11,6 +11,7 @@ import API_BASE_URL from '../config/api';
 
 interface AuthContextType {
   authUser: AuthUser | null;
+  isLoading: boolean; // 1. Add isLoading to the context type
   login: (data: AuthUser) => void;
   logout: () => void;
 }
@@ -22,12 +23,16 @@ const ENCRYPTION_KEY =
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true); // 2. Add isLoading state (default to true)
 
   useEffect(() => {
     const storedToken = localStorage.getItem('authToken');
     const storedRoleEncrypted = localStorage.getItem('authRole'); // encrypted
 
-    if (!storedToken || !storedRoleEncrypted) return;
+    if (!storedToken || !storedRoleEncrypted) {
+      setIsLoading(false); // 3. Stop loading if no tokens exist
+      return;
+    }
 
     try {
       // Decrypt token
@@ -60,8 +65,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const responseJson = await res.json();
           const data = responseJson.data;
 
-          const isActive = role === 'admin' ? data.user.attributes.is_active : data.client.attributes.is_active;
-          
+          const isActive =
+            role === 'admin'
+              ? data.user.attributes.is_active
+              : data.client.attributes.is_active;
+
           if (!isActive) {
             throw new Error('Account deactivated');
           }
@@ -72,17 +80,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             user:
               role === 'admin'
                 ? { id: data.user.id, ...data.user.attributes }
-                : { 
-                    id: data.client.id, 
-                    ...data.client.attributes, 
-                    student_role: data.student_role 
+                : {
+                    id: data.client.id,
+                    ...data.client.attributes,
+                    student_role: data.student_role,
                   },
           });
         } catch (error) {
-          console.error("Authentication Error:", error);
+          console.error('Authentication Error:', error);
           localStorage.removeItem('authToken');
           localStorage.removeItem('authRole');
           setAuthUser(null);
+        } finally {
+          setIsLoading(false); // 4. Stop loading when fetch finishes (success or fail)
         }
       };
 
@@ -91,6 +101,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.removeItem('authToken');
       localStorage.removeItem('authRole');
       setAuthUser(null);
+      setIsLoading(false); // 5. Stop loading on decryption error
     }
   }, []);
 
@@ -116,7 +127,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ authUser, login, logout }}>
+    <AuthContext.Provider value={{ authUser, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

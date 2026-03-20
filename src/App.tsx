@@ -131,7 +131,7 @@ function App() {
             <Route path="admin/booth-rating" element={<BoothRating />} />
           </Route>
           <Route path="admin/transactions" element={<Transactions />} />
-          
+
           <Route path="admin/programs" element={<ProgramTable />} />
           <Route path="admin/voters" element={<Voters />} />
         </Route>

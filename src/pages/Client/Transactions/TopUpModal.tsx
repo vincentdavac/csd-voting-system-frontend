@@ -2,10 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import TopUpConfirmation from './TopUpConfirmation';
 import { BrowserQRCodeReader } from '@zxing/browser';
 import {
-  User,
   Mail,
-  Book,
-  CreditCard,
   Phone,
   GraduationCap,
   QrCode,
@@ -13,6 +10,8 @@ import {
   Camera,
   X,
   Zap,
+  AlertCircle,
+  TrendingUp,
 } from 'lucide-react';
 import { useAlert } from '../../../components/Alert/AlertContext';
 import API_BASE_URL from '../../../config/api';
@@ -52,7 +51,7 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
   const [qrCode, setQrCode] = useState('');
   const [manualQr, setManualQr] = useState('');
   const [voter, setVoter] = useState<VOTER | null>(null);
-  const [amount, setAmount] = useState<number>(0);
+  const [amount, setAmount] = useState<number | string>('');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
 
@@ -195,7 +194,7 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
   };
 
   const handleTopUp = () => {
-    if (!amount || amount <= 0) {
+    if (!amount) {
       showAlert('error', 'Please enter a valid amount.');
       return;
     }
@@ -209,205 +208,225 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-5xl rounded-3xl bg-white dark:bg-boxdark shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-        {/* Header */}
-        <div className="px-8 py-5 border-b border-stroke dark:border-strokedark flex justify-between items-center bg-gray-50/50 dark:bg-white/5">
-          <div>
-            <h2 className="text-2xl font-black text-black dark:text-white flex items-center gap-2">
-              <div className="h-8 w-2 bg-primary rounded-full" />
-              Top Up Credits
-            </h2>
-            <p className="text-xs text-gray-500 mt-1">
-              Scan student QR or enter ID manually to add votes.
-            </p>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
+      <div className="relative w-full max-w-6xl rounded-[40px] bg-white dark:bg-boxdark shadow-2xl overflow-hidden max-h-[95vh] flex flex-col border border-white/20">
+        {/* HEADER: COMMAND CENTER STYLE */}
+        <div className="px-10 py-7 border-b border-stroke dark:border-strokedark flex justify-between items-center bg-gray-50/50 dark:bg-white/5">
+          <div className="flex items-center gap-4">
+            <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-inner">
+              <Zap size={28} fill="currentColor" />
+            </div>
+            <div>
+              <h2 className="text-3xl font-black text-black dark:text-white uppercase italic tracking-tighter">
+                Credits Terminal
+              </h2>
+              <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">
+                Authorized Personnel Only • Session Active
+              </p>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-red-50 hover:text-red-500 text-gray-400 transition-all"
+            className="group p-3 rounded-2xl hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-400 transition-all border border-transparent hover:border-red-200"
           >
-            <X size={24} />
+            <X
+              size={24}
+              className="group-hover:rotate-90 transition-transform"
+            />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            {/* LEFT SIDE - Scanner (5 Cols) */}
-            <div className="lg:col-span-5 space-y-6">
+        <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            {/* LEFT COLUMN: ACQUISITION (SCANNER) */}
+            <div className="lg:col-span-5 space-y-8">
               <div className="relative">
-                <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-                  <Camera size={18} className="text-primary" />
-                  Live Scanner
-                </label>
+                <div className="flex items-center justify-between mb-4">
+                  <label className="text-xs font-black uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+                    <Camera size={16} className="text-primary" />
+                    Live Optical Scan
+                  </label>
+                  <span className="flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span className="text-[10px] font-bold text-emerald-500 uppercase">
+                      Hardware Ready
+                    </span>
+                  </span>
+                </div>
 
-                <div className="relative rounded-2xl border-4 border-gray-100 dark:border-gray-800 overflow-hidden aspect-square bg-black shadow-inner">
+                <div className="relative rounded-[32px] border-[6px] border-gray-100 dark:border-gray-800 overflow-hidden aspect-square bg-black shadow-2xl">
                   <video
                     ref={videoRef}
-                    className="w-full h-full object-cover opacity-80"
+                    className="w-full h-full object-cover opacity-70 grayscale-[0.3]"
                     playsInline
                     muted
                     autoPlay
                   />
-                  {/* Scanner Overlay UI */}
-                  <div className="absolute inset-0 border-[40px] border-black/40">
-                    <div className="w-full h-full border-2 border-primary/50 relative">
-                      <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-primary" />
-                      <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-primary" />
-                      <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-primary" />
-                      <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-primary" />
-                      <div className="absolute top-1/2 left-0 w-full h-[2px] bg-primary/30 animate-pulse" />
+
+                  {/* CYBER SCANNER OVERLAY */}
+                  <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute inset-10 border-2 border-primary/30 rounded-xl">
+                      <div className="absolute top-0 left-0 w-10 h-10 border-t-4 border-l-4 border-primary shadow-[0_0_15px_rgba(60,80,224,0.5)]" />
+                      <div className="absolute top-0 right-0 w-10 h-10 border-t-4 border-r-4 border-primary shadow-[0_0_15px_rgba(60,80,224,0.5)]" />
+                      <div className="absolute bottom-0 left-0 w-10 h-10 border-b-4 border-l-4 border-primary shadow-[0_0_15px_rgba(60,80,224,0.5)]" />
+                      <div className="absolute bottom-0 right-0 w-10 h-10 border-b-4 border-r-4 border-primary shadow-[0_0_15px_rgba(60,80,224,0.5)]" />
+
+                      {/* LASER LINE */}
+                      <div className="absolute top-0 left-0 w-full h-[3px] bg-primary/60 shadow-[0_0_20px_rgba(60,80,224,0.8)] animate-scan-line" />
                     </div>
+                    {/* VIGNETTE */}
+                    <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]" />
                   </div>
                 </div>
               </div>
 
-              <div className="p-5 rounded-2xl border border-dashed border-stroke dark:border-strokedark bg-gray-50/50 dark:bg-meta-4/20">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-400 mb-3 block">
-                  Manual Entry
+              {/* MANUAL ENTRY HUD */}
+              <div className="p-6 rounded-[24px] bg-gray-50 dark:bg-meta-4/20 border-2 border-dashed border-stroke dark:border-strokedark">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 block">
+                  Manual ID Override
                 </label>
-                <div className="flex gap-2">
-                  <div className="flex flex-1 rounded-xl border-2 border-transparent bg-white dark:bg-boxdark shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-primary dark:border-strokedark transition-all">
-                    <span className="flex items-center px-4 py-3 bg-gray-100 dark:bg-meta-4 text-gray-500 dark:text-gray-400 font-bold text-sm select-none border-r dark:border-strokedark">
-                      CLI-{new Date().getFullYear()}-
+                <div className="flex gap-3">
+                  <div className="flex flex-1 rounded-2xl border-2 border-transparent bg-white dark:bg-boxdark shadow-md overflow-hidden focus-within:ring-4 focus-within:ring-primary/10 transition-all">
+                    <span className="flex items-center px-5 py-4 bg-gray-100 dark:bg-meta-4 text-gray-500 font-black text-xs select-none border-r border-stroke dark:border-strokedark">
+                      ID-
                     </span>
                     <input
                       type="text"
                       value={manualQr}
-                      onChange={(e) => {
-                        const val = e.target.value
-                          .replace(/\D/g, '')
-                          .slice(0, 4);
-                        setManualQr(val);
-                      }}
-                      className="flex-1 px-4 py-3 outline-none text-lg font-bold text-black dark:text-white bg-transparent"
+                      onChange={(e) =>
+                        setManualQr(
+                          e.target.value.replace(/\D/g, '').slice(0, 4),
+                        )
+                      }
+                      className="flex-1 px-4 py-4 outline-none text-xl font-black text-black dark:text-white bg-transparent tracking-widest"
                       placeholder="0000"
                     />
                   </div>
                   <button
                     onClick={handleManualQr}
                     disabled={isFetching}
-                    className="rounded-xl bg-primary px-6 py-3 text-white font-bold hover:shadow-lg hover:shadow-primary/30 disabled:opacity-50 transition-all"
+                    className="rounded-2xl bg-black dark:bg-white dark:text-black px-8 py-4 text-white font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-xl"
                   >
-                    Find
+                    Fetch
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* RIGHT SIDE - Information (7 Cols) */}
+            {/* RIGHT COLUMN: PROCESSING & DATA */}
             <div className="lg:col-span-7">
               {isFetching ? (
-                <div className="h-full flex flex-col items-center justify-center space-y-4 py-20 bg-gray-50/50 dark:bg-white/5 rounded-3xl border-2 border-dashed border-stroke dark:border-strokedark">
-                  <div className="relative">
-                    <Loader2 size={48} className="animate-spin text-primary" />
-                    <div className="absolute inset-0 blur-xl bg-primary/20 animate-pulse" />
+                <div className="h-full min-h-[400px] flex flex-col items-center justify-center bg-primary/5 rounded-[40px] border-2 border-dashed border-primary/20">
+                  <div className="relative mb-6">
+                    <Loader2 size={64} className="animate-spin text-primary" />
+                    <div className="absolute inset-0 blur-2xl bg-primary/30 animate-pulse" />
                   </div>
-                  <p className="font-medium text-gray-500">
-                    Searching database...
+                  <p className="font-black uppercase tracking-[0.3em] text-primary animate-pulse">
+                    Querying Database...
                   </p>
                 </div>
               ) : !voter ? (
-                <div className="h-full flex flex-col items-center justify-center text-center p-10 bg-gray-50/50 dark:bg-white/5 rounded-3xl border-2 border-dashed border-stroke dark:border-strokedark space-y-4">
-                  <div className="p-4 bg-white dark:bg-boxdark rounded-full shadow-sm">
-                    <QrCode size={40} className="text-gray-300" />
+                <div className="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-12 bg-gray-50 dark:bg-white/5 rounded-[40px] border-2 border-dashed border-stroke dark:border-strokedark">
+                  <div className="p-8 bg-white dark:bg-boxdark rounded-[32px] shadow-2xl mb-6 ring-1 ring-stroke">
+                    <QrCode
+                      size={56}
+                      className="text-gray-200 dark:text-gray-700"
+                    />
                   </div>
-                  <div>
-                    <p className="text-lg font-bold text-gray-400">
-                      Waiting for Scan
-                    </p>
-                    <p className="text-sm text-gray-400 max-w-xs mx-auto">
-                      Please point the camera at the student's QR code or type
-                      their ID.
-                    </p>
-                  </div>
+                  <h3 className="text-xl font-black text-black dark:text-white uppercase italic">
+                    System Standby
+                  </h3>
+                  <p className="text-xs text-gray-400 max-w-[280px] mt-2 font-bold leading-relaxed uppercase tracking-tighter">
+                    Awaiting Optical Input or Manual Identification to Begin
+                    Transaction
+                  </p>
                 </div>
               ) : (
-                <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                  {/* Voter Identity Card */}
-                  <div className="rounded-3xl border border-stroke dark:border-strokedark bg-white dark:bg-boxdark shadow-sm overflow-hidden">
-                    <div className="p-6 flex items-start gap-6">
-                      <div className="space-y-3">
-                        <div className="relative group">
+                <div className="space-y-8 animate-in slide-in-from-right-8 duration-500">
+                  {/* VOTER IDENTITY CARD: PREMIUM LOOK */}
+                  <div className="rounded-[32px] border border-stroke dark:border-strokedark bg-white dark:bg-boxdark shadow-2xl overflow-hidden group">
+                    <div className="p-8 flex flex-col md:flex-row items-center md:items-start gap-8">
+                      <div className="relative">
+                        <div className="h-40 w-40 overflow-hidden rounded-[24px] border-[6px] border-gray-50 dark:border-meta-4 shadow-xl transition-transform group-hover:scale-105">
                           <img
                             src={voter.idPicture || '/user-profile.png'}
-                            className="w-32 h-32 object-cover rounded-2xl border-4 border-gray-50 shadow-md group-hover:scale-105 transition-transform"
+                            className="w-full h-full object-cover"
                             alt="Student"
                           />
-                          <span
-                            className={`absolute -top-2 -right-2 px-2 py-1 rounded-lg text-[10px] font-black uppercase ${
-                              voter.isActive
-                                ? 'bg-green-500 text-white'
-                                : 'bg-red-500 text-white'
-                            }`}
-                          >
-                            {voter.isActive ? 'Active' : 'Inactive'}
-                          </span>
                         </div>
-                        <img
-                          src={voter.qrImage}
-                          className="w-32 h-12 object-contain bg-white rounded-lg p-1 border border-gray-100"
-                        />
+                        <div
+                          className={`absolute -bottom-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg ${
+                            voter.isActive
+                              ? 'bg-emerald-500 text-white'
+                              : 'bg-red-500 text-white'
+                          }`}
+                        >
+                          {voter.isActive ? 'Verified' : 'Flagged'}
+                        </div>
                       </div>
 
-                      <div className="flex-1 space-y-4">
+                      <div className="flex-1 text-center md:text-left space-y-4">
                         <div>
-                          <p className="text-xs font-bold text-primary uppercase tracking-tighter">
+                          <span className="inline-block px-3 py-1 rounded-lg bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-2">
                             {voter.studentNo}
-                          </p>
-                          <h3 className="text-2xl font-black text-black dark:text-white leading-tight">
+                          </span>
+                          <h3 className="text-4xl font-black text-black dark:text-white leading-none uppercase italic tracking-tighter">
                             {voter.fullName}
                           </h3>
-                          <p className="text-sm text-gray-500 flex items-center gap-1">
-                            <GraduationCap size={14} /> {voter.program} • Year{' '}
-                            {voter.yearLevel}
+                          <p className="text-xs font-bold text-gray-400 mt-2 flex items-center justify-center md:justify-start gap-2">
+                            <GraduationCap size={16} className="text-primary" />
+                            {voter.program} • Level {voter.yearLevel}
                           </p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-white/5 p-2 rounded-lg">
+                        <div className="flex flex-wrap justify-center md:justify-start gap-3">
+                          <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-white/5 rounded-xl border border-stroke dark:border-strokedark">
                             <Mail size={14} className="text-primary" />
-                            <span className="truncate">{voter.email}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-white/5 p-2 rounded-lg">
-                            <Phone size={14} className="text-primary" />
-                            <span>{voter.contactNumber}</span>
+                            <span className="text-[10px] font-black uppercase text-gray-500">
+                              {voter.email}
+                            </span>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 border-t border-stroke dark:border-strokedark">
-                      <div className="p-4 text-center border-r border-stroke dark:border-strokedark bg-blue-50/30 dark:bg-blue-900/10">
-                        <p className="text-[10px] font-black text-blue-500 uppercase">
-                          Current Balance
+                    {/* BALANCE HUD */}
+                    <div className="grid grid-cols-2 bg-gray-50 dark:bg-meta-4/20 border-t border-stroke dark:border-strokedark">
+                      <div className="p-6 text-center border-r border-stroke dark:border-strokedark group/bal">
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 group-hover/bal:text-primary transition-colors">
+                          Current Credits
                         </p>
-                        <p className="text-2xl font-black text-blue-600 dark:text-blue-400">
+                        <p className="text-4xl font-black text-black dark:text-white tracking-tighter">
                           {voter.remainingVotes}
                         </p>
                       </div>
-                      <div className="p-4 text-center bg-purple-50/30 dark:bg-purple-900/10">
-                        <p className="text-[10px] font-black text-purple-500 uppercase">
-                          Total Purchased
+                      <div className="p-6 text-center group/bal">
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 group-hover/bal:text-purple-500 transition-colors">
+                          Lifetime Points
                         </p>
-                        <p className="text-2xl font-black text-purple-600 dark:text-purple-400">
+                        <p className="text-4xl font-black text-black dark:text-white tracking-tighter">
                           {voter.totalVotesPurchased}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Top Up Action - Light Modern Theme */}
-                  <div className="bg-primary/5 border border-primary/10 rounded-3xl p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                      <label className="text-sm font-black uppercase tracking-wider text-primary/70">
-                        Enter Top-up Amount
+                  {/* TRANSACTION HUB */}
+                  <div className="bg-primary/5 border-2 border-primary/20 rounded-[32px] p-8 shadow-inner relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                      <TrendingUp size={80} />
+                    </div>
+
+                    <div className="flex items-center justify-between mb-6">
+                      <label className="text-xs font-black uppercase tracking-[0.2em] text-primary">
+                        Input Load Amount
                       </label>
                       <div className="flex gap-2">
-                        {[20, 50, 100].map((quickAmt) => (
+                        {[20, 50, 100, 500].map((quickAmt) => (
                           <button
                             key={quickAmt}
                             onClick={() => setAmount(quickAmt)}
-                            className="text-[10px] font-bold px-2 py-1 rounded-md bg-white border border-primary/20 text-primary hover:bg-primary hover:text-white transition-all shadow-sm"
+                            className="px-4 py-2 rounded-xl bg-white dark:bg-boxdark border-2 border-primary/10 text-[10px] font-black text-primary hover:bg-primary hover:text-white hover:scale-110 transition-all shadow-sm"
                           >
                             +₱{quickAmt}
                           </button>
@@ -415,18 +434,22 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
                       </div>
                     </div>
 
-                    <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex flex-col xl:flex-row gap-5">
                       <div className="relative flex-1 group">
-                        <span className="absolute left-5 top-1/2 -translate-y-1/2 text-2xl font-black text-primary group-focus-within:scale-110 transition-transform">
+                        <span className="absolute left-6 top-1/2 -translate-y-1/2 text-3xl font-black text-primary transition-transform group-focus-within:scale-125">
                           ₱
                         </span>
                         <input
                           type="number"
                           value={amount}
                           onChange={(e) =>
-                            setAmount(parseInt(e.target.value) || 0)
+                            setAmount(
+                              e.target.value === ''
+                                ? ''
+                                : parseInt(e.target.value),
+                            )
                           }
-                          className="w-full bg-white border-2 border-primary/10 rounded-2xl py-4 pl-12 pr-4 text-2xl font-black text-black outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all placeholder:text-gray-300 shadow-inner"
+                          className="w-full bg-white dark:bg-boxdark border-3 border-primary/10 rounded-[24px] py-6 pl-14 pr-6 text-4xl font-black text-black dark:text-white outline-none focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all shadow-2xl"
                           placeholder="0.00"
                           min={1}
                         />
@@ -434,18 +457,24 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
 
                       <button
                         onClick={handleTopUp}
-                        disabled={!amount || amount <= 0}
-                        className="bg-primary hover:bg-primary/90 text-white px-10 py-4 rounded-2xl font-black text-lg flex items-center justify-center gap-3 shadow-lg shadow-primary/25 active:scale-95 transition-all disabled:opacity-50 disabled:grayscale disabled:scale-100"
+                        disabled={!amount}
+                        className="group/btn bg-primary text-white px-12 py-6 rounded-[24px] font-black text-xl uppercase italic tracking-tighter flex items-center justify-center gap-4 shadow-[0_20px_40px_rgba(60,80,224,0.3)] active:scale-95 transition-all disabled:opacity-30 disabled:grayscale"
                       >
-                        <Zap size={22} fill="currentColor" />
-                        Confirm Top-up
+                        <Zap
+                          size={24}
+                          fill="currentColor"
+                          className="group-hover/btn:animate-bounce"
+                        />
+                        Commit Load
                       </button>
                     </div>
 
-                    <p className="text-[10px] text-gray-400 mt-3 text-center italic">
-                      Ensure the amount matches the cash received before
-                      confirming.
-                    </p>
+                    <div className="mt-6 flex items-center justify-center gap-2 py-2 px-4 rounded-full bg-primary/10 w-max mx-auto">
+                      <AlertCircle size={14} className="text-primary" />
+                      <p className="text-[10px] font-black text-primary uppercase tracking-widest">
+                        Cross-verify cash amount before final commit
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
@@ -454,10 +483,26 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
         </div>
       </div>
 
+      {/* CSS for the Laser Line - Add to your globals.css or a styled component */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+      @keyframes scan-line {
+        0% { top: 0%; opacity: 0.1; }
+        50% { opacity: 1; }
+        100% { top: 100%; opacity: 0.1; }
+      }
+      .animate-scan-line {
+        animation: scan-line 2s linear infinite;
+      }
+    `,
+        }}
+      />
+
       {showConfirmation && voter && (
         <TopUpConfirmation
           voter={voter}
-          amount={amount}
+          amount={Number(amount)}
           onClose={() => setShowConfirmation(false)}
           onSuccess={refetchVoter}
         />

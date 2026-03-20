@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import { XCircle, Wallet, User, ShieldAlert, ArrowRight } from 'lucide-react';
+import {
+  XCircle,
+  Wallet,
+  User,
+  ShieldAlert,
+  ArrowRight,
+  Fingerprint,
+} from 'lucide-react';
 import { useAlert } from '../../../components/Alert/AlertContext';
 import API_BASE_URL from '../../../config/api';
 import { useAuth } from '../../../context/AuthContext';
@@ -56,7 +63,7 @@ const UpdateModal = ({ transaction, onClose, onUpdate }: UpdateModalProps) => {
 
     try {
       const res = await fetch(
-        `${API_BASE_URL}/purchase-transactions/${transaction.id}?_method=PATCH`,
+        `${API_BASE_URL}/client/purchase-transactions/${transaction.id}?_method=PATCH`,
         {
           method: 'POST',
           headers: {
@@ -68,6 +75,7 @@ const UpdateModal = ({ transaction, onClose, onUpdate }: UpdateModalProps) => {
             client_id: transaction.clientId,
             amount_paid: amount,
             handled_by: userId,
+            handler_type: 'client',
           }),
         },
       );
@@ -91,184 +99,215 @@ const UpdateModal = ({ transaction, onClose, onUpdate }: UpdateModalProps) => {
   };
 
   return (
-   <>
-  {/* MAIN UPDATE MODAL */}
-  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-    <div className="relative w-full max-w-md rounded-3xl bg-white dark:bg-boxdark shadow-2xl overflow-hidden border border-gray-100 dark:border-strokedark">
-      {/* Top Accent Line */}
-      <div className="h-1.5 w-full bg-primary" />
-      
-      <div className="p-8">
-        {/* Close */}
-        <button
-          onClick={onClose}
-          className="absolute top-6 right-6 p-1 rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-red-500 transition-colors"
-        >
-          <XCircle size={22} />
-        </button>
+    <>
+      {/* MAIN UPDATE MODAL */}
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+        <div className="relative w-full max-w-md max-h-[90vh] rounded-[32px] bg-white dark:bg-boxdark shadow-2xl overflow-hidden border border-gray-100 dark:border-strokedark flex flex-col">
+          {/* FIXED HEADER ACCENT */}
+          <div className="shrink-0 h-2 w-full bg-[repeating-linear-gradient(45deg,#3c50e0,#3c50e0_10px,#2563eb_10px,#2563eb_20px)]" />
 
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-black dark:text-white">
-            Edit Transaction
-          </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Adjust the top-up amount for this record.
-          </p>
-        </div>
+          {/* SCROLLABLE CONTENT */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-6 sm:p-8">
+            {/* CLOSE */}
+            <button
+              onClick={onClose}
+              className="absolute top-6 right-6 z-10 p-2 rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-meta-4 hover:text-red-500 transition-all"
+            >
+              <XCircle size={24} />
+            </button>
 
-        {/* USER INFO CARD */}
-        <div className="flex items-center gap-4 mb-8 p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-strokedark">
-          <div className="relative">
-            {transaction.idPicture ? (
-              <img
-                src={transaction.idPicture}
-                alt={transaction.fullName}
-                className="h-16 w-16 rounded-2xl object-cover shadow-sm"
-              />
-            ) : (
-              <div className="h-16 w-16 rounded-2xl bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-400">
-                N/A
-              </div>
-            )}
-            <div className="absolute -bottom-1 -right-1 bg-blue-500 border-2 border-white dark:border-boxdark p-1 rounded-full">
-              <User size={10} className="text-white" />
-            </div>
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-black dark:text-white truncate">
-              {transaction.fullName}
-            </p>
-            <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs">
-              <span className="text-gray-500">
-                Current: <b className="text-green-600 dark:text-green-400">₱{transaction.amountPaid}</b>
-              </span>
-              <span className="text-gray-400">
-                {transaction.createdDate}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* AMOUNT INPUT */}
-        <div className="mb-8">
-          <label className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3 block">
-            New Amount (₱)
-          </label>
-
-          <div className="relative group">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
-              <Wallet size={20} />
-            </div>
-            <input
-              type="number"
-              value={amount}
-              min={1}
-              onChange={(e) => setAmount(Number(e.target.value))}
-              className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-strokedark rounded-2xl py-4 pl-12 pr-4 text-xl font-bold text-black dark:text-white outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-              placeholder="0.00"
-            />
-          </div>
-          
-          {/* Quick Preview Difference */}
-          <div className="mt-3 flex items-center gap-2 px-1">
-             <div className="h-1 w-1 rounded-full bg-gray-300" />
-             <p className="text-xs text-gray-500">
-                Adjustment: <span className={amount >= transaction.amountPaid ? "text-green-600" : "text-red-500"}>
-                  {amount >= transaction.amountPaid ? '+' : ''}{amount - transaction.amountPaid} credits
+            <div className="mb-8">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">
+                  Administrative Override
                 </span>
-             </p>
-          </div>
-        </div>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-black dark:text-white tracking-tighter italic uppercase leading-none">
+                Edit Entry
+              </h2>
+            </div>
 
-        {/* BUTTONS */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <button
-            onClick={onClose}
-            className="flex-1 order-2 sm:order-1 px-6 py-3 rounded-xl font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleProceed}
-            className="flex-1 order-1 sm:order-2 px-6 py-3 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-opacity-90 active:scale-95 transition-all"
-          >
-            Review Changes
-          </button>
+            {/* USER INFO CARD */}
+            <div className="flex items-center gap-4 mb-8 p-5 rounded-[24px] bg-gray-50 dark:bg-meta-4/30 border border-stroke dark:border-strokedark relative overflow-hidden group">
+              <div className="relative z-10 shrink-0">
+                {transaction.idPicture ? (
+                  <img
+                    src={transaction.idPicture}
+                    alt={transaction.fullName}
+                    className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl object-cover ring-4 ring-white dark:ring-boxdark shadow-lg"
+                  />
+                ) : (
+                  <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[10px] font-black text-gray-400">
+                    NO_IMG
+                  </div>
+                )}
+              </div>
+
+              <div className="flex-1 min-w-0 z-10">
+                <p className="font-black text-black dark:text-white text-base sm:text-lg leading-tight truncate">
+                  {transaction.fullName}
+                </p>
+                <div className="flex flex-col gap-1 mt-1">
+                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                    Original:{' '}
+                    <b className="text-primary">₱{transaction.amountPaid}</b>
+                  </span>
+                  <span className="text-[10px] font-mono text-gray-400">
+                    TS: {transaction.createdDate}
+                  </span>
+                </div>
+              </div>
+              <Fingerprint
+                className="absolute -right-4 -bottom-4 text-gray-200 dark:text-gray-800 opacity-20"
+                size={100}
+              />
+            </div>
+
+            {/* AMOUNT INPUT */}
+            <div className="mb-6">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 block ml-1">
+                New Credit Value (₱)
+              </label>
+
+              <div className="relative group">
+                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-primary">
+                  <p className="font-black text-xl">₱</p>
+                </div>
+                <input
+                  type="number"
+                  value={amount}
+                  min={1}
+                  onChange={(e) => setAmount(Number(e.target.value))}
+                  className="w-full bg-gray-50 dark:bg-meta-4/50 border-2 border-transparent focus:border-primary rounded-2xl py-5 sm:py-6 pl-12 pr-6 text-2xl sm:text-3xl font-black text-black dark:text-white outline-none transition-all shadow-inner"
+                  placeholder="0.00"
+                />
+              </div>
+
+              <div className="mt-4 p-4 rounded-xl bg-gray-50 dark:bg-black/20 border border-dashed border-stroke dark:border-strokedark">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase">
+                    Balance Delta
+                  </span>
+                  <span
+                    className={`text-sm font-black italic ${
+                      amount >= transaction.amountPaid
+                        ? 'text-green-500'
+                        : 'text-red-500'
+                    }`}
+                  >
+                    {amount >= transaction.amountPaid ? '▲' : '▼'}{' '}
+                    {Math.abs(amount - transaction.amountPaid)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* FIXED FOOTER BUTTONS */}
+          <div className="shrink-0 p-6 sm:p-8 pt-0 bg-white dark:bg-boxdark">
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleProceed}
+                className="w-full py-4 sm:py-5 bg-black dark:bg-white dark:text-black text-white font-black uppercase tracking-[0.2em] text-xs rounded-2xl shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                Review Changes
+              </button>
+              <button
+                onClick={onClose}
+                className="w-full py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-red-500 transition-colors"
+              >
+                Discard Changes
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  {/* CONFIRMATION MODAL (Step-up Auth) */}
-  {showConfirm && (
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
-      <div className="w-full max-w-sm bg-white dark:bg-boxdark rounded-3xl shadow-2xl p-8 border border-yellow-500/20">
-        <div className="flex flex-col items-center text-center mb-6">
-          <div className="h-16 w-16 bg-yellow-50 dark:bg-yellow-900/20 rounded-full flex items-center justify-center mb-4">
-            <ShieldAlert className="text-yellow-500" size={32} />
-          </div>
-          <h3 className="text-xl font-bold text-black dark:text-white">
-            Elevated Permission
-          </h3>
-          <p className="text-sm text-gray-500 mt-2 px-4">
-            A Super Admin must authorize this change to the ledger.
-          </p>
-        </div>
+      {/* CONFIRMATION MODAL (Scrollable) */}
+      {showConfirm && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/90 backdrop-blur-xl p-4 animate-in zoom-in-95 duration-200">
+          <div className="w-full max-w-sm max-h-[95vh] overflow-y-auto bg-white dark:bg-boxdark rounded-[40px] shadow-2xl p-8 sm:p-10 border border-yellow-500/30 text-center custom-scrollbar">
+            <div className="relative mx-auto h-20 w-20 sm:h-24 sm:w-24 mb-6">
+              <div className="absolute inset-0 bg-yellow-500/20 rounded-full animate-ping" />
+              <div className="relative h-20 w-20 sm:h-24 sm:w-24 bg-yellow-500/10 rounded-full flex items-center justify-center border-2 border-yellow-500/50">
+                <ShieldAlert className="text-yellow-500" size={40} />
+              </div>
+            </div>
 
-        <div className="space-y-4 mb-6 p-4 rounded-2xl bg-gray-50 dark:bg-gray-800">
-           <div className="flex justify-between text-xs font-medium uppercase tracking-tighter text-gray-400">
-              <span>Old: ₱{transaction.amountPaid}</span>
-              <ArrowRight size={14} />
-              <span className="text-green-600">New: ₱{amount}</span>
-           </div>
-        </div>
-
-        {/* PASSCODE */}
-        <div className="mb-4">
-          <input
-            type="password"
-            placeholder="••••••••"
-            value={passcode}
-            onChange={(e) => {
-              setPasscode(e.target.value);
-              setPasscodeError('');
-            }}
-            className="w-full border-2 text-center text-lg tracking-widest rounded-xl px-4 py-3 outline-none dark:bg-transparent dark:border-strokedark focus:border-yellow-500 transition-colors"
-            autoFocus
-          />
-          {passcodeError && (
-            <p className="text-red-500 text-xs font-medium mt-2 text-center animate-shake">
-              {passcodeError}
+            <h3 className="text-xl sm:text-2xl font-black text-black dark:text-white uppercase italic tracking-tighter mb-2">
+              Super Admin Required
+            </h3>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-8">
+              Database Manipulation Detected
             </p>
-          )}
-        </div>
 
-        {/* BUTTONS */}
-        <div className="grid gap-3">
-          <button
-            onClick={handleConfirm}
-            disabled={loading}
-            className="w-full py-4 bg-yellow-500 text-black font-bold rounded-xl hover:bg-yellow-400 active:scale-95 transition-all disabled:opacity-50"
-          >
-            {loading ? 'Processing...' : 'Authorize & Update'}
-          </button>
-          <button
-            onClick={() => {
-              setShowConfirm(false);
-              setPasscode('');
-              setPasscodeError('');
-            }}
-            disabled={loading}
-            className="w-full py-2 text-sm font-semibold text-gray-500 hover:text-gray-700"
-          >
-            Go Back
-          </button>
+            <div className="flex items-center justify-center gap-4 mb-8 px-4 py-3 rounded-2xl bg-gray-50 dark:bg-meta-4">
+              <span className="text-xs font-black text-gray-400 line-through">
+                ₱{transaction.amountPaid}
+              </span>
+              <ArrowRight size={14} className="text-yellow-500" />
+              <span className="text-lg font-black text-green-500 tracking-tighter">
+                ₱{amount}
+              </span>
+            </div>
+
+            <div className="mb-8">
+              <p className="text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest">
+                Enter Authorization Key
+              </p>
+              <input
+                type="password"
+                placeholder="••••"
+                value={passcode}
+                onChange={(e) => {
+                  setPasscode(e.target.value);
+                  setPasscodeError('');
+                }}
+                className="w-full bg-transparent border-b-4 border-yellow-500 text-center text-3xl sm:text-4xl tracking-[0.5em] py-2 outline-none font-black text-black dark:text-white"
+                autoFocus
+              />
+              {passcodeError && (
+                <p className="text-red-500 text-[10px] font-black mt-4 uppercase animate-shake italic">
+                  {passcodeError}
+                </p>
+              )}
+            </div>
+
+            <div className="grid gap-3">
+              <button
+                onClick={handleConfirm}
+                disabled={loading}
+                className="w-full py-4 sm:py-5 bg-yellow-500 text-black font-black uppercase tracking-[0.2em] text-xs rounded-2xl hover:bg-yellow-400 transition-all disabled:opacity-50"
+              >
+                {loading ? 'SYNCING...' : 'AUTHORIZE UPDATE'}
+              </button>
+              <button
+                onClick={() => {
+                  setShowConfirm(false);
+                  setPasscode('');
+                  setPasscodeError('');
+                }}
+                disabled={loading}
+                className="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-black dark:hover:text-white"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  )}
-</>
+      )}
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+      .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.2); border-radius: 10px; }
+    `,
+        }}
+      />
+    </>
   );
 };
 

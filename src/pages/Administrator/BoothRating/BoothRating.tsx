@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Breadcrumb from '../../../components/Breadcrumbs/Breadcrumb';
 import BarGraphOverAllRanking from './BarGraphOverAllRanking';
 import BarGraphPerProgram from './BarGraphPerProgram';
@@ -57,12 +57,12 @@ const BoothRating = () => {
 
       <div className="grid grid-cols-12 gap-4 md:gap-6 2xl:gap-7.5 mb-4">
         <BarGraphOverAllRanking />
-        
+
         {programs.map((program) => (
-          <BarGraphPerProgram 
-            key={program} 
-            programName={program} 
-            exhibitorsData={exhibitorsData} 
+          <BarGraphPerProgram
+            key={program}
+            programName={program}
+            exhibitorsData={exhibitorsData}
           />
         ))}
       </div>

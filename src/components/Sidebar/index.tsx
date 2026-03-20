@@ -3,16 +3,17 @@ import { NavLink, useLocation } from 'react-router-dom';
 import SidebarLinkGroup from './SidebarLinkGroup';
 import Logo from '../../images/logo/csd_logo_darkmode.svg';
 import {
-  FingerprintPattern,
   GraduationCap,
   LayoutDashboard,
   QrCode,
   ScanLine,
-  ShieldUser,
   Star,
   UsersRound,
   Vote,
   Settings,
+  ChevronLeft,
+  Fingerprint,
+  ShieldCheck,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -72,243 +73,247 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   return (
     <aside
       ref={sidebar}
-      className={`absolute left-0 top-0 z-999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-black duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      className={`absolute left-0 top-0 z-999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-[#020d26] duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${
+        sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
       }`}
     >
-      {/* */}
-      <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
-        <NavLink to="/">
-          <img src={Logo} alt="Logo" />
+      {/* SIDEBAR HEADER */}
+      <div className="flex items-center justify-between gap-2 px-6 py-8">
+        <NavLink to="/admin/dashboard" className="flex items-center gap-3">
+          <img src={Logo} alt="Logo" className="w-55 h-auto" />
+          {/* <div className="flex flex-col">
+            <span className="text-xl font-black text-white italic tracking-tighter leading-none">
+              ITECHTIVITY<span className="text-primary">2026</span>
+            </span>
+            <span className="text-[8px] font-black text-gray-500 uppercase tracking-[0.3em]">
+              Admin Terminal
+            </span>
+          </div> */}
         </NavLink>
 
         <button
           ref={trigger}
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          aria-controls="sidebar"
-          aria-expanded={sidebarOpen}
-          className="block lg:hidden"
+          className="block lg:hidden text-white hover:text-primary transition-colors"
         >
-          <svg
-            className="fill-current"
-            width="20"
-            height="18"
-            viewBox="0 0 20 18"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M19 8.175H2.98748L9.36248 1.6875C9.69998 1.35 9.69998 0.825 9.36248 0.4875C9.02498 0.15 8.49998 0.15 8.16248 0.4875L0.399976 8.3625C0.0624756 8.7 0.0624756 9.225 0.399976 9.5625L8.16248 17.4375C8.31248 17.5875 8.53748 17.7 8.76248 17.7C8.98748 17.7 9.17498 17.625 9.36248 17.475C9.69998 17.1375 9.69998 16.6125 9.36248 16.275L3.02498 9.8625H19C19.45 9.8625 19.825 9.4875 19.825 9.0375C19.825 8.55 19.45 8.175 19 8.175Z"
-              fill=""
-            />
-          </svg>
+          <ChevronLeft size={24} />
         </button>
       </div>
-      {/* */}
 
-      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
-        {/* */}
-        <nav className="mt-5 py-4 px-4 lg:mt-9 lg:px-6">
-          {/* */}
+      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear px-4">
+        <nav className="mt-5 lg:mt-9">
+          {/* MAIN MENU SECTION */}
           <div>
-            <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
-              MENU
+            <h3 className="mb-4 ml-4 text-[10px] font-black text-gray-500 uppercase tracking-[0.4em]">
+              MAIN
             </h3>
 
-            <ul className="mb-6 flex flex-col gap-1.5">
+            <ul className="mb-6 flex flex-col gap-2">
+              {/* DASHBOARD */}
               <li>
                 <NavLink
                   to="/admin/dashboard"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                  className={`group relative flex items-center gap-3 rounded-xl py-3 px-4 font-bold text-gray-400 transition-all duration-300 hover:text-white hover:bg-white/5 ${
                     pathname.includes('admin/dashboard') &&
-                    'bg-graydark dark:bg-meta-4'
+                    'bg-primary/10 !text-white shadow-[inset_0_0_20px_rgba(60,80,224,0.1)]'
                   }`}
                 >
-                  <LayoutDashboard />
+                  <LayoutDashboard
+                    size={20}
+                    className={`${
+                      pathname.includes('admin/dashboard')
+                        ? 'text-primary'
+                        : 'group-hover:text-primary'
+                    }`}
+                  />
                   Dashboard
+                  {pathname.includes('admin/dashboard') && (
+                    <div className="absolute right-0 h-5 w-1 bg-primary rounded-l-full shadow-[0_0_10px_#3C50E0]" />
+                  )}
                 </NavLink>
               </li>
 
-              {/* */}
+              {/* USER MANAGEMENT (DROPDOWN) */}
               <SidebarLinkGroup
-                activeCondition={
-                  pathname === '/admin/user-management' ||
-                  pathname.includes('admin/user-management')
-                }
+                activeCondition={pathname.includes('admin/user-management')}
               >
-                {(handleClick, open) => {
-                  return (
-                    <React.Fragment>
-                      <NavLink
-                        to="#"
-                        className={`group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                          (pathname === '/admin/user-management' ||
-                            pathname.includes('admin/user-management')) &&
-                          'bg-graydark dark:bg-meta-4'
+                {(handleClick, open) => (
+                  <React.Fragment>
+                    <NavLink
+                      to="#"
+                      className={`group relative flex items-center gap-3 rounded-xl px-4 py-3 font-bold text-gray-400 transition-all duration-300 hover:text-white hover:bg-white/5 ${
+                        pathname.includes('admin/user-management') &&
+                        'text-white'
+                      }`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setSidebarExpanded(true);
+                        handleClick();
+                      }}
+                    >
+                      <UsersRound
+                        size={20}
+                        className={`${
+                          pathname.includes('admin/user-management')
+                            ? 'text-primary'
+                            : 'group-hover:text-primary'
                         }`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          sidebarExpanded
-                            ? handleClick()
-                            : setSidebarExpanded(true);
-                        }}
-                      >
-                        <UsersRound />
-                        User Management
-                        <svg
-                          className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${
-                            open && 'rotate-180'
-                          }`}
-                          width="20"
-                          height="20"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M4.41107 6.9107C4.73651 6.58527 5.26414 6.58527 5.58958 6.9107L10.0003 11.3214L14.4111 6.91071C14.7365 6.58527 15.2641 6.58527 15.5896 6.91071C15.915 7.23614 15.915 7.76378 15.5896 8.08922L10.5896 13.0892C10.2641 13.4147 9.73651 13.4147 9.41107 13.0892L4.41107 8.08922C4.08563 7.76378 4.08563 7.23614 4.41107 6.9107Z"
-                            fill=""
-                          />
-                        </svg>
-                      </NavLink>
-                      {/* */}
-                      <div
-                        className={`translate transform overflow-hidden ${
-                          !open && 'hidden'
+                      />
+                      User Management
+                      <ChevronLeft
+                        size={16}
+                        className={`absolute right-4 transition-transform duration-300 ${
+                          open ? '-rotate-90' : ''
                         }`}
-                      >
-                        <ul className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
+                      />
+                    </NavLink>
+
+                    <div
+                      className={`translate transform overflow-hidden ${
+                        !open && 'hidden'
+                      }`}
+                    >
+                      <ul className="mt-2 mb-4 flex flex-col gap-2 pl-10 border-l border-white/10 ml-6">
+                        <li>
+                          <NavLink
+                            to="/admin/user-management/voters"
+                            className={({ isActive }) =>
+                              `group relative flex items-center gap-2 text-sm font-bold transition-all duration-300 ${
+                                isActive
+                                  ? 'text-primary'
+                                  : 'text-gray-500 hover:text-white'
+                              }`
+                            }
+                          >
+                            <Fingerprint size={14} />
+                            Voters
+                          </NavLink>
+                        </li>
+                        {authUser?.user?.role === 'super_admin' && (
                           <li>
                             <NavLink
-                              to="/admin/user-management/voters"
+                              to="/admin/user-management/administrators"
                               className={({ isActive }) =>
-                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
-                                (isActive && '!text-white')
+                                `group relative flex items-center gap-2 text-sm font-bold transition-all duration-300 ${
+                                  isActive
+                                    ? 'text-primary'
+                                    : 'text-gray-500 hover:text-white'
+                                }`
                               }
                             >
-                              <FingerprintPattern />
-                              Voters
+                              <ShieldCheck size={14} />
+                              Administrators
                             </NavLink>
                           </li>
-                        </ul>
-                        {/* SUPER ADMIN ONLY: Administrators Link */}
-                        {authUser?.user?.role === 'super_admin' && (
-                          <ul className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
-                            <li>
-                              <NavLink
-                                to="/admin/user-management/administrators"
-                                className={({ isActive }) =>
-                                  'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
-                                  (isActive && '!text-white')
-                                }
-                              >
-                                <ShieldUser />
-                                Administrators
-                              </NavLink>
-                            </li>
-                          </ul>
                         )}
-                      </div>
-                      {/* */}
-                    </React.Fragment>
-                  );
-                }}
+                      </ul>
+                    </div>
+                  </React.Fragment>
+                )}
               </SidebarLinkGroup>
-              {/* */}
 
+              {/* TRANSACTIONS */}
               <li>
                 <NavLink
                   to="/admin/transactions"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                  className={`group relative flex items-center gap-3 rounded-xl py-3 px-4 font-bold text-gray-400 transition-all duration-300 hover:text-white hover:bg-white/5 ${
                     pathname.includes('admin/transactions') &&
-                    'bg-graydark dark:bg-meta-4'
+                    'bg-primary/10 !text-white'
                   }`}
                 >
-                  <ScanLine />
+                  <ScanLine size={20} className="group-hover:text-primary" />
                   Transactions
                 </NavLink>
               </li>
 
-              {/* SUPER ADMIN ONLY: Exhibitors Link */}
-              {authUser?.user?.role === 'super_admin' && (
-                <li>
-                  <NavLink
-                    to="/admin/exhibitors"
-                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                      pathname.includes('admin/exhibitors') &&
-                      'bg-graydark dark:bg-meta-4'
-                    }`}
-                  >
-                    <QrCode />
-                    Exhibitors
-                  </NavLink>
-                </li>
-              )}
-
-              {/* SUPER ADMIN ONLY: People's Choice Link */}
-              {authUser?.user?.role === 'super_admin' && (
-                <li>
-                  <NavLink
-                    to="/admin/voting-results"
-                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                      pathname.includes('admin/voting-results') &&
-                      'bg-graydark dark:bg-meta-4'
-                    }`}
-                  >
-                    <Vote />
-                    People's Choice
-                  </NavLink>
-                </li>
-              )}
-
-              {/* SUPER ADMIN ONLY: Best Booth Link */}
-              {authUser?.user?.role === 'super_admin' && (
-                <li>
-                  <NavLink
-                    to="/admin/booth-rating"
-                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                      pathname.includes('admin/booth-rating') &&
-                      'bg-graydark dark:bg-meta-4'
-                    }`}
-                  >
-                    <Star />
-                    Best Booth
-                  </NavLink>
-                </li>
-              )}
-
+              {/* PROGRAMS */}
               <li>
                 <NavLink
                   to="/admin/programs"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                  className={`group relative flex items-center gap-3 rounded-xl py-3 px-4 font-bold text-gray-400 transition-all duration-300 hover:text-white hover:bg-white/5 ${
                     pathname.includes('admin/programs') &&
-                    'bg-graydark dark:bg-meta-4'
+                    'bg-primary/10 !text-white'
                   }`}
                 >
-                  <GraduationCap />
+                  <GraduationCap
+                    size={20}
+                    className="group-hover:text-primary"
+                  />
                   Programs
                 </NavLink>
               </li>
+            </ul>
+          </div>
 
-              {authUser?.user?.role === 'super_admin' && (
+          {/* SUPER ADMIN TOOLS SECTION */}
+          {authUser?.user?.role === 'super_admin' && (
+            <div className="mt-10">
+              <h3 className="mb-4 ml-4 text-[10px] font-black text-primary uppercase tracking-[0.4em]">
+                Others
+              </h3>
+              <ul className="mb-6 flex flex-col gap-2">
+                <li>
+                  <NavLink
+                    to="/admin/exhibitors"
+                    className={`group relative flex items-center gap-3 rounded-xl py-3 px-4 font-bold text-gray-400 transition-all duration-300 hover:text-white hover:bg-white/5 ${
+                      pathname.includes('admin/exhibitors') &&
+                      'bg-primary/10 !text-white'
+                    }`}
+                  >
+                    <QrCode size={20} className="group-hover:text-primary" />
+                    Exhibitors
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to="/admin/voting-results"
+                    className={`group relative flex items-center gap-3 rounded-xl py-3 px-4 font-bold text-gray-400 transition-all duration-300 hover:text-white hover:bg-white/5 ${
+                      pathname.includes('admin/voting-results') &&
+                      'bg-primary/10 !text-white'
+                    }`}
+                  >
+                    <Vote size={20} className="group-hover:text-primary" />
+                    People's Choice
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to="/admin/booth-rating"
+                    className={`group relative flex items-center gap-3 rounded-xl py-3 px-4 font-bold text-gray-400 transition-all duration-300 hover:text-white hover:bg-white/5 ${
+                      pathname.includes('admin/booth-rating') &&
+                      'bg-primary/10 !text-white'
+                    }`}
+                  >
+                    <Star size={20} className="group-hover:text-primary" />
+                    Best Booth
+                  </NavLink>
+                </li>
                 <li>
                   <NavLink
                     to="/admin/global-settings"
-                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                    className={`group relative flex items-center gap-3 rounded-xl py-3 px-4 font-bold text-gray-400 transition-all duration-300 hover:text-white hover:bg-white/5 ${
                       pathname.includes('admin/global-settings') &&
-                      'bg-graydark dark:bg-meta-4'
+                      'bg-primary/10 !text-white'
                     }`}
                   >
-                    <Settings />
+                    <Settings size={20} className="group-hover:text-primary" />
                     Global Settings
                   </NavLink>
                 </li>
-              )}
-            </ul>
-          </div>
+              </ul>
+            </div>
+          )}
         </nav>
+      </div>
+
+      {/* TACTICAL FOOTER LOG */}
+      <div className="mt-auto p-6 border-t border-white/5 bg-black/20">
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+          <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
+            System Online
+          </span>
+        </div>
       </div>
     </aside>
   );

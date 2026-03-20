@@ -1,4 +1,15 @@
-import { Search, FileText } from 'lucide-react';
+import {
+  Search,
+  FileText,
+  User,
+  MessageSquare,
+  Ticket,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Inbox,
+  Clock,
+} from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import API_BASE_URL from '../../../config/api';
@@ -34,7 +45,6 @@ const VotingTable = () => {
   useEffect(() => {
     const fetchVotes = async () => {
       if (!authUser?.token) return;
-
       try {
         const res = await fetch(`${API_BASE_URL}/votes`, {
           method: 'GET',
@@ -47,8 +57,6 @@ const VotingTable = () => {
         if (res.ok) {
           const responseData = await res.json();
           setVotesData(responseData.data || []);
-        } else {
-          console.error('Failed to fetch voting transactions');
         }
       } catch (error) {
         console.error('Error fetching votes:', error);
@@ -56,153 +64,220 @@ const VotingTable = () => {
         setLoading(false);
       }
     };
-
     fetchVotes();
   }, [authUser]);
 
   const filteredData = votesData.filter(
     (v) =>
       v.client.full_name.toLowerCase().includes(search.toLowerCase()) ||
-      v.exhibitor.project_title.toLowerCase().includes(search.toLowerCase())
+      v.exhibitor.project_title.toLowerCase().includes(search.toLowerCase()),
   );
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-
   const currentData = filteredData.slice(
     (page - 1) * rowsPerPage,
     page * rowsPerPage,
   );
 
   const handleGenerateResult = async () => {
-    if (!authUser?.token) {
-      console.error('No authorization token found.');
-      return;
-    }
-
+    if (!authUser?.token) return;
     try {
       const res = await fetch(`${API_BASE_URL}/votes-transactions/pdf`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${authUser.token}`,
-          Accept: 'application/pdf', 
+          Accept: 'application/pdf',
         },
       });
-
-      if (!res.ok) {
-        throw new Error('Failed to generate PDF');
-      }
-
+      if (!res.ok) throw new Error('Failed to generate PDF');
       const blob = await res.blob();
-
       const url = window.URL.createObjectURL(blob);
-
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', 'Voting_Transactions.pdf');
-      
       document.body.appendChild(link);
       link.click();
       link.remove();
-
       window.URL.revokeObjectURL(url);
-      
     } catch (error) {
-      console.error('Error generating result:', error);
       alert('Failed to generate the PDF report.');
     }
   };
 
   return (
-    <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-4 shadow-default dark:border-strokedark dark:bg-boxdark">
-      {/* TOP CONTROLS */}
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-        {/* SEARCH */}
-        <div className="relative w-72">
-          <input
-            type="text"
-            placeholder="Search voter or project..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            className="w-full rounded-lg border border-stroke bg-transparent py-2 pl-10 pr-4 outline-none focus:border-primary dark:border-strokedark"
-          />
-          <Search
-            size={18}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
-          />
+    <div className="rounded-[32px] border border-stroke bg-white p-6 shadow-2xl dark:border-strokedark dark:bg-boxdark transition-all">
+      {/* HEADER SECTION */}
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-stroke pb-6 dark:border-strokedark">
+        <div>
+          <h2 className="text-xl font-black text-black dark:text-white tracking-tight">
+            Voting Transactions
+          </h2>
+          <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mt-1">
+            Audit Log & Public Choice Records
+          </p>
         </div>
 
-        {/* GENERATE RESULT BUTTON */}
-        <button
-          onClick={handleGenerateResult}
-          className="flex items-center gap-2 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-        >
-          <FileText size={18} /> Generate Result
-        </button>
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+          <div className="relative w-full sm:w-72">
+            <input
+              type="text"
+              placeholder="Search voter or project..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="w-full rounded-2xl border-2 border-gray-50 bg-gray-50 py-2.5 pl-11 pr-4 text-sm outline-none transition-all focus:border-primary focus:bg-white dark:border-strokedark dark:bg-meta-4"
+            />
+            <Search
+              size={18}
+              className="absolute left-4 top-1/2 -translate-y-1-2 text-gray-400"
+            />
+          </div>
+
+          <button
+            onClick={handleGenerateResult}
+            className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 transition-all hover:bg-emerald-700 active:scale-95"
+          >
+            <FileText size={18} />
+            <span>Export PDF</span>
+          </button>
+        </div>
       </div>
 
-      {/* TABLE */}
+      {/* TABLE SECTION */}
       <div className="overflow-x-auto">
-        <table className="w-full table-auto text-sm">
+        <table className="w-full table-auto border-collapse text-left text-sm">
           <thead>
-            <tr className="bg-gray-2 dark:bg-meta-4 text-left">
-              <th className="p-3">No.</th>
-              <th className="p-3">Full Name</th>
-              <th className="p-3">Voted Exhibitor</th>
-              <th className="p-3">Comment</th>
-              <th className="p-3">Vote Counts</th>
-              <th className="p-3">Date - Time</th>
+            <tr className="border-b border-stroke dark:border-strokedark">
+              <th className="pb-4 pl-4 font-black uppercase tracking-widest text-gray-400 text-[10px]">
+                #
+              </th>
+              <th className="pb-4 font-black uppercase tracking-widest text-gray-400 text-[10px]">
+                Voter Name
+              </th>
+              <th className="pb-4 font-black uppercase tracking-widest text-gray-400 text-[10px]">
+                Project Title
+              </th>
+              <th className="pb-4 font-black uppercase tracking-widest text-gray-400 text-[10px]">
+                Feedback
+              </th>
+              <th className="pb-4 font-black uppercase tracking-widest text-gray-400 text-[10px]">
+                Ticket(s)
+              </th>
+              <th className="pb-4 pr-4 text-right font-black uppercase tracking-widest text-gray-400 text-[10px]">
+                Logged At
+              </th>
             </tr>
           </thead>
 
-          <tbody>
+          <tbody className="divide-y divide-gray-50 dark:divide-strokedark">
             {loading ? (
-              <tr>
-                <td colSpan={6} className="text-center py-4">Loading data...</td>
-              </tr>
+              Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="animate-pulse">
+                  <td colSpan={6} className="py-6">
+                    <div className="h-10 w-full rounded-xl bg-gray-100 dark:bg-meta-4"></div>
+                  </td>
+                </tr>
+              ))
             ) : currentData.length > 0 ? (
               currentData.map((v, index) => (
-                <tr key={index} className="border-b border-stroke">
-                  <td className="p-3">{(page - 1) * rowsPerPage + index + 1}</td>
-                  <td className="p-3 font-medium">{v.client.full_name}</td>
-                  <td className="p-3">{v.exhibitor.project_title}</td>
-                  <td className="p-3 max-w-[200px] truncate">{v.comment || 'N/A'}</td>
-                  <td className="p-3 font-medium">{v.votes_casted ?? 0}</td>
-                  <td className="p-3">{v.createdDate} - {v.createdTime}</td>
+                <tr
+                  key={index}
+                  className="group hover:bg-gray-50/50 dark:hover:bg-meta-4/10"
+                >
+                  <td className="py-5 pl-4">
+                    <span className="font-mono text-xs font-bold text-gray-300">
+                      {(page - 1) * rowsPerPage + index + 1}
+                    </span>
+                  </td>
+
+                  <td className="py-5">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-500/10">
+                        <User size={14} />
+                      </div>
+                      <span className="font-bold text-black dark:text-white">
+                        {v.client.full_name}
+                      </span>
+                    </div>
+                  </td>
+
+                  <td className="py-5">
+                    <span className="font-medium text-gray-600 dark:text-gray-300">
+                      {v.exhibitor.project_title}
+                    </span>
+                  </td>
+
+                  <td className="py-5">
+                    <div className="flex items-center gap-2 max-w-[250px]">
+                      <MessageSquare
+                        size={14}
+                        className="text-gray-300 shrink-0"
+                      />
+                      <p className="truncate text-xs text-gray-500 italic">
+                        {v.comment ? `"${v.comment}"` : 'No comment left.'}
+                      </p>
+                    </div>
+                  </td>
+
+                  <td className="py-5">
+                    <div className="inline-flex items-center gap-1.5 rounded-lg bg-orange-50 px-2.5 py-1 text-xs font-black text-orange-700 dark:bg-orange-500/10 dark:text-orange-400">
+                      <Ticket size={12} />
+                      {v.votes_casted ?? 0}
+                    </div>
+                  </td>
+
+                  <td className="py-5 pr-4 text-right">
+                    <div className="flex flex-col items-end opacity-70">
+                      <div className="flex items-center gap-1 text-[11px] font-bold text-black dark:text-white">
+                        <Calendar size={10} /> {v.createdDate}
+                      </div>
+                      <div className="flex items-center gap-1 text-[10px] font-medium text-gray-400">
+                        <Clock size={10} /> {v.createdTime}
+                      </div>
+                    </div>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="text-center py-4">No votes found.</td>
+                <td colSpan={6} className="py-20 text-center">
+                  <div className="flex flex-col items-center opacity-20 text-gray-400">
+                    <Inbox size={48} strokeWidth={1} />
+                    <p className="mt-2 font-bold uppercase tracking-widest text-xs">
+                      Zero Transactions
+                    </p>
+                  </div>
+                </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
 
-      {/* PAGINATION */}
-      <div className="mt-4 flex items-center justify-center gap-4">
-        <button
-          disabled={page === 1}
-          onClick={() => setPage(page - 1)}
-          className="rounded border px-4 py-1 disabled:opacity-40"
-        >
-          ←
-        </button>
-
-        <span className="text-sm">
-          Page {page} of {totalPages || 1}
+      {/* PAGINATION SECTION */}
+      <div className="mt-8 flex items-center justify-between border-t border-stroke pt-6 dark:border-strokedark">
+        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+          Showing Page {page} of {totalPages || 1}
         </span>
 
-        <button
-          disabled={page === totalPages || totalPages === 0}
-          onClick={() => setPage(page + 1)}
-          className="rounded border px-4 py-1 disabled:opacity-40"
-        >
-          →
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-gray-100 text-gray-500 transition-all hover:bg-gray-100 disabled:opacity-30 dark:border-strokedark dark:hover:bg-meta-4"
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <button
+            disabled={page === totalPages || totalPages === 0}
+            onClick={() => setPage(page + 1)}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-gray-100 text-gray-500 transition-all hover:bg-gray-100 disabled:opacity-30 dark:border-strokedark dark:hover:bg-meta-4"
+          >
+            <ChevronRight size={16} />
+          </button>
+        </div>
       </div>
     </div>
   );

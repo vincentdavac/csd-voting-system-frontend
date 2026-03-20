@@ -263,6 +263,20 @@ module.exports = {
         'spin-3': 'spin 3s linear infinite',
       },
     },
+
+    theme: {
+      extend: {
+        animation: {
+          'progress-shrink': 'shrink 3s linear forwards',
+        },
+        keyframes: {
+          shrink: {
+            '0%': { width: '100%' },
+            '100%': { width: '0%' },
+          },
+        },
+      },
+    },
   },
   plugins: [],
 };

@@ -3,77 +3,67 @@ import DropdownNotification from './DropdownNotification';
 import DropdownUser from './DropdownUser';
 import LogoIcon from '../../images/logo/csd_logo.svg';
 import DarkModeSwitcher from './DarkModeSwitcher';
+import { X, Menu } from 'lucide-react';
 
 const Header = (props: {
   sidebarOpen: string | boolean | undefined;
   setSidebarOpen: (arg0: boolean) => void;
 }) => {
   return (
-    <header className="sticky  top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
+    <header className="sticky top-0 z-999 flex w-full border-b border-stroke bg-white/80 backdrop-blur-md dark:border-strokedark dark:bg-boxdark/80">
       <div className="flex flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">
+        {/* MOBILE SECTION: Toggle & Logo */}
         <div className="flex items-center gap-2 sm:gap-4 lg:hidden">
-          {/* <!-- Hamburger Toggle BTN --> */}
+          {/* TACTICAL HAMBURGER TOGGLE */}
           <button
             aria-controls="sidebar"
             onClick={(e) => {
               e.stopPropagation();
               props.setSidebarOpen(!props.sidebarOpen);
             }}
-            className="z-999 block rounded-sm border border-stroke bg-white p-1.5 shadow-sm dark:border-strokedark dark:bg-boxdark lg:hidden"
+            className="z-999 block rounded-xl border border-stroke bg-white p-2 shadow-sm transition-all hover:bg-gray-50 dark:border-strokedark dark:bg-meta-4 lg:hidden"
           >
-            <span className="relative block h-5.5 w-5.5 cursor-pointer">
-              <span className="du-block absolute right-0 h-full w-full">
-                <span
-                  className={`relative left-0 top-0 my-1 block h-0.5 w-0 rounded-sm bg-black delay-[0] duration-200 ease-in-out dark:bg-white ${
-                    !props.sidebarOpen && '!w-full delay-300'
-                  }`}
-                ></span>
-                <span
-                  className={`relative left-0 top-0 my-1 block h-0.5 w-0 rounded-sm bg-black delay-150 duration-200 ease-in-out dark:bg-white ${
-                    !props.sidebarOpen && 'delay-400 !w-full'
-                  }`}
-                ></span>
-                <span
-                  className={`relative left-0 top-0 my-1 block h-0.5 w-0 rounded-sm bg-black delay-200 duration-200 ease-in-out dark:bg-white ${
-                    !props.sidebarOpen && '!w-full delay-500'
-                  }`}
-                ></span>
-              </span>
-              <span className="absolute right-0 h-full w-full rotate-45">
-                <span
-                  className={`absolute left-2.5 top-0 block h-full w-0.5 rounded-sm bg-black delay-300 duration-200 ease-in-out dark:bg-white ${
-                    !props.sidebarOpen && '!h-0 !delay-[0]'
-                  }`}
-                ></span>
-                <span
-                  className={`delay-400 absolute left-0 top-2.5 block h-0.5 w-full rounded-sm bg-black duration-200 ease-in-out dark:bg-white ${
-                    !props.sidebarOpen && '!h-0 !delay-200'
-                  }`}
-                ></span>
-              </span>
-            </span>
+            {props.sidebarOpen ? (
+              <X size={20} className="text-primary" />
+            ) : (
+              <Menu size={20} className="text-black dark:text-white" />
+            )}
           </button>
-          {/* <!-- Hamburger Toggle BTN --> */}
 
-          <Link className="block flex-shrink-0 lg:hidden" to="/">
-            <img src={LogoIcon} alt="Logo" className="h-8 w-auto" />
+          {/* MOBILE LOGO WITH STATUS GLOW */}
+          <Link
+            className="relative block flex-shrink-0 lg:hidden"
+            to="/admin/dashboard"
+          >
+            <div className="absolute -inset-1 bg-primary/20 blur-lg rounded-full animate-pulse" />
+            <img src={LogoIcon} alt="Logo" className="relative h-9 w-auto" />
           </Link>
         </div>
 
-        <div className="ml-auto flex items-center gap-3 2xsm:gap-7">
-          {' '}
-          <ul className="flex items-center gap-2 2xsm:gap-4">
-            {/* <!-- Dark Mode Toggler --> */}
-            <DarkModeSwitcher />
-            {/* <!-- Dark Mode Toggler --> */}
+        {/* SEARCH / BREADCRUMB PLACEHOLDER (Optional) */}
+        <div className="hidden sm:block">
+          <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">
+            Central Operations Center
+          </span>
+        </div>
 
-            {/* <!-- Notification Menu Area --> */}
+        {/* ACTION AREA: Right Side */}
+        <div className="ml-auto flex items-center gap-3 2xsm:gap-7">
+          <ul className="flex items-center gap-2 2xsm:gap-4">
+            {/* DARK MODE SWITCHER */}
+            <div className="p-1 rounded-xl bg-gray-50 dark:bg-meta-4/50">
+              <DarkModeSwitcher />
+            </div>
+
+            {/* NOTIFICATIONS */}
             <DropdownNotification />
-            {/* <!-- Notification Menu Area --> */}
           </ul>
-          {/* <!-- User Area --> */}
+
+          {/* VERTICAL DIVIDER */}
+          <div className="h-8 w-[1px] bg-stroke dark:bg-strokedark mx-1 hidden sm:block" />
+
+          {/* USER PROFILE */}
           <DropdownUser />
-          {/* <!-- User Area --> */}
         </div>
       </div>
     </header>

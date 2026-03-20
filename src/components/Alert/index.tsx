@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { X, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
 
 type AlertStatus = 'success' | 'warning' | 'error';
 
@@ -12,67 +12,73 @@ interface AlertProps {
 const Alert = ({ status, title, message, onClose }: AlertProps) => {
   const styles = {
     success: {
-      border: 'border-green-500',
-      bg: 'bg-green-100',
-      iconBg: 'bg-green-500',
-      titleColor: 'text-green-800',
+      border: 'border-green-500/30',
+      bg: 'bg-green-500/10',
+      iconColor: 'text-green-500',
+      bar: 'bg-green-500',
+      glow: 'shadow-[0_0_15px_rgba(34,197,94,0.1)]',
+      icon: <CheckCircle2 size={18} />,
     },
     warning: {
-      border: 'border-amber-500',
-      bg: 'bg-amber-100',
-      iconBg: 'bg-amber-500',
-      titleColor: 'text-amber-800',
+      border: 'border-amber-500/30',
+      bg: 'bg-amber-500/10',
+      iconColor: 'text-amber-500',
+      bar: 'bg-amber-500',
+      glow: 'shadow-[0_0_15px_rgba(245,158,11,0.1)]',
+      icon: <AlertTriangle size={18} />,
     },
     error: {
-      border: 'border-red-500',
-      bg: 'bg-red-100',
-      iconBg: 'bg-red-500',
-      titleColor: 'text-red-800',
+      border: 'border-red-500/30',
+      bg: 'bg-red-500/10',
+      iconColor: 'text-red-500',
+      bar: 'bg-red-500',
+      glow: 'shadow-[0_0_15px_rgba(239,68,68,0.1)]',
+      icon: <XCircle size={18} />,
     },
   };
 
   const current = styles[status];
-
-  const defaultTitles = {
-    success: 'Success',
-    warning: 'Warning',
-    error: 'Error',
-  };
-
-  const displayTitle = title || defaultTitles[status];
+  const displayTitle = title || status.toUpperCase();
 
   return (
     <div
-      className={`flex w-full max-w-[90vw] sm:max-w-sm border-l-4 sm:border-l-[6px] ${current.border} ${current.bg} px-3 py-3 sm:px-5 sm:py-4 shadow-lg rounded-md`}
+      className={`relative flex w-full min-w-[300px] max-w-sm overflow-hidden rounded-2xl border backdrop-blur-md transition-all duration-300 animate-in slide-in-from-right-5 ${current.border} ${current.bg} ${current.glow} p-4`}
     >
-      {/* Icon */}
+      {/* Icon Area */}
       <div
-        className={`mr-3 sm:mr-4 flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-lg ${current.iconBg} text-white text-sm sm:text-base font-bold`}
+        className={`mr-4 flex shrink-0 items-start pt-0.5 ${current.iconColor}`}
       >
-        {status === 'success' && '✓'}
-        {status === 'warning' && '!'}
-        {status === 'error' && '✕'}
+        {current.icon}
       </div>
 
-      {/* Content */}
-      <div className="flex-1">
+      {/* Content Area */}
+      <div className="flex-1 pr-4">
         <h5
-          className={`font-semibold mb-0.5 sm:mb-1 text-sm sm:text-base ${current.titleColor}`}
+          className={`text-[10px] font-black uppercase tracking-[0.2em] mb-1 ${current.iconColor} italic`}
         >
           {displayTitle}
         </h5>
-        <p className="text-xs sm:text-sm text-gray-600">{message}</p>
+        <p className="text-sm font-medium text-black dark:text-white leading-relaxed">
+          {message}
+        </p>
       </div>
 
-      {/* Close */}
+      {/* Close Action */}
       {onClose && (
         <button
           onClick={onClose}
-          className="ml-2 sm:ml-3 text-gray-400 hover:text-red-500 transition-colors"
+          className="shrink-0 text-gray-400 hover:text-black dark:hover:text-white transition-colors"
         >
-          <X size={16} className="sm:size-[18px]" />
+          <X size={16} />
         </button>
       )}
+
+      {/* Tactical Progress Bar */}
+      <div className="absolute bottom-0 left-0 h-[3px] w-full bg-black/5 dark:bg-white/5">
+        <div
+          className={`h-full ${current.bar} shadow-[0_0_8px_rgba(0,0,0,0.2)] animate-progress-shrink`}
+        />
+      </div>
     </div>
   );
 };

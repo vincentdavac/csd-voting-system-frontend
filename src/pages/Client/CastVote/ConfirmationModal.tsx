@@ -1,4 +1,4 @@
-import { CheckCircle, XCircle } from 'lucide-react';
+import { ShieldCheck, XCircle } from 'lucide-react';
 
 interface ConfirmationModalProps {
   message: string;
@@ -12,55 +12,72 @@ const ConfirmationModal = ({
   onCancel,
 }: ConfirmationModalProps) => {
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-all">
-      <div className="relative w-full max-w-sm overflow-hidden rounded-3xl bg-white dark:bg-gray-900 shadow-2xl ring-1 ring-black/5 flex flex-col items-center p-8">
-        {/* Decorative Background Element */}
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50" />
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-6 animate-in fade-in duration-300">
+      <div className="relative w-full max-w-sm overflow-hidden rounded-[2.5rem] bg-white dark:bg-[#020d26] shadow-2xl border-4 border-slate-100 dark:border-white/5 flex flex-col items-center p-8 sm:p-10">
+        {/* Top Tactical Bar */}
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-blue-600 to-transparent opacity-40" />
 
-        {/* Close button - Integrated more subtly */}
+        {/* Subtle Close Button */}
         <button
           onClick={onCancel}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors"
-          aria-label="Close"
+          className="absolute top-5 right-5 text-slate-400 hover:text-red-500 transition-colors p-1"
+          aria-label="Abort"
         >
-          <XCircle size={20} />
+          <XCircle size={22} strokeWidth={1.5} />
         </button>
 
-        {/* Confirmation Icon with Pulse Effect */}
-        <div className="relative mb-6">
-          <div className="absolute inset-0 rounded-full bg-green-500/20 animate-ping" />
-          <div className="relative flex items-center justify-center w-16 h-16 rounded-full bg-green-50 dark:bg-green-900/30">
-            <CheckCircle
-              size={36}
-              className="text-green-600 dark:text-green-400"
+        {/* ICON HUB - Tactical Pulse */}
+        <div className="relative mb-8">
+          {/* Triple Pulse Rings */}
+          <div className="absolute inset-0 rounded-full bg-blue-600/20 animate-ping" />
+          <div className="absolute -inset-4 rounded-full bg-blue-600/5 animate-pulse" />
+
+          <div className="relative flex items-center justify-center w-20 h-20 rounded-full bg-slate-50 dark:bg-blue-500/10 border-2 border-slate-100 dark:border-blue-500/20 shadow-inner">
+            <ShieldCheck
+              size={40}
+              className="text-blue-600 dark:text-blue-400 filter drop-shadow-[0_0_8px_rgba(37,99,235,0.4)]"
             />
           </div>
         </div>
 
-        {/* Text Content */}
-        <div className="text-center space-y-2 mb-8">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-            Are you sure?
+        {/* TEXT CONTENT - System Protocol Language */}
+        <div className="text-center space-y-3 mb-10">
+          <div className="inline-block px-3 py-1 rounded-full bg-blue-600/10 border border-blue-600/20 mb-1">
+            <p className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.3em]">
+              Verification Check
+            </p>
+          </div>
+          <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">
+            Confirm Action?
           </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed px-2">
-            {message || 'Please confirm your action to proceed.'}
+          <p className="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 leading-relaxed px-1">
+            {message ||
+              'Reviewing system parameters. Proceed with data transmission?'}
           </p>
         </div>
 
-        {/* Action buttons - Full width for better mobile tap targets */}
-        <div className="flex flex-col sm:flex-row w-full gap-3">
+        {/* ACTION BUTTONS - Mobile Optimized */}
+        <div className="flex flex-col w-full gap-3">
+          <button
+            onClick={onConfirm}
+            className="w-full px-6 py-4 rounded-2xl bg-blue-600 text-white text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-900/20 hover:bg-blue-700 transition-all active:scale-95"
+          >
+            Confirm Entry
+          </button>
+
           <button
             onClick={onCancel}
-            className="flex-1 order-2 sm:order-1 px-5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all active:scale-95"
+            className="w-full px-6 py-4 rounded-2xl border-2 border-slate-100 dark:border-white/5 text-xs font-black uppercase tracking-[0.2em] text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 transition-all active:scale-95"
           >
             Cancel
           </button>
-          <button
-            onClick={onConfirm}
-            className="flex-1 order-1 sm:order-2 px-5 py-2.5 rounded-xl bg-gray-900 dark:bg-green-600 text-sm font-semibold text-white hover:bg-black dark:hover:bg-green-500 shadow-lg shadow-green-900/10 transition-all active:scale-95"
-          >
-            Confirm
-          </button>
+        </div>
+
+        {/* System Footer Metadata */}
+        <div className="mt-6">
+          <p className="text-[8px] font-mono text-slate-300 dark:text-white/10 uppercase tracking-[0.2em]">
+            SECURE-ID: {Math.random().toString(36).substring(7).toUpperCase()}
+          </p>
         </div>
       </div>
     </div>

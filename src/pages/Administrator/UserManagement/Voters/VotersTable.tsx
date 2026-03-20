@@ -1,7 +1,18 @@
-import { Archive, ArchiveRestore, Search, SquareUser, Shield, ShieldOff } from 'lucide-react';
+import {
+  Archive,
+  ArchiveRestore,
+  Search,
+  SquareUser,
+  Shield,
+  ShieldOff,
+  ChevronRight,
+  ChevronLeft,
+  Mail,
+  Loader2,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
-import ViewModal from './ViewModal'; 
-import RestoreModal from './RestoreModal'; 
+import ViewModal from './ViewModal';
+import RestoreModal from './RestoreModal';
 import ArchiveModal from './ArchiveModal';
 import { useAlert } from '../../../../components/Alert/AlertContext';
 import API_BASE_URL from '../../../../config/api';
@@ -34,12 +45,12 @@ const VotersTable = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [selectedVoter, setSelectedVoter] = useState<VOTER | null>(null);
-  
+
   // Modals
   const [showViewModal, setShowViewModal] = useState(false);
   const [showRestore, setShowRestore] = useState(false);
   const [showArchive, setShowArchive] = useState(false);
-  
+
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [roleAction, setRoleAction] = useState<'promote' | 'demote'>('promote');
   const [isProcessingRole, setIsProcessingRole] = useState(false);
@@ -79,7 +90,7 @@ const VotersTable = () => {
             totalVotesPurchased: item.attributes.total_votes_purchased,
             datetime: `${item.attributes.createdDate} ${item.attributes.createdTime}`,
             isActive: item.attributes.is_active,
-            studentRole: item.attributes.student_role || 'student', 
+            studentRole: item.attributes.student_role || 'student',
           }));
 
           setVotersData(voters);
@@ -111,9 +122,10 @@ const VotersTable = () => {
     setIsProcessingRole(true);
 
     try {
-      const endpoint = roleAction === 'promote' 
-        ? `${API_BASE_URL}/clients/${selectedVoter.id}/promote`
-        : `${API_BASE_URL}/clients/${selectedVoter.id}/demote`;
+      const endpoint =
+        roleAction === 'promote'
+          ? `${API_BASE_URL}/clients/${selectedVoter.id}/promote`
+          : `${API_BASE_URL}/clients/${selectedVoter.id}/demote`;
 
       const res = await fetch(endpoint, {
         method: 'PATCH',
@@ -124,14 +136,25 @@ const VotersTable = () => {
       });
 
       if (res.ok) {
-        showAlert('success', `${selectedVoter.fullName} has been ${roleAction === 'promote' ? 'promoted to President' : 'demoted to Student'}.`);
-        
+        showAlert(
+          'success',
+          `${selectedVoter.fullName} has been ${
+            roleAction === 'promote'
+              ? 'promoted to President'
+              : 'demoted to Student'
+          }.`,
+        );
+
         setVotersData((prev) =>
           prev.map((v) =>
-            v.id === selectedVoter.id 
-              ? { ...v, studentRole: roleAction === 'promote' ? 'president' : 'student' } 
-              : v
-          )
+            v.id === selectedVoter.id
+              ? {
+                  ...v,
+                  studentRole:
+                    roleAction === 'promote' ? 'president' : 'student',
+                }
+              : v,
+          ),
         );
         setShowRoleModal(false);
       } else {
@@ -161,204 +184,259 @@ const VotersTable = () => {
   );
 
   return (
-    <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-4 shadow-default dark:border-strokedark dark:bg-boxdark relative">
-      {/* Search Bar */}
-      <div className="mb-4 flex justify-between items-center">
-        <div className="relative w-72">
+    <div className="rounded-[24px] border border-stroke bg-white p-2 shadow-default dark:border-strokedark dark:bg-boxdark relative overflow-hidden animate-in fade-in duration-500">
+      {/* HEADER & SEARCH SECTION */}
+      <div className="p-6 pb-2 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+            <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">
+              Electoral Registry
+            </span>
+          </div>
+          <h2 className="text-2xl font-black text-black dark:text-white uppercase tracking-tighter italic">
+            Voter Directory
+          </h2>
+        </div>
+
+        <div className="relative w-full md:w-80">
           <input
             type="text"
-            placeholder="Search voters..."
+            placeholder="Search by name or ID..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full rounded-lg border border-stroke bg-transparent py-2 pl-10 pr-4 outline-none focus:border-primary dark:border-strokedark"
+            className="w-full rounded-xl border border-stroke bg-gray-50 dark:bg-meta-4/20 py-2.5 pl-10 pr-4 text-sm font-bold outline-none focus:border-primary focus:bg-white dark:border-strokedark transition-all shadow-inner"
           />
           <Search
-            size={18}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+            size={16}
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
           />
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full table-auto text-sm">
+      {/* TABLE WRAPPER */}
+      <div className="overflow-x-auto custom-scrollbar">
+        <table className="w-full table-auto text-left border-separate border-spacing-y-2 px-4">
           <thead>
-            <tr className="bg-gray-2 dark:bg-meta-4 text-left">
-              <th className="p-3">No.</th>
-              <th className="p-3">ID Picture</th>
-              <th className="p-3">Student Number</th>
-              <th className="p-3">Full Name</th>
-              <th className="p-3">Program</th>
-              <th className="p-3">Email Address</th>
-              <th className="p-3">Contact Number</th>
-              <th className="p-3">Status</th>
-              <th className="p-3">Remaining Votes</th>
-              <th className="p-3">Total Purchased</th>
-              <th className="p-3">Date - Time</th>
-              <th className="p-3 text-center">Actions</th>
+            <tr className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">
+              <th className="px-4 py-4">Student Identity</th>
+              <th className="px-4 py-4">Contact & Program</th>
+              <th className="px-4 py-4">Voting Power</th>
+              <th className="px-4 py-4">Status</th>
+              <th className="px-4 py-4 text-center">System Actions</th>
             </tr>
           </thead>
 
-          <tbody>
+          <tbody className="before:block before:h-2">
             {loading ? (
               <tr>
-                <td colSpan={12} className="text-center py-4">Loading data...</td>
+                <td colSpan={5} className="text-center p-20">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest animate-pulse">
+                      Synchronizing Records...
+                    </span>
+                  </div>
+                </td>
               </tr>
             ) : currentData.length > 0 ? (
               currentData.map((voter, index) => (
-                <tr
-                  key={voter.id}
-                  className="border-b border-stroke dark:border-strokedark"
-                >
-                  <td className="p-3">{(page - 1) * rowsPerPage + index + 1}</td>
-                  <td className="p-3">
-                    <img
-                      src={voter.idPicture}
-                      className="h-10 w-10 rounded-full object-cover"
-                      alt="ID"
-                    />
+                <tr key={voter.id} className="group transition-all">
+                  {/* IDENTITY CELL */}
+                  <td className="bg-gray-50 dark:bg-meta-4/10 rounded-l-2xl px-4 py-4 border-y border-l border-stroke dark:border-strokedark group-hover:bg-gray-100 dark:group-hover:bg-meta-4/20 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="relative shrink-0">
+                        <img
+                          src={voter.idPicture || '/user-profile.png'}
+                          alt="ID"
+                          className="h-12 w-12 rounded-xl object-cover ring-2 ring-white dark:ring-boxdark shadow-md"
+                        />
+                        <span className="absolute -top-1 -left-1 flex h-5 w-5 items-center justify-center rounded-full bg-black text-[10px] font-black text-white italic ring-2 ring-white dark:ring-boxdark">
+                          {(page - 1) * rowsPerPage + index + 1}
+                        </span>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-black text-black dark:text-white truncate text-sm uppercase italic leading-tight">
+                          {voter.fullName}
+                        </p>
+                        <p className="text-[10px] font-bold text-gray-400 font-mono tracking-tighter">
+                          SN: {voter.studentNo}
+                        </p>
+                        {voter.studentRole === 'president' && (
+                          <span className="mt-1 inline-flex items-center rounded bg-blue-500/10 px-1.5 py-0.5 text-[9px] font-black uppercase text-blue-600 tracking-tighter">
+                            President
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </td>
-                  <td className="p-3">{voter.studentNo}</td>
-                  <td className="p-3">
-                    {voter.fullName}
-                    {/* Role Badge Indicator */}
-                    {voter.studentRole === 'president' && (
-                      <span className="ml-2 inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-900/30 dark:text-blue-400">
-                        President
+
+                  {/* CONTACT CELL */}
+                  <td className="bg-gray-50 dark:bg-meta-4/10 px-4 py-4 border-y border-stroke dark:border-strokedark group-hover:bg-gray-100 dark:group-hover:bg-meta-4/20 transition-colors">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-xs font-bold text-black dark:text-white flex items-center gap-1.5">
+                        <Mail size={12} className="text-gray-400" />{' '}
+                        {voter.email}
                       </span>
-                    )}
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight italic">
+                        {voter.program} • {voter.contactNumber}
+                      </span>
+                    </div>
                   </td>
-                  <td className="p-3">{voter.program}</td>
-                  <td className="p-3">{voter.email}</td>
-                  <td className="p-3">{voter.contactNumber}</td>
-                  <td className="p-3">
+
+                  {/* VOTES CELL */}
+                  <td className="bg-gray-50 dark:bg-meta-4/10 px-4 py-4 border-y border-stroke dark:border-strokedark group-hover:bg-gray-100 dark:group-hover:bg-meta-4/20 transition-colors">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-black text-primary italic leading-none">
+                        {voter.remainingVotes}{' '}
+                        <span className="text-[9px] uppercase tracking-tighter text-gray-400 not-italic">
+                          Rem.
+                        </span>
+                      </span>
+                      <span className="text-[9px] font-bold text-gray-400 uppercase mt-1">
+                        Total: {voter.totalVotesPurchased}
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* STATUS CELL */}
+                  <td className="bg-gray-50 dark:bg-meta-4/10 px-4 py-4 border-y border-stroke dark:border-strokedark group-hover:bg-gray-100 dark:group-hover:bg-meta-4/20 transition-colors">
                     <span
-                      className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
+                      className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-wider ${
                         voter.isActive
-                          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                          : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                          ? 'bg-green-500/10 text-green-600'
+                          : 'bg-red-500/10 text-red-600'
                       }`}
                     >
-                      {voter.isActive ? 'Active' : 'Inactive'}
+                      <span
+                        className={`h-1.5 w-1.5 rounded-full ${
+                          voter.isActive
+                            ? 'bg-green-600 animate-pulse'
+                            : 'bg-red-600'
+                        }`}
+                      ></span>
+                      {voter.isActive ? 'Verified' : 'Archived'}
                     </span>
                   </td>
-                  <td className="p-3 font-medium">{voter.remainingVotes}</td>
-                  <td className="p-3">{voter.totalVotesPurchased}</td>
-                  <td className="p-3">{voter.datetime}</td>
-                  
-                  {/* Actions Column */}
-                  <td className="p-3 flex flex-wrap gap-3 justify-center">
-                    <button
-                      className="flex items-center gap-1 text-blue-600 hover:text-blue-800 transition"
-                      title="View Voter"
-                      onClick={() => {
-                        setSelectedVoter(voter);
-                        setShowViewModal(true);
-                      }}
-                    >
-                      <SquareUser size={16} />
-                      View
-                    </button>
 
-                    {voter.isActive ? (
+                  {/* ACTIONS CELL */}
+                  <td className="bg-gray-50 dark:bg-meta-4/10 rounded-r-2xl px-4 py-4 border-y border-r border-stroke dark:border-strokedark text-center group-hover:bg-gray-100 dark:group-hover:bg-meta-4/20 transition-colors">
+                    <div className="flex justify-center gap-2">
                       <button
-                        className="flex items-center gap-1 text-red-600 hover:text-red-800 transition"
-                        title="Archive User"
                         onClick={() => {
                           setSelectedVoter(voter);
-                          setShowArchive(true);
+                          setShowViewModal(true);
                         }}
+                        className="p-2 rounded-xl bg-white dark:bg-boxdark text-gray-400 hover:text-primary hover:shadow-lg transition-all"
+                        title="View Details"
                       >
-                        <Archive size={16} />
-                        Archive
+                        <SquareUser size={18} />
                       </button>
-                    ) : (
-                      <button
-                        className="flex items-center gap-1 text-green-600 hover:text-green-800 transition"
-                        title="Restore User"
-                        onClick={() => {
-                          setSelectedVoter(voter);
-                          setShowRestore(true);
-                        }}
-                      >
-                        <ArchiveRestore size={16} />
-                        Restore
-                      </button>
-                    )}
 
-                    {/* Promote / Demote Buttons */}
-                    {voter.studentRole === 'president' ? (
+                      {voter.isActive ? (
+                        <button
+                          onClick={() => {
+                            setSelectedVoter(voter);
+                            setShowArchive(true);
+                          }}
+                          className="p-2 rounded-xl bg-white dark:bg-boxdark text-gray-400 hover:text-red-500 hover:shadow-lg transition-all"
+                          title="Archive"
+                        >
+                          <Archive size={18} />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setSelectedVoter(voter);
+                            setShowRestore(true);
+                          }}
+                          className="p-2 rounded-xl bg-white dark:bg-boxdark text-gray-400 hover:text-green-500 hover:shadow-lg transition-all"
+                          title="Restore"
+                        >
+                          <ArchiveRestore size={18} />
+                        </button>
+                      )}
+
                       <button
-                        className="flex items-center gap-1 text-orange-500 hover:text-orange-700 transition"
-                        title="Demote to Student"
                         onClick={() => {
                           setSelectedVoter(voter);
-                          setRoleAction('demote');
+                          setRoleAction(
+                            voter.studentRole === 'president'
+                              ? 'demote'
+                              : 'promote',
+                          );
                           setShowRoleModal(true);
                         }}
+                        className={`p-2 rounded-xl bg-white dark:bg-boxdark transition-all hover:shadow-lg ${
+                          voter.studentRole === 'president'
+                            ? 'text-gray-400 hover:text-orange-500'
+                            : 'text-gray-400 hover:text-purple-600'
+                        }`}
+                        title={
+                          voter.studentRole === 'president'
+                            ? 'Demote'
+                            : 'Promote'
+                        }
                       >
-                        <ShieldOff size={16} />
-                        Demote
+                        {voter.studentRole === 'president' ? (
+                          <ShieldOff size={18} />
+                        ) : (
+                          <Shield size={18} />
+                        )}
                       </button>
-                    ) : (
-                      <button
-                        className="flex items-center gap-1 text-purple-600 hover:text-purple-800 transition"
-                        title="Promote to President"
-                        onClick={() => {
-                          setSelectedVoter(voter);
-                          setRoleAction('promote');
-                          setShowRoleModal(true);
-                        }}
-                      >
-                        <Shield size={16} />
-                        Promote
-                      </button>
-                    )}
+                    </div>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={12} className="text-center py-4">No voters found.</td>
+                <td
+                  colSpan={5}
+                  className="text-center py-20 text-gray-400 font-bold uppercase italic tracking-widest"
+                >
+                  Zero Intelligence Found.
+                </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="mt-4 flex items-center justify-center gap-4">
-        <button
-          disabled={page === 1}
-          onClick={() => setPage(page - 1)}
-          className="rounded border px-4 py-1 disabled:opacity-40"
-        >
-          ←
-        </button>
-
-        <span className="text-sm">
-          Page {page} of {totalPages || 1}
-        </span>
-
-        <button
-          disabled={page === totalPages || totalPages === 0}
-          onClick={() => setPage(page + 1)}
-          className="rounded border px-4 py-1 disabled:opacity-40"
-        >
-          →
-        </button>
+      {/* PAGINATION */}
+      <div className="p-6 border-t border-stroke dark:border-strokedark flex items-center justify-between">
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+          Showing Page {page}{' '}
+          <span className="lowercase italic text-gray-300 mx-1">of</span>{' '}
+          {totalPages || 1}
+        </p>
+        <div className="flex gap-2">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+            className="p-2 rounded-xl border border-stroke dark:border-strokedark hover:bg-gray-50 dark:hover:bg-meta-4 disabled:opacity-30 transition-all active:scale-90"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <button
+            disabled={page === totalPages || totalPages === 0}
+            onClick={() => setPage(page + 1)}
+            className="p-2 rounded-xl border border-stroke dark:border-strokedark hover:bg-gray-50 dark:hover:bg-meta-4 disabled:opacity-30 transition-all active:scale-90"
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
       </div>
 
-      {/* Existing Modals */}
+      {/* MODALS SECTION (Styling applied via existing components) */}
       {showViewModal && selectedVoter && (
         <ViewModal
           voter={selectedVoter}
           onClose={() => setShowViewModal(false)}
         />
       )}
-
       {showRestore && selectedVoter && (
         <RestoreModal
           voter={selectedVoter}
@@ -369,7 +447,6 @@ const VotersTable = () => {
           }}
         />
       )}
-
       {showArchive && selectedVoter && (
         <ArchiveModal
           voter={selectedVoter}
@@ -389,41 +466,152 @@ const VotersTable = () => {
         />
       )}
 
-      {/* Role Confirmation Modal */}
       {showRoleModal && selectedVoter && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg dark:bg-boxdark">
-            <h3 className="mb-4 text-xl font-semibold text-black dark:text-white flex items-center gap-2">
-              {roleAction === 'promote' ? <Shield className="text-purple-600" /> : <ShieldOff className="text-orange-500" />}
-              Confirm {roleAction === 'promote' ? 'Promotion' : 'Demotion'}
-            </h3>
-            <p className="mb-6 text-gray-600 dark:text-gray-300">
-              Are you sure you want to {roleAction} <strong>{selectedVoter.fullName}</strong> 
-              {roleAction === 'promote' ? ' to President?' : ' to Student?'}
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowRoleModal(false)}
-                disabled={isProcessingRole}
-                className="rounded border border-stroke px-4 py-2 font-medium text-black hover:bg-gray-100 dark:border-strokedark dark:text-white dark:hover:bg-meta-4"
+        <div className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/95 backdrop-blur-md p-4 animate-in fade-in duration-300">
+          <div className="relative w-full max-w-sm flex flex-col rounded-[40px] bg-white dark:bg-boxdark shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10 transform transition-all animate-in zoom-in-95 duration-200">
+            {/* DYNAMIC SCANNER BAR */}
+            <div
+              className={`h-1.5 w-full relative overflow-hidden ${
+                roleAction === 'promote'
+                  ? 'bg-purple-600/20'
+                  : 'bg-orange-500/20'
+              }`}
+            >
+              <div
+                className={`absolute inset-0 w-1/3 animate-scan shadow-[0_0_15px_2px_currentColor] ${
+                  roleAction === 'promote'
+                    ? 'bg-purple-500 text-purple-400'
+                    : 'bg-orange-500 text-orange-400'
+                }`}
+              />
+            </div>
+
+            <div className="p-10 text-center">
+              {/* ICON SPHERE */}
+              <div
+                className={`relative mx-auto h-24 w-24 mb-8 flex items-center justify-center rounded-[32px] transition-all duration-500 ${
+                  roleAction === 'promote'
+                    ? 'bg-purple-50 dark:bg-purple-500/10 text-purple-600 ring-1 ring-purple-200 dark:ring-purple-500/30 rotate-0'
+                    : 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 ring-1 ring-orange-200 dark:ring-orange-500/30 -rotate-12'
+                }`}
               >
-                Cancel
-              </button>
-              <button
-                onClick={handleRoleChange}
-                disabled={isProcessingRole}
-                className={`rounded px-4 py-2 font-medium text-white ${
-                  roleAction === 'promote' 
-                    ? 'bg-purple-600 hover:bg-purple-700' 
-                    : 'bg-orange-500 hover:bg-orange-600'
-                } disabled:opacity-50`}
-              >
-                {isProcessingRole ? 'Processing...' : `Yes, ${roleAction}`}
-              </button>
+                {roleAction === 'promote' ? (
+                  <Shield size={40} strokeWidth={2.5} />
+                ) : (
+                  <ShieldOff size={40} strokeWidth={2.5} />
+                )}
+
+                {/* Decorative Corner Accents */}
+                <div className="absolute -top-1 -left-1 h-3 w-3 border-t-2 border-l-2 border-current opacity-40" />
+                <div className="absolute -bottom-1 -right-1 h-3 w-3 border-b-2 border-r-2 border-current opacity-40" />
+              </div>
+
+              {/* TYPOGRAPHY */}
+              <div className="space-y-1 mb-8">
+                <span
+                  className={`text-[10px] font-black uppercase tracking-[0.4em] ${
+                    roleAction === 'promote'
+                      ? 'text-purple-600'
+                      : 'text-orange-500'
+                  }`}
+                >
+                  {roleAction === 'promote'
+                    ? 'Privilege Ascension'
+                    : 'Authority Restriction'}
+                </span>
+                <h3 className="text-3xl font-black text-black dark:text-white uppercase italic tracking-tighter">
+                  Confirm Shift
+                </h3>
+              </div>
+
+              {/* DATA PREVIEW BOX */}
+              <div className="mb-10 relative group">
+                <div className="p-6 rounded-[24px] bg-gray-50 dark:bg-meta-4/40 border border-stroke dark:border-strokedark transition-all group-hover:bg-white dark:group-hover:bg-meta-4/60">
+                  <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none mb-3">
+                    Target Subject
+                  </p>
+                  <p className="text-lg font-black text-black dark:text-white uppercase italic leading-tight">
+                    {selectedVoter.fullName}
+                  </p>
+                  <div className="mt-3 flex justify-center gap-2">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white dark:bg-boxdark shadow-sm border border-stroke dark:border-strokedark text-gray-500">
+                      ID: {selectedVoter.studentNo}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* BUTTON STACK */}
+              <div className="space-y-4">
+                <button
+                  onClick={handleRoleChange}
+                  disabled={isProcessingRole}
+                  className={`group relative w-full py-5 rounded-[20px] font-black uppercase tracking-[0.25em] text-xs text-white shadow-2xl transition-all active:scale-95 disabled:opacity-50 overflow-hidden ${
+                    roleAction === 'promote'
+                      ? 'bg-purple-600 shadow-purple-500/30 hover:bg-purple-700'
+                      : 'bg-orange-500 shadow-orange-500/30 hover:bg-orange-600'
+                  }`}
+                >
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    {isProcessingRole ? (
+                      <>
+                        <Loader2 className="animate-spin" size={16} />
+                        Rewriting Permissions...
+                      </>
+                    ) : (
+                      `Execute ${roleAction}`
+                    )}
+                  </span>
+                  {/* Hover Glow Effect */}
+                  <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </button>
+
+                <button
+                  onClick={() => setShowRoleModal(false)}
+                  className="w-full py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-black dark:hover:text-white transition-colors"
+                >
+                  Abort Protocol
+                </button>
+              </div>
+            </div>
+
+            {/* FOOTER METRICS */}
+            <div className="px-10 py-4 bg-gray-50 dark:bg-meta-4/20 border-t border-stroke dark:border-strokedark flex justify-between items-center">
+              <span className="text-[8px] font-bold text-gray-400 uppercase italic">
+                Encryption: AES-256
+              </span>
+              <span className="text-[8px] font-bold text-gray-400 uppercase italic tracking-tighter">
+                Verified Admin Session
+              </span>
             </div>
           </div>
+
+          <style
+            dangerouslySetInnerHTML={{
+              __html: `
+      @keyframes scan {
+        0% { left: -40%; }
+        100% { left: 110%; }
+      }
+      .animate-scan {
+        position: absolute;
+        animation: scan 2s linear infinite;
+      }
+    `,
+            }}
+          />
         </div>
       )}
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+      .custom-scrollbar::-webkit-scrollbar { height: 4px; width: 4px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.2); border-radius: 10px; }
+    `,
+        }}
+      />
     </div>
   );
 };

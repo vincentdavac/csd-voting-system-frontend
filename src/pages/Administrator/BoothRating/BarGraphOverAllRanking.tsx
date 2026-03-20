@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import { useAuth } from '../../../context/AuthContext';
 import API_BASE_URL from '../../../config/api';
+import { BarChart3, ChevronDown, Filter } from 'lucide-react';
 
 interface BoothRatingData {
   id: number;
@@ -23,7 +24,6 @@ const BarGraphOverAllRanking: React.FC = () => {
   useEffect(() => {
     const fetchExhibitors = async () => {
       if (!authUser?.token) return;
-
       try {
         const res = await fetch(`${API_BASE_URL}/booth-ratings/summary`, {
           method: 'GET',
@@ -32,39 +32,38 @@ const BarGraphOverAllRanking: React.FC = () => {
             Accept: 'application/json',
           },
         });
-
         if (res.ok) {
           const responseData = await res.json();
           setExhibitors(responseData.data || []);
-        } else {
-          console.error('Failed to fetch booth ratings summary');
         }
       } catch (error) {
-        console.error('Error fetching booth ratings summary:', error);
+        console.error('Error fetching summary:', error);
       }
     };
-
     fetchExhibitors();
   }, [authUser]);
 
   const sortedExhibitors = [...exhibitors].sort(
-    (a, b) => (b.attributes.ratings_sum || 0) - (a.attributes.ratings_sum || 0)
+    (a, b) => (b.attributes.ratings_sum || 0) - (a.attributes.ratings_sum || 0),
   );
 
   let displayedExhibitors = sortedExhibitors;
   if (filter === 'top5') displayedExhibitors = sortedExhibitors.slice(0, 5);
-  else if (filter === 'top10') displayedExhibitors = sortedExhibitors.slice(0, 10);
+  else if (filter === 'top10')
+    displayedExhibitors = sortedExhibitors.slice(0, 10);
 
-  const categories = displayedExhibitors.map((ex) => ex.attributes.project_title);
-
+  const categories = displayedExhibitors.map(
+    (ex) => ex.attributes.project_title,
+  );
   const programsList = ['IT', 'CS', 'IS', 'EMC'];
 
   const series = programsList.map((prog) => ({
     name: prog,
     data: displayedExhibitors.map((ex) => {
       const programName = ex.attributes.program?.name || '';
-      const isMatch = programName.toUpperCase().includes(prog.toUpperCase());
-      return isMatch ? (ex.attributes.ratings_sum || 0) : 0;
+      return programName.toUpperCase().includes(prog.toUpperCase())
+        ? ex.attributes.ratings_sum || 0
+        : 0;
     }),
   }));
 
@@ -81,8 +80,8 @@ const BarGraphOverAllRanking: React.FC = () => {
     plotOptions: {
       bar: {
         horizontal: false,
-        borderRadius: 0,
-        columnWidth: '25%',
+        borderRadius: 6,
+        columnWidth: '22%',
         borderRadiusApplication: 'end',
         borderRadiusWhenStacked: 'last',
       },
@@ -90,57 +89,73 @@ const BarGraphOverAllRanking: React.FC = () => {
     dataLabels: { enabled: false },
     xaxis: {
       categories: categories.length > 0 ? categories : ['No Data'],
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      labels: {
+        style: { fontSize: '12px', fontWeight: 600 },
+      },
+    },
+    yaxis: {
+      title: { text: 'Total Rating Sum', style: { fontWeight: 600 } },
+    },
+    grid: {
+      strokeDashArray: 5,
+      yaxis: { lines: { show: true } },
+      xaxis: { lines: { show: false } },
     },
     legend: {
       position: 'top',
-      horizontalAlign: 'left',
+      horizontalAlign: 'right',
       fontFamily: 'Satoshi',
-      fontWeight: 500,
-      fontSize: '14px',
-      markers: { radius: 99 },
+      fontWeight: 700,
+      fontSize: '12px',
+      markers: { radius: 6, width: 12, height: 12 },
+      itemMargin: { horizontal: 10 },
     },
     fill: { opacity: 1 },
+    tooltip: {
+      theme: 'dark',
+      y: { formatter: (val) => `${val} Points` },
+    },
   };
 
   return (
-    <div className="col-span-12 rounded-sm border border-stroke bg-white p-7.5 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-12">
-      <div className="mb-4 justify-between gap-4 sm:flex">
-        <div>
-          <h4 className="text-xl font-semibold text-black dark:text-white">
-            Overall Ranking
-          </h4>
+    <div className="col-span-12 rounded-[32px] border border-stroke bg-white p-8 shadow-2xl dark:border-strokedark dark:bg-boxdark">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-meta-2 text-primary dark:bg-meta-4">
+            <BarChart3 size={24} />
+          </div>
+          <div>
+            <h4 className="text-xl font-black text-black dark:text-white tracking-tight">
+              Overall Project Ranking
+            </h4>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+              Exhibitor Performance
+            </p>
+          </div>
         </div>
-        <div>
-          <div className="relative z-20 inline-block">
+
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 rounded-xl border border-stroke bg-gray-50 px-3 py-2 dark:border-strokedark dark:bg-meta-4">
+            <Filter size={14} className="text-gray-400" />
             <select
               value={filter}
-              onChange={(e) => setFilter(e.target.value as 'top5' | 'top10' | 'all')}
-              className="relative z-20 inline-flex appearance-none bg-transparent py-1 pl-3 pr-8 text-sm font-medium outline-none"
+              onChange={(e) =>
+                setFilter(e.target.value as 'top5' | 'top10' | 'all')
+              }
+              className="bg-transparent text-sm font-bold text-black outline-none dark:text-white"
             >
-              <option value="top5" className="dark:bg-boxdark">Top 5</option>
-              <option value="top10" className="dark:bg-boxdark">Top 10</option>
-              <option value="all" className="dark:bg-boxdark">All Exhibitors</option>
+              <option value="top5">Top 5 Only</option>
+              <option value="top10">Top 10 Only</option>
+              <option value="all">View All</option>
             </select>
-            <span className="absolute top-1/2 right-3 z-10 -translate-y-1/2">
-              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M0.47072 1.08816C0.47072 1.02932 0.500141 0.955772 0.54427 0.911642C0.647241 0.808672 0.809051 0.808672 0.912022 0.896932L4.85431 4.60386C4.92785 4.67741 5.06025 4.67741 5.14851 4.60386L9.09079 0.896932C9.19376 0.793962 9.35557 0.808672 9.45854 0.911642C9.56151 1.01461 9.5468 1.17642 9.44383 1.27939L5.50155 4.98632C5.22206 5.23639 4.78076 5.23639 4.51598 4.98632L0.558981 1.27939C0.50014 1.22055 0.47072 1.16171 0.47072 1.08816Z"
-                  fill="#637381"
-                />
-                <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                  d="M1.22659 0.546578L5.00141 4.09604L8.76422 0.557869C9.08459 0.244537 9.54201 0.329403 9.79139 0.578788C10.112 0.899434 10.0277 1.36122 9.77668 1.61224L9.76644 1.62248L5.81552 5.33722C5.36257 5.74249 4.6445 5.7544 4.19352 5.32924C4.19327 5.32901 4.19377 5.32948 4.19352 5.32924L0.225953 1.61241C0.102762 1.48922 -4.20186e-08 1.31674 -3.20269e-08 1.08816C-2.40601e-08 0.905899 0.0780105 0.712197 0.211421 0.578787C0.494701 0.295506 0.935574 0.297138 1.21836 0.539529L1.22659 0.546578ZM4.51598 4.98632C4.78076 5.23639 5.22206 5.23639 5.50155 4.98632L9.44383 1.27939C9.5468 1.17642 9.56151 1.01461 9.45854 0.911642C9.35557 0.808672 9.19376 0.793962 9.09079 0.896932L5.14851 4.60386C5.06025 4.67741 4.92785 4.67741 4.85431 4.60386L0.912022 0.896932C0.809051 0.808672 0.647241 0.808672 0.54427 0.911642C0.500141 0.955772 0.47072 1.02932 0.47072 1.08816C0.47072 1.16171 0.50014 1.22055 0.558981 1.27939L4.51598 4.98632Z"
-                  fill="#637381"
-                />
-              </svg>
-            </span>
           </div>
         </div>
       </div>
 
-      <div>
-        <div id="boothChartOverall" className="-ml-5 -mb-9">
+      <div className="relative">
+        <div id="boothChartOverall" className="-ml-4">
           <ReactApexChart
             options={options}
             series={series}

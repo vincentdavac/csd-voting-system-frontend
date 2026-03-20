@@ -104,7 +104,7 @@ const Transactions = () => {
     } finally {
       setIsFetching(false);
     }
-  }, [token, showAlert, studentRole]);
+  }, [token, studentRole]);
 
   useEffect(() => {
     fetchTransactions();

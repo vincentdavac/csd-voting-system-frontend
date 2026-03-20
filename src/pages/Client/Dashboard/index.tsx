@@ -163,48 +163,74 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen dark:bg-gray-900 flex flex-col py-6">
+    <div className="min-h-screen bg-[#f8fafc] dark:bg-[#010717] flex flex-col py-8 sm:py-12 transition-colors duration-500">
       {sections.map((section) => (
-        <div key={section.id} className="w-full max-w-6xl px-4 mx-auto mb-12">
-          {/* Program Header */}
-          <div className="text-center mb-8 border-b border-stroke dark:border-strokedark pb-4">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#071c4f] uppercase tracking-wider dark:text-white">
+        <div
+          key={section.id}
+          className="w-full max-w-7xl px-4 sm:px-6 mx-auto mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700"
+        >
+          {/* Program Header - Tactical Terminal Look */}
+          <div className="flex flex-col items-center mb-10">
+            <div className="inline-block px-4 py-1.5 rounded-full bg-blue-600/10 dark:bg-blue-500/10 border border-blue-600/20 mb-3">
+              <p className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.3em]">
+                Program
+              </p>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter text-center">
               {section.name}
             </h2>
+            <div className="h-1 w-12 bg-blue-600 mt-4 rounded-full" />
           </div>
 
-          {/* Exhibitor Grid for this Program */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Exhibitor Grid - Optimized for Mobile Stacking */}
+          <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-8">
             {section.exhibitors.length > 0 ? (
               section.exhibitors.map((exhibitor) => (
                 <div
                   key={exhibitor.id}
-                  className="bg-white dark:bg-boxdark rounded-2xl shadow-lg p-6 flex flex-col items-center justify-center transition-all hover:scale-105 hover:shadow-2xl border border-transparent hover:border-[#071c4f]/20"
+                  className="group relative bg-white dark:bg-[#020d26] rounded-[2rem] border-2 border-slate-100 dark:border-white/5 p-6 flex flex-col items-center shadow-sm hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] transition-all duration-500 hover:-translate-y-2 overflow-hidden"
                 >
-                  <div
-                    className="h-28 w-28 bg-gray-200 dark:bg-gray-700 rounded-full mb-4 border-4 border-[#071c4f] shadow-md bg-cover bg-center"
-                    style={{ backgroundImage: `url(${exhibitor.image})` }}
-                  ></div>
+                  {/* Visual Flair Background */}
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-blue-600/5 rounded-full -mr-10 -mt-10 blur-2xl group-hover:bg-blue-600/10 transition-colors" />
 
-                  <h3 className="font-bold text-xs sm:text-sm text-[#071c4f] text-center mb-1 dark:text-white">
-                    {exhibitor.title}
-                  </h3>
-                  <p className="text-[10px] text-gray-500 font-mono mb-4 uppercase">
-                    {exhibitor.qrCode}
-                  </p>
+                  {/* Profile Image with Tactical Ring */}
+                  <div className="relative mb-6">
+                    <div className="absolute inset-0 rounded-full border-2 border-blue-600 animate-ping opacity-0 group-hover:opacity-20 transition-opacity" />
+                    <div
+                      className="h-28 w-28 sm:h-32 sm:w-32 rounded-full border-4 border-white dark:border-[#041130] shadow-xl bg-cover bg-center z-10 relative"
+                      style={{ backgroundImage: `url(${exhibitor.image})` }}
+                    />
+                  </div>
 
+                  {/* Info Block */}
+                  <div className="text-center mb-6 flex-grow">
+                    <h3 className="font-black text-base sm:text-lg text-slate-900 dark:text-white uppercase italic tracking-tight leading-tight mb-2">
+                      {exhibitor.title}
+                    </h3>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+                      <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest">
+                        {exhibitor.qrCode || 'ID: UNKNOWN'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Action - Tactical Button */}
                   <button
                     onClick={() => setSelectedExhibitor(exhibitor)}
-                    className="w-full bg-[#071c4f] hover:bg-[#1a2b6f] text-white py-2 rounded-xl shadow-md transition-colors font-bold text-xs"
+                    className="w-full group/btn relative overflow-hidden bg-[#071c4f] hover:bg-blue-700 text-white py-4 rounded-2xl shadow-lg shadow-blue-900/20 transition-all duration-300 active:scale-95"
                   >
-                    VOTE
+                    <span className="relative z-10 font-black text-xs uppercase tracking-[0.2em]">
+                      Submit Vote
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
                   </button>
                 </div>
               ))
             ) : (
-              <div className="col-span-full text-center py-4">
-                <p className="text-gray-500 italic">
-                  No exhibitors for this program.
+              <div className="col-span-full flex flex-col items-center py-20 bg-slate-50 dark:bg-white/5 rounded-[2.5rem] border-2 border-dashed border-slate-200 dark:border-white/10">
+                <p className="text-slate-400 dark:text-slate-500 font-bold italic uppercase tracking-widest text-sm">
+                  No active exhibitors detected in this sector
                 </p>
               </div>
             )}

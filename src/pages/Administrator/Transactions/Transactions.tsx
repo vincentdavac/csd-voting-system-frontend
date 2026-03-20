@@ -23,6 +23,7 @@ export interface TRANSACTION {
   votesGiven: number;
   handlerFullName: string;
   handlerImage: string;
+  handlerType: string;
   createdDate: string;
   createdTime: string;
   datetime: string;
@@ -72,7 +73,7 @@ const Transactions = () => {
           totalVotesPurchased: attrs.client?.total_votes_purchased ?? 0,
           amountPaid: attrs.amount_paid,
           votesGiven: attrs.votes_given,
-
+          handlerType: attrs.handler?.type || '',
           handlerFullName: attrs.handler?.full_name || 'Name Missing',
           handlerImage: attrs.handler ? attrs.handler.image : '',
           createdDate: attrs.createdDate,
@@ -88,7 +89,7 @@ const Transactions = () => {
     } finally {
       setIsFetching(false);
     }
-  }, [token, showAlert]);
+  }, [token]);
 
   useEffect(() => {
     fetchTransactions();

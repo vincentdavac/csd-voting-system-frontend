@@ -18,16 +18,17 @@ const Header = () => {
       const res = await fetch(`${API_BASE_URL}/clients/me`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${authUser.token}`,
-          'Accept': 'application/json',
+          Authorization: `Bearer ${authUser.token}`,
+          Accept: 'application/json',
         },
       });
 
       if (res.ok) {
         const json = await res.json();
-        const currentVotes = json.data?.client?.attributes?.remaining_votes 
-                          ?? json.data?.client?.remaining_votes 
-                          ?? 0;
+        const currentVotes =
+          json.data?.client?.attributes?.remaining_votes ??
+          json.data?.client?.remaining_votes ??
+          0;
         setRemainingVotes(currentVotes);
       }
     } catch (error) {
@@ -46,33 +47,60 @@ const Header = () => {
   }, [authUser]);
 
   return (
-    <header className="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
-      <div className="flex flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">
+    <header className="sticky top-0 z-[999] flex w-full border-b border-slate-200 bg-white/80 backdrop-blur-md dark:border-white/5 dark:bg-[#020d26]/80 transition-all duration-300">
+      <div className="flex flex-grow items-center justify-between px-4 py-3 sm:py-4 shadow-sm md:px-6 2xl:px-11">
+        {/* LEFT SECTION: BRANDING */}
         <div className="flex items-center gap-2 sm:gap-4">
-          <Link className="block flex-shrink-0" to="/client/dashboard">
-            <img src={LogoIcon} alt="Logo" className="h-13 lg:h-15 w-auto" />
+          <Link
+            className="relative block flex-shrink-0 group transition-transform active:scale-95"
+            to="/client/dashboard"
+          >
+            {/* Subtle glow behind logo in dark mode */}
+            <div className="absolute inset-0 bg-blue-600/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity rounded-full" />
+            <img
+              src={LogoIcon}
+              alt="S.U.N.O.D. Logo"
+              className="h-10 sm:h-12 lg:h-14 w-auto relative z-10 object-contain"
+            />
           </Link>
         </div>
 
-        <div className="ml-auto flex items-center gap-3 2xsm:gap-7">
-          <ul className="flex items-center gap-2 2xsm:gap-4">
-            {/* Ticket Icon with Dynamic Value */}
-            <div className="relative flex items-center" title="Remaining Votes">
-              <Tickets />
-              {/* Value badge */}
-              <span className="absolute -top-1 -right-3 flex h-4 w-4 items-center justify-center rounded-full bg-[#071c4f] text-[10px] text-white font-bold">
-                {remainingVotes}
-              </span>
-            </div>
-            {/* */}
-            <DropdownNotification />
-            {/* */}
+        {/* RIGHT SECTION: SYSTEM TOOLS */}
+        <div className="flex items-center gap-3 sm:gap-6 lg:gap-8">
+          <ul className="flex items-center gap-3 sm:gap-5">
+            {/* TICKET HUD COUNTER */}
+            <li className="relative">
+              <div
+                className="group flex items-center justify-center h-10 w-10 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 transition-all hover:border-blue-500/50"
+                title="Available Vote Credits"
+              >
+                <Tickets
+                  size={20}
+                  className="text-slate-600 dark:text-slate-400 group-hover:text-blue-600 transition-colors"
+                />
+
+                {/* Value badge - Styled as a digital notification */}
+                <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-lg bg-blue-600 text-[10px] text-white font-black shadow-lg shadow-blue-600/40 animate-in zoom-in">
+                  {remainingVotes}
+                </span>
+              </div>
+            </li>
+
+            {/* NOTIFICATION HUB */}
+            <li className="relative">
+              <DropdownNotification />
+            </li>
           </ul>
-          {/* */}
-          <DropdownUser />
-          {/* */}
+
+          {/* SYSTEM USER PROFILE */}
+          <div className="flex items-center pl-3 sm:pl-6 border-l border-slate-200 dark:border-white/10">
+            <DropdownUser />
+          </div>
         </div>
       </div>
+
+      {/* TACTICAL PROGRESS LINE (Bottom Accent) */}
+      <div className="absolute bottom-0 left-0 h-[1px] w-full bg-gradient-to-r from-transparent via-blue-600/30 to-transparent" />
     </header>
   );
 };

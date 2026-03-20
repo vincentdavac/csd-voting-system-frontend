@@ -252,86 +252,123 @@ const QRCodeScanner = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-start py-8 relative transition-colors duration-300">
-      <div className="absolute top-4 left-4 sm:hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#020d26] flex flex-col items-center justify-start py-8 relative transition-colors duration-300 overflow-hidden">
+      {/* TACTICAL GRID BACKGROUND */}
+      <div
+        className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
+        style={{
+          backgroundImage: `radial-gradient(#2563eb 1px, transparent 1px)`,
+          backgroundSize: '30px 30px',
+        }}
+      />
+
+      {/* BACK BUTTON */}
+      <div className="absolute top-6 left-6 z-20">
         <button
-          onClick={() => navigate('/client/dashboard')} // Change this to your actual route path
-          className="p-2.5 rounded-full bg-white dark:bg-gray-800 shadow-lg text-gray-600 dark:text-gray-300 active:scale-95 transition-all border border-gray-100 dark:border-gray-700"
+          onClick={() => navigate('/client/dashboard')}
+          className="group flex items-center justify-center h-12 w-12 rounded-2xl bg-white dark:bg-white/5 shadow-xl text-slate-600 dark:text-slate-400 active:scale-95 transition-all border border-slate-100 dark:border-white/10 hover:border-blue-500"
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft
+            size={24}
+            className="group-hover:-translate-x-1 transition-transform"
+          />
         </button>
       </div>
 
-      {/* Header */}
-      <div className="w-full max-w-4xl px-6 text-center mb-8">
-        <h1 className="text-2xl sm:text-4xl font-black text-[#071c4f] dark:text-blue-400 mb-2 tracking-tight">
-          QR Code Scanner
+      {/* HEADER SECTION */}
+      <div className="w-full max-w-4xl px-6 mt-12 text-center mb-10 relative z-10">
+        <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-2 tracking-tighter uppercase italic">
+          QR Scanner
         </h1>
-        <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 font-medium">
-          Scan a QR code to cast your vote
+        <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
+          Align target{' '}
+          <span className="text-blue-600 dark:text-blue-400">Exhibitor</span> to
+          cast vote.
         </p>
       </div>
 
-      <div className="w-full max-w-lg px-6 flex flex-col items-center">
-        {/* Scanner Container with Overlay Effects */}
-        <div className="relative bg-black dark:bg-boxdark rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.2)] overflow-hidden aspect-square flex items-center justify-center border-4 border-white dark:border-gray-800 w-full group">
-          {/* The Video Feed */}
-          <video
-            ref={videoRef}
-            className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-            muted
-            playsInline
-          />
+      <div className="w-full max-w-lg px-6 flex flex-col items-center relative z-10">
+        {/* SCANNER VIEWPORT */}
+        <div className="relative group w-full aspect-square">
+          {/* Exterior Glow */}
+          <div className="absolute -inset-1 bg-blue-600/20 rounded-[3rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-          {/* Scanner Overlay UI */}
-          <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-            {/* Corner Brackets */}
-            <div className="absolute top-10 left-10 w-12 h-12 border-t-4 border-l-4 border-blue-500 rounded-tl-lg" />
-            <div className="absolute top-10 right-10 w-12 h-12 border-t-4 border-r-4 border-blue-500 rounded-tr-lg" />
-            <div className="absolute bottom-10 left-10 w-12 h-12 border-b-4 border-l-4 border-blue-500 rounded-bl-lg" />
-            <div className="absolute bottom-10 right-10 w-12 h-12 border-b-4 border-r-4 border-blue-500 rounded-br-lg" />
+          <div className="relative h-full w-full bg-black rounded-[2.5rem] shadow-2xl overflow-hidden border-4 border-white dark:border-white/5 flex items-center justify-center">
+            {/* THE VIDEO FEED */}
+            <video
+              ref={videoRef}
+              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity grayscale-[0.3] group-hover:grayscale-0"
+              muted
+              playsInline
+            />
 
-            {/* Animated Scanning Line */}
-            <div className="w-[80%] h-[2px] bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.8)] animate-scan opacity-60" />
+            {/* TACTICAL HUD OVERLAY */}
+            <div className="absolute inset-0 pointer-events-none flex items-center justify-center p-12">
+              {/* Corner Brackets with Tech Styling */}
+              <div className="absolute top-12 left-12 w-16 h-16 border-t-4 border-l-4 border-blue-500/60 rounded-tl-3xl shadow-[0_0_15px_rgba(59,130,246,0.3)]" />
+              <div className="absolute top-12 right-12 w-16 h-16 border-t-4 border-r-4 border-blue-500/60 rounded-tr-3xl shadow-[0_0_15px_rgba(59,130,246,0.3)]" />
+              <div className="absolute bottom-12 left-12 w-16 h-16 border-b-4 border-l-4 border-blue-500/60 rounded-bl-3xl shadow-[0_0_15px_rgba(59,130,246,0.3)]" />
+              <div className="absolute bottom-12 right-12 w-16 h-16 border-b-4 border-r-4 border-blue-500/60 rounded-br-3xl shadow-[0_0_15px_rgba(59,130,246,0.3)]" />
+
+              {/* Scanning Laser Line */}
+              <div className="w-full h-[3px] bg-gradient-to-r from-transparent via-blue-500 to-transparent shadow-[0_0_20px_rgba(59,130,246,1)] animate-scan opacity-80" />
+
+              {/* HUD Central Reticle */}
+              <div className="w-8 h-8 border-2 border-white/10 rounded-full flex items-center justify-center">
+                <div className="w-1 h-1 bg-blue-500 rounded-full animate-pulse" />
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Helpful Hint */}
-        <div className="mt-6 flex items-start gap-3 px-4 py-3 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800/30">
-          <Info
-            size={18}
-            className="text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0"
-          />
-          <p className="text-xs sm:text-sm text-blue-800 dark:text-blue-300 leading-relaxed">
-            <span className="font-bold">Tip:</span> Center the QR code within
-            the frame and ensure there is enough light for a faster scan.
-          </p>
+        {/* SYSTEM HINT BOX */}
+        <div className="mt-8 flex items-start gap-4 px-5 py-4 bg-white dark:bg-white/5 rounded-2xl border-2 border-slate-100 dark:border-white/5 shadow-sm">
+          <div className="p-2 rounded-lg bg-blue-600/10 text-blue-600 dark:text-blue-400">
+            <Info size={20} strokeWidth={2.5} />
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+              System Advisory
+            </p>
+            <p className="text-xs font-bold text-slate-600 dark:text-slate-300 leading-relaxed">
+              Ensure optical clarity. Center QR within brackets for high-speed
+              detection.
+            </p>
+          </div>
         </div>
 
-        {/* Image Upload Fallback UI */}
-        <div className="mt-10 flex flex-col items-center w-full">
-          <div className="relative w-full flex items-center justify-center mb-6">
+        {/* ALTERNATIVE INPUT METHOD */}
+        <div className="mt-12 flex flex-col items-center w-full">
+          <div className="relative w-full flex items-center justify-center mb-8">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-gray-200 dark:border-gray-700"></span>
+              <span className="w-full border-t-2 border-slate-100 dark:border-white/5"></span>
             </div>
-            <span className="relative bg-gray-50 dark:bg-gray-900 px-4 text-[10px] uppercase tracking-widest font-bold text-gray-400">
-              Or use a file
+            <span className="relative bg-slate-50 dark:bg-[#020d26] px-6 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400">
+              Manual Upload
             </span>
           </div>
 
-          <label className="group cursor-pointer flex items-center gap-3 bg-white dark:bg-gray-800 hover:bg-gray-900 dark:hover:bg-blue-600 hover:text-white text-gray-700 dark:text-gray-200 px-8 py-3.5 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 font-bold text-sm border border-gray-200 dark:border-gray-700 w-full justify-center active:scale-95">
-            <Upload size={18} className="group-hover:animate-bounce" />
-            Upload QR Image
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleImageUpload}
-            />
+          <label className="group w-full cursor-pointer relative overflow-hidden">
+            <div className="absolute inset-0 bg-blue-600 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+
+            <div className="relative flex items-center justify-center gap-3 px-8 py-5 rounded-2xl border-2 border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 text-slate-900 dark:text-white font-black text-xs uppercase tracking-[0.2em] group-hover:text-white transition-colors duration-300">
+              <Upload
+                size={18}
+                className="group-hover:-translate-y-1 transition-transform"
+              />
+              Process Image File
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+            </div>
           </label>
         </div>
       </div>
 
+      {/* MODAL LAYER */}
       {selectedExhibitor && (
         <CastVote
           exhibitor={selectedExhibitor}
@@ -343,15 +380,16 @@ const QRCodeScanner = () => {
 
       <style>
         {`
-        @keyframes scan {
-          0% { transform: translateY(-120px); }
-          50% { transform: translateY(120px); }
-          100% { transform: translateY(-120px); }
-        }
-          .animate-scan {
-            animation: scan 3s linear infinite;
-          }
-        `}
+      @keyframes scan {
+        0% { transform: translateY(-140px); opacity: 0; }
+        15% { opacity: 1; }
+        85% { opacity: 1; }
+        100% { transform: translateY(140px); opacity: 0; }
+      }
+      .animate-scan {
+        animation: scan 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+      `}
       </style>
     </div>
   );

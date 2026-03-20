@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import { useAuth } from '../../../context/AuthContext';
 import API_BASE_URL from '../../../config/api';
+import { Trophy, Filter, LayoutGrid } from 'lucide-react';
 
 interface ExhibitorData {
   id: number;
@@ -23,7 +24,6 @@ const BarGraphOverRanking: React.FC = () => {
   useEffect(() => {
     const fetchExhibitors = async () => {
       if (!authUser?.token) return;
-
       try {
         const res = await fetch(`${API_BASE_URL}/exhibitors`, {
           method: 'GET',
@@ -32,51 +32,43 @@ const BarGraphOverRanking: React.FC = () => {
             Accept: 'application/json',
           },
         });
-
         if (res.ok) {
           const responseData = await res.json();
           setExhibitors(responseData.data || []);
-        } else {
-          console.error('Failed to fetch exhibitors');
         }
       } catch (error) {
         console.error('Error fetching exhibitors:', error);
       }
     };
-
     fetchExhibitors();
   }, [authUser]);
 
-  // Sort exhibitors by votes_sum in descending order
   const sortedExhibitors = [...exhibitors].sort(
-    (a, b) => (b.attributes.votes_sum || 0) - (a.attributes.votes_sum || 0)
+    (a, b) => (b.attributes.votes_sum || 0) - (a.attributes.votes_sum || 0),
   );
 
-  // Apply Selected Filter
   let displayedExhibitors = sortedExhibitors;
   if (filter === 'top5') displayedExhibitors = sortedExhibitors.slice(0, 5);
-  else if (filter === 'top10') displayedExhibitors = sortedExhibitors.slice(0, 10);
+  else if (filter === 'top10')
+    displayedExhibitors = sortedExhibitors.slice(0, 10);
 
-  // Define categories (X-axis) dynamically
-  const categories = displayedExhibitors.map((ex) => ex.attributes.project_title);
-
-  // Define Series ('IT', 'CS', 'IS', 'EMC') mapping dynamically
+  const categories = displayedExhibitors.map(
+    (ex) => ex.attributes.project_title,
+  );
   const programsList = ['IT', 'CS', 'IS', 'EMC'];
-  
-  const series = programsList.map((prog) => {
-    return {
-      name: prog,
-      data: displayedExhibitors.map((ex) => {
-        const programName = ex.attributes.program?.name || '';
-        // If the exhibitor belongs to this program, plot their votes. Otherwise, 0.
-        const isMatch = programName.toUpperCase().includes(prog.toUpperCase());
-        return isMatch ? (ex.attributes.votes_sum || 0) : 0;
-      }),
-    };
-  });
+
+  const series = programsList.map((prog) => ({
+    name: prog,
+    data: displayedExhibitors.map((ex) => {
+      const programName = ex.attributes.program?.name || '';
+      return programName.toUpperCase().includes(prog.toUpperCase())
+        ? ex.attributes.votes_sum || 0
+        : 0;
+    }),
+  }));
 
   const options: ApexOptions = {
-    colors: ['#3C50E0', '#80CAEE', '#10B981', '#F59E0B'], // Colors for the 4 programs
+    colors: ['#3C50E0', '#80CAEE', '#10B981', '#F59E0B'],
     chart: {
       fontFamily: 'Satoshi, sans-serif',
       type: 'bar',
@@ -88,7 +80,7 @@ const BarGraphOverRanking: React.FC = () => {
     plotOptions: {
       bar: {
         horizontal: false,
-        borderRadius: 0,
+        borderRadius: 6,
         columnWidth: '25%',
         borderRadiusApplication: 'end',
         borderRadiusWhenStacked: 'last',
@@ -97,58 +89,89 @@ const BarGraphOverRanking: React.FC = () => {
     dataLabels: { enabled: false },
     xaxis: {
       categories: categories.length > 0 ? categories : ['No Data'],
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      labels: {
+        style: { fontSize: '11px', fontWeight: 600 },
+      },
+    },
+    yaxis: {
+      labels: {
+        style: { fontWeight: 600, colors: ['#64748b'] },
+      },
+    },
+    grid: {
+      strokeDashArray: 7,
+      xaxis: { lines: { show: false } },
+      yaxis: { lines: { show: true } },
     },
     legend: {
       position: 'top',
-      horizontalAlign: 'left',
+      horizontalAlign: 'right',
       fontFamily: 'Satoshi',
-      fontWeight: 500,
-      fontSize: '14px',
-      markers: { radius: 99 },
+      fontWeight: 700,
+      fontSize: '12px',
+      markers: { radius: 6, width: 12, height: 12 },
+      itemMargin: { horizontal: 10 },
     },
     fill: { opacity: 1 },
+    tooltip: { theme: 'dark' },
   };
 
   return (
-    <div className="col-span-12 rounded-sm border border-stroke bg-white p-7.5 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-12">
-      <div className="mb-4 justify-between gap-4 sm:flex">
-        <div>
-          <h4 className="text-xl font-semibold text-black dark:text-white">
-            Overall Ranking
-          </h4>
+    <div className="col-span-12 rounded-[32px] border border-stroke bg-white p-8 shadow-2xl dark:border-strokedark dark:bg-boxdark transition-all">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary dark:bg-white/10 dark:text-white">
+            <Trophy size={24} />
+          </div>
+          <div>
+            <h4 className="text-xl font-black text-black dark:text-white tracking-tight uppercase">
+              Global Vote Leaderboard
+            </h4>
+            <div className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-success"></span>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                Real-time Exhibitor Standings
+              </p>
+            </div>
+          </div>
         </div>
-        <div>
-          <div className="relative z-20 inline-block">
+
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 rounded-xl border border-stroke bg-gray-50 px-3 py-2 transition-all focus-within:border-primary dark:border-strokedark dark:bg-meta-4">
+            <Filter size={14} className="text-gray-400" />
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value as any)}
-              className="relative z-20 inline-flex appearance-none bg-transparent py-1 pl-3 pr-8 text-sm font-medium outline-none"
+              className="bg-transparent text-sm font-bold text-black outline-none dark:text-white cursor-pointer"
             >
-              <option value="top5" className="dark:bg-boxdark">Top 5</option>
-              <option value="top10" className="dark:bg-boxdark">Top 10</option>
-              <option value="all" className="dark:bg-boxdark">All Exhibitors</option>
+              <option value="top5">Top 5 Only</option>
+              <option value="top10">Top 10 Only</option>
+              <option value="all">View All Entries</option>
             </select>
-            <span className="absolute top-1/2 right-3 z-10 -translate-y-1/2">
-              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M0.47072 1.08816C0.47072 1.02932 0.500141 0.955772 0.54427 0.911642C0.647241 0.808672 0.809051 0.808672 0.912022 0.896932L4.85431 4.60386C4.92785 4.67741 5.06025 4.67741 5.14851 4.60386L9.09079 0.896932C9.19376 0.793962 9.35557 0.808672 9.45854 0.911642C9.56151 1.01461 9.5468 1.17642 9.44383 1.27939L5.50155 4.98632C5.22206 5.23639 4.78076 5.23639 4.51598 4.98632L0.558981 1.27939C0.50014 1.22055 0.47072 1.16171 0.47072 1.08816Z"
-                  fill="#637381"
-                />
-              </svg>
-            </span>
           </div>
         </div>
       </div>
 
-      <div>
-        <div id="chartTwo" className="-ml-5 -mb-9">
-          <ReactApexChart
-            options={options}
-            series={series}
-            type="bar"
-            height={350}
-          />
-        </div>
+      <div className="relative">
+        {exhibitors.length > 0 ? (
+          <div id="chartTwo" className="-ml-5">
+            <ReactApexChart
+              options={options}
+              series={series}
+              type="bar"
+              height={350}
+            />
+          </div>
+        ) : (
+          <div className="flex h-[350px] flex-col items-center justify-center space-y-3 opacity-20">
+            <LayoutGrid size={48} />
+            <p className="text-xs font-black uppercase tracking-[0.3em]">
+              No Data Collected
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

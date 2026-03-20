@@ -72,187 +72,203 @@ const SignUp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col xl:flex-row items-center justify-center bg-gray-2 dark:bg-boxdark-2 p-4">
-      {/* Mobile Centered Logo */}
-      <div className="block xl:hidden mb-6 text-center">
-        <img src={LogoDark} alt="Logo" className="mx-auto h-50 w-auto" />
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#f1f5f9] dark:bg-[#020d26] p-4 sm:p-6">
+      {/* Mobile Logo Container */}
+      <div className="block xl:hidden mb-6 text-center animate-fade-in">
+        <img
+          src={LogoDark}
+          alt="Logo"
+          className="mx-auto h-40 sm:h-16 w-auto drop-shadow-md"
+        />
       </div>
 
-      {/* Form Container */}
-      <div className="w-full max-w-full xl:max-w-6xl rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div className="flex flex-wrap items-center">
-          {/* LEFT SIDE - Illustration / Logo (Desktop Only) */}
-          <div className="hidden w-full xl:block xl:w-1/2">
-            <div className="py-16 px-12 text-center">
-              <Link className="mb-5.5 inline-block" to="/client/signin">
-                <img
-                  className="hidden dark:block mx-auto"
-                  src={Logo}
-                  alt="Logo"
-                />
-                <img
-                  className="dark:hidden mx-auto"
-                  src={LogoDark}
-                  alt="Logo"
-                />
-              </Link>
-            </div>
+      {/* Main Container */}
+      <div className="w-full max-w-lg xl:max-w-6xl overflow-hidden rounded-3xl border border-stroke bg-white shadow-2xl dark:border-strokedark dark:bg-boxdark flex flex-col xl:flex-row">
+        {/* LEFT SIDE: Brand & Aesthetic (Desktop Only) */}
+        <div className="hidden xl:flex w-5/12 flex-col justify-center items-center p-12 bg-gradient-to-br from-[#071c4f] to-[#020d26] relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:20px_20px]" />
+
+          <Link
+            to="/client/signin"
+            className="relative z-10 transition-transform hover:scale-105 duration-300"
+          >
+            <img
+              className="hidden dark:block mx-auto max-w-xs drop-shadow-2xl"
+              src={LogoDark}
+              alt="Logo"
+            />
+            <img
+              className="dark:hidden mx-auto max-w-xs drop-shadow-2xl"
+              src={Logo}
+              alt="Logo"
+            />
+          </Link>
+
+          <div className="mt-8 text-center relative z-10">
+            <h2 className="text-white text-2xl font-black italic tracking-widest uppercase">
+              New Enrollment
+            </h2>
+            <p className="text-gray-400 mt-2 text-xs font-medium tracking-[0.2em]">
+              SYSTEM REGISTRATION v2.0
+            </p>
           </div>
+        </div>
 
-          {/* RIGHT SIDE - Sign Up Form */}
-          <div className="w-full xl:w-1/2 xl:border-l-2 border-stroke dark:border-strokedark">
-            <div className="w-full p-4 sm:p-8 md:p-12 xl:p-16">
-              <h2 className="mb-6 text-2xl sm:text-3xl font-bold text-black dark:text-white text-center">
-                Register
+        {/* RIGHT SIDE: Register Form */}
+        <div className="w-full xl:w-7/12 bg-white dark:bg-boxdark">
+          <div className="w-full p-6 sm:p-10 xl:p-16">
+            <div className="mb-8 text-center xl:text-left">
+              <h2 className="text-2xl sm:text-3xl font-black text-black dark:text-white italic tracking-tight">
+                Create Account
               </h2>
+              <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 font-medium">
+                Join the ITECHTIVITY 2026.
+              </p>
+            </div>
 
-              <form onSubmit={handleSubmit}>
-                {/* Program + Student ID */}
-                <div className="mb-4 flex gap-4 flex-wrap">
-                  <div className="flex-1 min-w-[120px]">
-                    <label className="mb-2.5 block font-medium text-black dark:text-white">
-                      Program
-                    </label>
-                    <SelectProgram
-                      value={programId}
-                      onChange={(id: string) => setProgramId(id)} // id is now the program ID
-                    />
-                  </div>
-
-                  <div className="flex-1 min-w-[120px]">
-                    <label className="mb-2.5 block font-medium text-black dark:text-white">
-                      Year Level
-                    </label>
-                    <YearLevel
-                      value={yearLevel}
-                      onChange={(level: string) => setYearLevel(level)}
-                    />
-                  </div>
+            <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit}>
+              {/* Program + Year Level (Side by Side) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="group">
+                  <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                    Program
+                  </label>
+                  <SelectProgram
+                    value={programId}
+                    onChange={(id: string) => setProgramId(id)}
+                  />
                 </div>
-
-                <div className="mb-4 flex gap-4 flex-wrap">
-                  <div className="flex-1 min-w-[120px]">
-                    <label className="mb-2.5 block font-medium text-black dark:text-white">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full rounded-lg border border-stroke bg-transparent py-3 px-4 text-black outline-none text-sm sm:text-base focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-[120px]">
-                    <label className="mb-2.5 block font-medium text-black dark:text-white">
-                      Student Number
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Enter your student number"
-                      value={studentId}
-                      onChange={(e) => setStudentId(e.target.value)}
-                      className="w-full rounded-lg border border-stroke bg-transparent py-3 px-4 text-black outline-none text-sm sm:text-base focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    />
-                  </div>
+                <div className="group">
+                  <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                    Year Level
+                  </label>
+                  <YearLevel
+                    value={yearLevel}
+                    onChange={(level: string) => setYearLevel(level)}
+                  />
                 </div>
+              </div>
 
-                {/* First + Last Name */}
-                <div className="mb-4 flex gap-4 flex-wrap">
-                  <div className="flex-1 min-w-[120px]">
-                    <label className="mb-2.5 block font-medium text-black dark:text-white">
-                      First Name
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Enter your first name"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      className="w-full rounded-lg border border-stroke bg-transparent py-3 px-4 text-black outline-none text-sm sm:text-base focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    />
-                  </div>
-
-                  <div className="flex-1 min-w-[120px]">
-                    <label className="mb-2.5 block font-medium text-black dark:text-white">
-                      Last Name
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Enter your last name"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      className="w-full rounded-lg border border-stroke bg-transparent py-3 px-4 text-black outline-none text-sm sm:text-base focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    />
-                  </div>
+              {/* Email + Student ID */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="group">
+                  <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="name@university.edu"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded-xl border border-stroke bg-gray-50 py-3 px-4 text-sm text-black outline-none transition-all focus:border-primary focus:bg-white dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  />
                 </div>
-
-                {/* Contact Number */}
-                <div className="mb-4">
-                  <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    Contact Number
+                <div className="group">
+                  <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                    Student Number
                   </label>
                   <input
                     type="text"
-                    placeholder="Enter your contact number"
-                    value={contactNumber}
-                    onChange={(e) => setContactNumber(e.target.value)}
-                    className="w-full rounded-lg border border-stroke bg-transparent py-3 px-4 text-black outline-none text-sm sm:text-base focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    placeholder="202X-XXXXX"
+                    value={studentId}
+                    onChange={(e) => setStudentId(e.target.value)}
+                    className="w-full rounded-xl border border-stroke bg-gray-50 py-3 px-4 text-sm text-black outline-none transition-all focus:border-primary focus:bg-white dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   />
                 </div>
+              </div>
 
-                {/* ID Picture */}
-                <div className="mb-4">
-                  <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    ID Picture
+              {/* First + Last Name */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="group">
+                  <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                    First Name
                   </label>
-
-                  <div>
-                    <input
-                      type="file"
-                      onChange={(e) => {
-                        if (e.target.files) setIdPicture(e.target.files[0]);
-                      }}
-                      className="w-full rounded-md border border-stroke p-3 outline-none transition file:mr-4 file:rounded file:border-[0.5px] text-sm sm:text-base file:border-stroke file:bg-[#EEEEEE] file:py-1 file:px-2.5 file:text-sm focus:border-primary file:focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-strokedark dark:file:bg-white/30 dark:file:text-white"
-                    />
-                  </div>
-                </div>
-
-                {/* Register Button */}
-                <div className="mb-5">
                   <input
-                    type="submit"
-                    value={loading ? 'Registering...' : 'Register'}
-                    disabled={loading}
-                    className="w-full cursor-pointer rounded-lg border border-[#071c4f] bg-[#071c4f] py-3 px-4 text-white text-sm sm:text-base transition hover:bg-opacity-90"
+                    type="text"
+                    placeholder="Juan"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="w-full rounded-xl border border-stroke bg-gray-50 py-3 px-4 text-sm text-black outline-none transition-all focus:border-primary focus:bg-white dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   />
                 </div>
+                <div className="group">
+                  <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                    Last Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Dela Cruz"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="w-full rounded-xl border border-stroke bg-gray-50 py-3 px-4 text-sm text-black outline-none transition-all focus:border-primary focus:bg-white dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  />
+                </div>
+              </div>
 
-                {/* Forgot Password */}
-                <div className="mb-4 text-right">
+              {/* Contact Number */}
+              <div className="group">
+                <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                  Contact Number
+                </label>
+                <input
+                  type="text"
+                  placeholder="09XXXXXXXXX"
+                  value={contactNumber}
+                  onChange={(e) => setContactNumber(e.target.value)}
+                  className="w-full rounded-xl border border-stroke bg-gray-50 py-3 px-4 text-sm text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                />
+              </div>
+
+              {/* ID Picture Upload */}
+              <div className="group">
+                <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                  Identity Verification (ID Picture)
+                </label>
+                <input
+                  type="file"
+                  onChange={(e) => {
+                    if (e.target.files) setIdPicture(e.target.files[0]);
+                  }}
+                  className="w-full rounded-xl border border-stroke bg-gray-50 p-2 text-xs file:mr-4 file:rounded-lg file:border-0 file:bg-[#071c4f] file:py-2 file:px-4 file:text-white file:font-black file:uppercase file:text-[10px] dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-4 space-y-3">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full flex items-center justify-center rounded-xl bg-[#071c4f] py-4 px-6 text-white font-black uppercase text-xs sm:text-sm tracking-widest transition-all hover:bg-[#0a276e] active:scale-[0.97] disabled:opacity-50 shadow-lg shadow-primary/20"
+                >
+                  {loading
+                    ? 'Processing Registration...'
+                    : 'Finalize Registration'}
+                </button>
+
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+                  <Link
+                    to="/client/signin"
+                    className="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-primary transition-colors"
+                  >
+                    Already Registered?{' '}
+                    <span className="text-primary underline">Sign In</span>
+                  </Link>
                   <Link
                     to="/client/forget-password"
-                    className="text-[#071c4f] font-medium text-sm sm:text-base hover:underline"
+                    className="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-primary transition-colors"
                   >
-                    Forgot Password?
+                    Forgot Key?
                   </Link>
                 </div>
-
-                {/* Sign In Link */}
-                <div className="mt-6 text-center">
-                  <p className="text-sm sm:text-base">
-                    Already have an account?{' '}
-                    <Link
-                      to="/client/signin"
-                      className="text-[#071c4f] font-medium hover:underline"
-                    >
-                      Sign In
-                    </Link>
-                  </p>
-                </div>
-              </form>
-            </div>
+              </div>
+            </form>
           </div>
         </div>
+      </div>
+
+      {/* Footer Tag */}
+      <div className="mt-8 text-[8px] sm:text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] text-center">
+        ITECHTIVITY 2026 • Secure Terminal Access
       </div>
     </div>
   );
