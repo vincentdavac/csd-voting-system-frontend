@@ -51,8 +51,8 @@ const AddProgram = ({ onClose, onAdd }: AddProgramProps) => {
       const res = await fetch(`${API_BASE_URL}/programs`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${authUser.token}`,
           Accept: 'application/json',
+          Authorization: `Bearer ${authUser.token}`,
         },
         body: formData,
       });

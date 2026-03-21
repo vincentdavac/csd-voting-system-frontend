@@ -60,8 +60,8 @@ const UpdateProgram = ({ program, onClose, onUpdate }: UpdateProgramProps) => {
       const res = await fetch(`${API_BASE_URL}/programs/${program.id}`, {
         method: 'POST', // Using POST with _method PATCH for FormData compatibility
         headers: {
-          Authorization: `Bearer ${authUser.token}`,
           Accept: 'application/json',
+          Authorization: `Bearer ${authUser.token}`,
         },
         body: formData,
       });
