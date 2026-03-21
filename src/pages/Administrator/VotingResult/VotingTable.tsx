@@ -9,6 +9,7 @@ import {
   ChevronRight,
   Inbox,
   Clock,
+  Loader2,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
@@ -41,6 +42,7 @@ const VotingTable = () => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     const fetchVotes = async () => {
@@ -81,6 +83,8 @@ const VotingTable = () => {
 
   const handleGenerateResult = async () => {
     if (!authUser?.token) return;
+    setIsExporting(true); // Start Loading
+
     try {
       const res = await fetch(`${API_BASE_URL}/votes-transactions/pdf`, {
         method: 'GET',
@@ -90,6 +94,7 @@ const VotingTable = () => {
         },
       });
       if (!res.ok) throw new Error('Failed to generate PDF');
+
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -100,7 +105,10 @@ const VotingTable = () => {
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
+      console.error(error);
       alert('Failed to generate the PDF report.');
+    } finally {
+      setIsExporting(false); // Stop Loading
     }
   };
 
@@ -137,10 +145,24 @@ const VotingTable = () => {
 
           <button
             onClick={handleGenerateResult}
-            className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 transition-all hover:bg-emerald-700 active:scale-95"
+            disabled={isExporting}
+            className={`flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all active:scale-95 ${
+              isExporting
+                ? 'bg-emerald-400 cursor-not-allowed'
+                : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20'
+            }`}
           >
-            <FileText size={18} />
-            <span>Export PDF</span>
+            {isExporting ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                <span>Exporting...</span>
+              </>
+            ) : (
+              <>
+                <FileText size={18} />
+                <span>Export PDF</span>
+              </>
+            )}
           </button>
         </div>
       </div>

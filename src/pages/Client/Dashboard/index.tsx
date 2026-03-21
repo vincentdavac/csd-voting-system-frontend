@@ -14,6 +14,7 @@ interface EXHIBITOR {
   program: string;
   qrCode: string;
   hasRated?: boolean;
+  hasCommented?: boolean;
 }
 
 interface PROGRAM_SECTION {
@@ -67,6 +68,7 @@ const Dashboard = () => {
             program: group.program.name,
             qrCode: item.attributes.qr_string,
             hasRated: item.attributes.has_rated || false,
+            hasCommented: item.attributes.has_commented || false,
           })),
         }),
       );

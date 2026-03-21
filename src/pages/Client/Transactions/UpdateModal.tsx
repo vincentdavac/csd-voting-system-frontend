@@ -187,7 +187,7 @@ const UpdateModal = ({ transaction, onClose, onUpdate }: UpdateModalProps) => {
               <div className="mt-4 p-4 rounded-xl bg-gray-50 dark:bg-black/20 border border-dashed border-stroke dark:border-strokedark">
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-bold text-gray-400 uppercase">
-                    Balance Delta
+                    Balance
                   </span>
                   <span
                     className={`text-sm font-black italic ${

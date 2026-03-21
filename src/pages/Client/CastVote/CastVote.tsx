@@ -18,6 +18,7 @@ interface EXHIBITOR {
   program: string;
   qrCode: string;
   hasRated?: boolean;
+  hasCommented?: boolean;
 }
 
 interface CastVoteProps {
@@ -209,35 +210,42 @@ const CastVote = ({
             </div>
 
             {exhibitor.hasRated ? (
-              <div className="flex flex-col items-center py-6 bg-blue-600/5 dark:bg-blue-500/5 rounded-3xl border-2 border-dashed border-blue-200 dark:border-blue-500/20">
-                <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-black text-xs uppercase italic">
-                  <CheckCircle size={16} /> You’ve already rated this booth.
+              /* REFINED ALREADY RATED STATE */
+              <div className="group relative flex flex-col items-center py-5 bg-blue-600/[0.03] dark:bg-blue-500/[0.03] rounded-[2rem] border-2 border-dashed border-blue-200/50 dark:border-blue-500/20 overflow-hidden">
+                <div className="absolute top-0 right-0 p-2 opacity-10">
+                  <CheckCircle size={40} />
                 </div>
-                <p className="text-[10px] text-slate-500 mt-1">
-                  Booth evaluation already submitted for this node.
+                <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-black text-[10px] sm:text-xs uppercase italic tracking-wider">
+                  <CheckCircle size={16} className="animate-bounce" />
+                  Rating Synchronized
+                </div>
+                <p className="text-[9px] sm:text-[10px] text-slate-400 mt-1 uppercase font-bold">
+                  Your rating for this exhbitor is locked.
                 </p>
               </div>
             ) : (
               <div className="flex flex-col items-center gap-2">
-                <div className="flex gap-2">
+                <div className="flex gap-1.5 sm:gap-2">
                   {[1, 2, 3, 4, 5].map((i) => (
                     <button
                       key={i}
                       onClick={() => setRating(i)}
                       onMouseEnter={() => setHoverRating(i)}
                       onMouseLeave={() => setHoverRating(0)}
-                      className={`text-4xl transition-all duration-300 transform ${
+                      className={`text-3xl sm:text-4xl transition-all duration-300 transform active:scale-90 ${
                         i <= (hoverRating || rating)
-                          ? 'text-yellow-400 scale-110'
-                          : 'text-slate-200 dark:text-white/10'
+                          ? 'text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.4)] scale-110'
+                          : 'text-slate-200 dark:text-white/5 hover:text-slate-300'
                       }`}
                     >
                       ★
                     </button>
                   ))}
                 </div>
-                <p className="text-xs font-black text-slate-400 uppercase">
-                  {rating} / 5 Score
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  {rating > 0
+                    ? `${rating} / 5 Quality Score`
+                    : 'Select a rating'}
                 </p>
               </div>
             )}
@@ -247,16 +255,42 @@ const CastVote = ({
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                Leave a Comment(s)
+                {exhibitor.hasCommented
+                  ? 'Feedback Archived'
+                  : 'System Feedback'}
               </span>
             </div>
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              className="w-full rounded-2xl border-2 border-slate-100 bg-slate-50/50 dark:bg-white/5 dark:border-white/5 p-4 text-sm font-bold text-slate-900 dark:text-white outline-none focus:border-blue-600 dark:focus:border-blue-500 transition-all placeholder:text-slate-400"
-              placeholder="Help improve the system logic..."
-              rows={3}
-            />
+
+            {exhibitor.hasCommented ? (
+              /* REFINED ALREADY COMMENTED STATE */
+              <div className="flex items-center gap-3 p-4 rounded-2xl bg-emerald-500/[0.03] border-2 border-dashed border-emerald-500/20">
+                <div className="h-8 w-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                  <CheckCircle size={18} />
+                </div>
+                <div>
+                  <p className="text-[10px] sm:text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase italic">
+                    Comment Recorded
+                  </p>
+                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tight">
+                    Thank you for helping optimize the system logic.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="relative group">
+                <textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  disabled={isVotingOpen === false}
+                  className="w-full rounded-2xl border-2 border-slate-100 bg-slate-50/50 dark:bg-white/5 dark:border-white/5 p-4 text-sm font-bold text-slate-900 dark:text-white outline-none focus:border-blue-600 dark:focus:border-blue-500 transition-all placeholder:text-slate-400 disabled:opacity-50 resize-none"
+                  placeholder="Enter observations or suggestions..."
+                  rows={2} // Reduced rows for small laptop screens
+                />
+                <div className="absolute bottom-3 right-4 text-[9px] font-black text-slate-300 dark:text-slate-600 uppercase">
+                  {comment.length} / 255
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -288,7 +322,7 @@ const CastVote = ({
             }}
             className="flex-[2] bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 dark:disabled:bg-white/5 disabled:text-slate-400 text-white py-4 rounded-2xl shadow-lg shadow-blue-600/20 font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-95"
           >
-            <span className="relative z-10">Execute Submission</span>
+            <span className="relative z-10">Submit</span>
 
             {/* Subtle shimmer effect for active state */}
             {!(votes === 0 && rating === 0 && !comment.trim()) && (

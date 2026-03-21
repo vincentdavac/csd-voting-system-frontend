@@ -106,10 +106,10 @@ const SignUp: React.FC = () => {
 
           <div className="mt-8 text-center relative z-10">
             <h2 className="text-white text-2xl font-black italic tracking-widest uppercase">
-              New Enrollment
+              Create Account
             </h2>
             <p className="text-gray-400 mt-2 text-xs font-medium tracking-[0.2em]">
-              SYSTEM REGISTRATION v2.0
+              CSD Voting System 2026
             </p>
           </div>
         </div>
@@ -257,7 +257,7 @@ const SignUp: React.FC = () => {
                     to="/client/forget-password"
                     className="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-primary transition-colors"
                   >
-                    Forgot Key?
+                    Forgot Password?
                   </Link>
                 </div>
               </div>

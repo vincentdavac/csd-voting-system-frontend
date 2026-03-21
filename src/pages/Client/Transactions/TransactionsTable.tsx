@@ -15,8 +15,6 @@ import { TRANSACTION } from './Transactions';
 import API_BASE_URL from '../../../config/api';
 import { useAuth } from '../../../context/AuthContext';
 import { useAlert } from '../../../components/Alert/AlertContext';
-import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 interface TransactionsTableProps {
   transactions: TRANSACTION[];
@@ -71,7 +69,6 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     (page - 1) * rowsPerPage,
     page * rowsPerPage,
   );
-  const navigate = useNavigate();
 
   const totalRevenue = filteredData.reduce((sum, t) => sum + t.amountPaid, 0);
   const studentRevenue = filteredData

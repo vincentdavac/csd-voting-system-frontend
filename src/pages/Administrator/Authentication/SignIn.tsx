@@ -57,7 +57,7 @@ const SignIn: React.FC = () => {
       showAlert('success', 'Login successful!');
 
       // Redirect to client dashboard
-      navigate('/client/dashboard');
+      navigate('/admin/dashboard');
     } catch (err: any) {
       console.error(err);
       showAlert('error', 'Something went wrong. Please try again.');
@@ -85,7 +85,7 @@ const SignIn: React.FC = () => {
           <div className="absolute bottom-0 left-0 -ml-20 -mb-20 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
 
           <Link
-            to="/"
+            to="/admin/signin"
             className="relative z-10 transition-transform hover:scale-105 duration-300"
           >
             <img

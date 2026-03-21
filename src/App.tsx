@@ -1,7 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-
-import Loader from './common/Loader';
 import PageTitle from './components/PageTitle';
 import Alerts from './pages/UiElements/Alerts';
 import DefaultLayout from './layout/DefaultLayout';
@@ -26,33 +24,29 @@ import ClientDashBoard from './pages/Client/Dashboard/index';
 import TopUpPoints from './pages/Client/TopUpPoints';
 import QRCodeScanner from './pages/Client/QRCodeScanner';
 import ClientTransactions from './pages/Client/Transactions/Transactions';
-
+import { Navigate } from 'react-router-dom';
 import ProtectedRoute from './routes/ProtectedRoute';
 
 function App() {
-  const [loading, setLoading] = useState<boolean>(true);
   const { pathname } = useLocation();
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
 
-  useEffect(() => {
-    setTimeout(() => setLoading(false), 1000);
-  }, []);
-
-  return loading ? (
-    <Loader />
-  ) : (
+  return (
     <Routes>
+      {/* 1. ROOT REDIRECT: Decide where to send users visiting "/" */}
+      <Route path="/" element={<Navigate to="/client/signin" replace />} />
+
       {/* Guest-only routes */}
       <Route element={<ProtectedRoute guestOnly />}>
-        {/* Admin */}
+        {/* Admin Auth */}
         <Route
           path="/admin/signin"
           element={
             <>
-              <PageTitle title="Sign In | CSD Voting System" />
+              <PageTitle title="Sign In | CSD" />
               <AdminSignIn />
             </>
           }
@@ -61,7 +55,7 @@ function App() {
           path="/admin/signup"
           element={
             <>
-              <PageTitle title="Sign Up | CSD Voting System" />
+              <PageTitle title="Sign Up | CSD" />
               <AdminSignUp />
             </>
           }
@@ -70,18 +64,18 @@ function App() {
           path="/admin/forget-password"
           element={
             <>
-              <PageTitle title="Forget Password | CSD Voting System" />
+              <PageTitle title="Forget Password | CSD" />
               <AdminForgetPassword />
             </>
           }
         />
 
-        {/* Client */}
+        {/* Client Auth */}
         <Route
           path="/client/signin"
           element={
             <>
-              <PageTitle title="Sign In | CSD Voting System" />
+              <PageTitle title="Sign In | CSD" />
               <ClientSignIn />
             </>
           }
@@ -90,7 +84,7 @@ function App() {
           path="/client/signup"
           element={
             <>
-              <PageTitle title="Sign Up | CSD Voting System" />
+              <PageTitle title="Sign Up | CSD" />
               <ClientSignUp />
             </>
           }
@@ -99,7 +93,7 @@ function App() {
           path="/client/forget-password"
           element={
             <>
-              <PageTitle title="Forget Password | CSD Voting System" />
+              <PageTitle title="Forget Password | CSD" />
               <ClientForgetPassword />
             </>
           }
@@ -108,16 +102,7 @@ function App() {
 
       {/* Admin-only routes */}
       <Route element={<ProtectedRoute role="admin" />}>
-        <Route path="/" element={<DefaultLayout />}>
-          <Route
-            index
-            element={
-              <>
-                <PageTitle title="Dashboard | CSD Voting System" />
-                <Dashboard />
-              </>
-            }
-          />
+        <Route element={<DefaultLayout />}>
           <Route path="admin/dashboard" element={<Dashboard />} />
           <Route path="admin/user-management/voters" element={<Voters />} />
           <Route element={<ProtectedRoute superAdminOnly />}>
@@ -131,7 +116,6 @@ function App() {
             <Route path="admin/booth-rating" element={<BoothRating />} />
           </Route>
           <Route path="admin/transactions" element={<Transactions />} />
-
           <Route path="admin/programs" element={<ProgramTable />} />
           <Route path="admin/voters" element={<Voters />} />
         </Route>
@@ -139,7 +123,7 @@ function App() {
 
       {/* Client-only routes */}
       <Route element={<ProtectedRoute role="client" />}>
-        <Route path="/" element={<ClientLayout />}>
+        <Route element={<ClientLayout />}>
           <Route path="client/dashboard" element={<ClientDashBoard />} />
           <Route path="client/top-up-points" element={<TopUpPoints />} />
           <Route path="client/qr-code-scanner" element={<QRCodeScanner />} />
@@ -147,11 +131,12 @@ function App() {
         </Route>
       </Route>
 
+      {/* Catch-all */}
       <Route
         path="*"
         element={
           <>
-            <PageTitle title="404 Not Found | CSD Voting System" />
+            <PageTitle title="404 Not Found" />
             <PageNotFound />
           </>
         }

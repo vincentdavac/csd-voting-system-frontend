@@ -161,7 +161,7 @@ const TopUpConfirmation = ({ voter, amount, onClose, onSuccess }: Props) => {
               ) : (
                 <>
                   <CheckCircle size={20} />
-                  Confirm & Sync
+                  Confirm
                 </>
               )}
             </button>
@@ -170,7 +170,7 @@ const TopUpConfirmation = ({ voter, amount, onClose, onSuccess }: Props) => {
               onClick={onClose}
               className="w-full py-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] hover:text-red-500 transition-colors"
             >
-              Abort Transaction
+              Cancel Transaction
             </button>
           </div>
         </div>

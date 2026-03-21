@@ -107,7 +107,7 @@ const SignIn: React.FC = () => {
             </h2>
             <div className="h-1 w-12 bg-blue-500 mx-auto mt-4 rounded-full" />
             <p className="text-blue-200/50 mt-4 text-[10px] font-bold tracking-[0.4em] uppercase">
-              Authorized Personnel Only
+              CSD Voting System 2026
             </p>
           </div>
         </div>

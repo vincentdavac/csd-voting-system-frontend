@@ -4,7 +4,6 @@ import {
   Star,
   User,
   Briefcase,
-  Calendar,
   ChevronLeft,
   ChevronRight,
   Inbox,
@@ -36,6 +35,7 @@ const BoothTable = () => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [exporting, setExporting] = useState(false); 
 
   useEffect(() => {
     const fetchRatings = async () => {
@@ -74,6 +74,44 @@ const BoothTable = () => {
     page * rowsPerPage,
   );
 
+  // 1. New function to handle PDF Generation
+  const handleGeneratePDF = async () => {
+    if (!authUser?.token) return;
+
+    setExporting(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/booth-ratings/pdf`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${authUser.token}`,
+          Accept: 'application/pdf',
+        },
+      });
+
+      if (!response.ok) throw new Error('Failed to generate PDF');
+
+      // Convert response to blob
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      
+      // Create a temporary link and trigger download
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Booth_Ratings_Report_${new Date().getTime()}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      alert('Could not generate the PDF. Please try again.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="rounded-[32px] border border-stroke bg-white p-6 shadow-2xl dark:border-strokedark dark:bg-boxdark transition-all">
       {/* HEADER & CONTROLS */}
@@ -105,12 +143,18 @@ const BoothTable = () => {
             />
           </div>
 
+        {/* 2. Updated Button */}
           <button
-            onClick={() => alert('Exporting results...')}
-            className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/20 transition-all hover:bg-indigo-700 active:scale-95"
+            onClick={handleGeneratePDF}
+            disabled={exporting}
+            className={`flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all active:scale-95 ${
+              exporting 
+                ? 'bg-indigo-400 cursor-not-allowed' 
+                : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/20'
+            }`}
           >
-            <FileText size={18} />
-            <span>Generate Result</span>
+            <FileText size={18} className={exporting ? 'animate-bounce' : ''} />
+            <span>{exporting ? 'Generating...' : 'Generate Result'}</span>
           </button>
         </div>
       </div>

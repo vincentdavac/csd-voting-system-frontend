@@ -413,7 +413,8 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
 
                   {/* TRANSACTION HUB */}
                   <div className="bg-primary/5 border-2 border-primary/20 rounded-[32px] p-8 shadow-inner relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                    {/* FIXED: Added pointer-events-none so this doesn't block the buttons */}
+                    <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
                       <TrendingUp size={80} />
                     </div>
 
@@ -425,8 +426,14 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
                         {[20, 50, 100, 500].map((quickAmt) => (
                           <button
                             key={quickAmt}
+                            type="button"
                             onClick={() => setAmount(quickAmt)}
-                            className="px-4 py-2 rounded-xl bg-white dark:bg-boxdark border-2 border-primary/10 text-[10px] font-black text-primary hover:bg-primary hover:text-white hover:scale-110 transition-all shadow-sm"
+                            className={`px-4 py-2 rounded-xl border-2 transition-all shadow-sm text-[10px] font-black 
+              ${
+                amount === quickAmt
+                  ? 'bg-primary text-white border-primary scale-110 shadow-lg shadow-primary/20'
+                  : 'bg-white dark:bg-boxdark border-primary/10 text-primary hover:bg-primary hover:text-white hover:scale-110'
+              }`}
                           >
                             +₱{quickAmt}
                           </button>
@@ -465,7 +472,7 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
                           fill="currentColor"
                           className="group-hover/btn:animate-bounce"
                         />
-                        Commit Load
+                        Commit Ticket(s)
                       </button>
                     </div>
 

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import ClickOutside from '../ClickOutside';
 import { useAuth } from '../../context/AuthContext';
 import { useAlert } from '../Alert/AlertContext';
-import { LogOut, User } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import API_BASE_URL from '../../config/api';
 
 const DropdownUser = () => {
