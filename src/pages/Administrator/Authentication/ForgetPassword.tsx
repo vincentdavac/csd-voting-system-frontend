@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import LogoDark from '../../../images/logo/csd_logo_lightmode.svg';
-import Logo from '../../../images/logo/csd_logo_darkmode.svg';
 import { useAlert } from '../../../components/Alert/AlertContext';
 import API_BASE_URL from '../../../config/api';
 import { ChevronLeft, Mail, ShieldQuestion } from 'lucide-react';

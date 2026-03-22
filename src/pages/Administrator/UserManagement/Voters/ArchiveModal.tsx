@@ -27,14 +27,17 @@ const ArchiveModal = ({ voter, onClose, onArchive }: ArchiveModalProps) => {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/clients/archive/${voter.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          Authorization: `Bearer ${token}`,
+      const res = await fetch(
+        `${API_BASE_URL}/clients/archive/${voter.id}?_method=PATCH`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       const data = await res.json();
 

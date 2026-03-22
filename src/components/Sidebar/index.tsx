@@ -213,18 +213,21 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               </SidebarLinkGroup>
 
               {/* TRANSACTIONS */}
-              <li>
-                <NavLink
-                  to="/admin/transactions"
-                  className={`group relative flex items-center gap-3 rounded-xl py-3 px-4 font-bold text-gray-400 transition-all duration-300 hover:text-white hover:bg-white/5 ${
-                    pathname.includes('admin/transactions') &&
-                    'bg-primary/10 !text-white'
-                  }`}
-                >
-                  <ScanLine size={20} className="group-hover:text-primary" />
-                  Transactions
-                </NavLink>
-              </li>
+
+              {authUser?.user?.role === 'super_admin' && (
+                <li>
+                  <NavLink
+                    to="/admin/transactions"
+                    className={`group relative flex items-center gap-3 rounded-xl py-3 px-4 font-bold text-gray-400 transition-all duration-300 hover:text-white hover:bg-white/5 ${
+                      pathname.includes('admin/transactions') &&
+                      'bg-primary/10 !text-white'
+                    }`}
+                  >
+                    <ScanLine size={20} className="group-hover:text-primary" />
+                    Transactions
+                  </NavLink>
+                </li>
+              )}
 
               {/* PROGRAMS */}
               <li>

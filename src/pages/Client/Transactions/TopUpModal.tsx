@@ -285,29 +285,33 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 block">
                   Manual ID Override
                 </label>
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3 w-full">
+                  {/* Input Container */}
                   <div className="flex flex-1 rounded-2xl border-2 border-transparent bg-white dark:bg-boxdark shadow-md overflow-hidden focus-within:ring-4 focus-within:ring-primary/10 transition-all">
-                    <span className="flex items-center px-5 py-4 bg-gray-100 dark:bg-meta-4 text-gray-500 font-black text-xs select-none border-r border-stroke dark:border-strokedark">
+                    <span className="flex items-center px-4 sm:px-5 py-4 bg-gray-100 dark:bg-meta-4 text-gray-500 font-black text-xs select-none border-r border-stroke dark:border-strokedark">
                       ID-
                     </span>
                     <input
                       type="text"
+                      inputMode="numeric" // Triggers numeric keypad on mobile
                       value={manualQr}
                       onChange={(e) =>
                         setManualQr(
                           e.target.value.replace(/\D/g, '').slice(0, 4),
                         )
                       }
-                      className="flex-1 px-4 py-4 outline-none text-xl font-black text-black dark:text-white bg-transparent tracking-widest"
+                      className="flex-1 px-4 py-4 outline-none text-xl font-black text-black dark:text-white bg-transparent tracking-widest min-w-0"
                       placeholder="0000"
                     />
                   </div>
+
+                  {/* Fetch Button */}
                   <button
                     onClick={handleManualQr}
                     disabled={isFetching}
-                    className="rounded-2xl bg-black dark:bg-white dark:text-black px-8 py-4 text-white font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-xl"
+                    className="w-full sm:w-auto rounded-2xl bg-black dark:bg-white dark:text-black px-8 py-4 text-white font-black uppercase tracking-widest text-xs hover:scale-[1.02] sm:hover:scale-105 active:scale-95 transition-all shadow-xl disabled:opacity-50"
                   >
-                    Fetch
+                    {isFetching ? '...' : 'Fetch'}
                   </button>
                 </div>
               </div>

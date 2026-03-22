@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   Mail,
   Loader2,
+  Power,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import ViewModal from './ViewModal';
@@ -17,6 +18,7 @@ import ArchiveModal from './ArchiveModal';
 import { useAlert } from '../../../../components/Alert/AlertContext';
 import API_BASE_URL from '../../../../config/api';
 import { useAuth } from '../../../../context/AuthContext';
+import ActivationModal from './ActivationModal';
 
 export interface VOTER {
   id: number;
@@ -33,9 +35,12 @@ export interface VOTER {
   totalVotesPurchased: number;
   datetime: string;
   isActive: boolean;
+  isActivated: boolean;
   studentRole: string;
+  // New Audit Fields
+  activatedAt: string | null;
+  activator: string | null;
 }
-
 const rowsPerPage = 10;
 
 const VotersTable = () => {
@@ -54,6 +59,8 @@ const VotersTable = () => {
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [roleAction, setRoleAction] = useState<'promote' | 'demote'>('promote');
   const [isProcessingRole, setIsProcessingRole] = useState(false);
+
+  const [showActivationModal, setShowActivationModal] = useState(false);
 
   const { authUser } = useAuth();
   const token = authUser?.token;
@@ -75,25 +82,44 @@ const VotersTable = () => {
         const data = await res.json();
 
         if (res.ok && data.status === 'success') {
-          const voters: VOTER[] = data.data.map((item: any) => ({
-            id: item.id,
-            studentNo: item.attributes.student_id,
-            fullName: item.attributes.full_name,
-            program: item.attributes.program?.name || 'N/A',
-            yearLevel: item.attributes.year_level,
-            email: item.attributes.email,
-            qrCode: item.attributes.qr_string,
-            qrImage: item.attributes.qr_image,
-            contactNumber: item.attributes.contact_number,
-            idPicture: item.attributes.id_picture,
-            remainingVotes: item.attributes.remaining_votes,
-            totalVotesPurchased: item.attributes.total_votes_purchased,
-            datetime: `${item.attributes.createdDate} ${item.attributes.createdTime}`,
-            isActive: item.attributes.is_active,
-            studentRole: item.attributes.student_role || 'student',
-          }));
+          if (res.ok && data.status === 'success') {
+            // Check if your API returns an array or a single object.
+            // If it's the list of clients:
+            const voters: VOTER[] = data.data.map((item: any) => {
+              const attrs = item.attributes;
 
-          setVotersData(voters);
+              return {
+                id: item.id,
+                studentNo: attrs.student_id,
+                fullName: attrs.full_name,
+                program: attrs.program?.name || 'N/A',
+                yearLevel: attrs.year_level,
+                email: attrs.email,
+                qrCode: attrs.qr_string,
+                qrImage: attrs.qr_image,
+                contactNumber: attrs.contact_number,
+                idPicture: attrs.id_picture,
+                remainingVotes: attrs.remaining_votes,
+                totalVotesPurchased: attrs.total_votes_purchased,
+                datetime: `${attrs.createdDate} ${attrs.createdTime}`,
+                isActive: attrs.is_active,
+                studentRole: attrs.student_role || 'student',
+                isActivated: attrs.is_activated,
+
+                // Mapped from activated_at object
+                activatedAt: attrs.activated_at
+                  ? `${attrs.activated_at.date} at ${attrs.activated_at.time}`
+                  : null,
+
+                // Fix: If the API doesn't provide an 'activator' object yet,
+                // you might want to default to 'System' or keep it null.
+                activator:
+                  attrs.activator?.name ||
+                  (attrs.is_activated ? 'CSD Staff' : null),
+              };
+            });
+            setVotersData(voters);
+          }
         } else {
           showAlert('error', data.message || 'Failed to fetch clients');
         }
@@ -124,11 +150,11 @@ const VotersTable = () => {
     try {
       const endpoint =
         roleAction === 'promote'
-          ? `${API_BASE_URL}/clients/${selectedVoter.id}/promote`
-          : `${API_BASE_URL}/clients/${selectedVoter.id}/demote`;
+          ? `${API_BASE_URL}/clients/${selectedVoter.id}/promote?_method=PATCH`
+          : `${API_BASE_URL}/clients/${selectedVoter.id}/demote?_method=PATCH`;
 
       const res = await fetch(endpoint, {
-        method: 'PATCH',
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: 'application/json',
@@ -169,13 +195,18 @@ const VotersTable = () => {
   };
 
   // Filter and paginate
-  const filteredData = votersData.filter(
-    (voter) =>
-      voter.fullName.toLowerCase().includes(search.toLowerCase()) ||
-      voter.studentNo.toLowerCase().includes(search.toLowerCase()) ||
-      voter.program.toLowerCase().includes(search.toLowerCase()) ||
-      voter.email.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filteredData = votersData.filter((voter) => {
+    const searchTerm = search.toLowerCase();
+    return (
+      voter.fullName.toLowerCase().includes(searchTerm) ||
+      voter.studentNo.toLowerCase().includes(searchTerm) ||
+      voter.program.toLowerCase().includes(searchTerm) ||
+      voter.email.toLowerCase().includes(searchTerm) ||
+      voter.contactNumber.toLowerCase().includes(searchTerm) ||
+      voter.qrCode.toLowerCase().includes(searchTerm) ||
+      voter.yearLevel.toString().includes(searchTerm)
+    );
+  });
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
   const currentData = filteredData.slice(
@@ -198,11 +229,10 @@ const VotersTable = () => {
             Voter Directory
           </h2>
         </div>
-
-        <div className="relative w-full md:w-80">
+        <div className="relative w-full md:w-96">
           <input
             type="text"
-            placeholder="Search by name or ID..."
+            placeholder="Search by name, ID, program, email, or QR..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -223,6 +253,7 @@ const VotersTable = () => {
           <thead>
             <tr className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">
               <th className="px-4 py-4">Student Identity</th>
+              <th className="px-4 py-4">Security Key (QR)</th>
               <th className="px-4 py-4">Contact & Program</th>
               <th className="px-4 py-4">Voting Power</th>
               <th className="px-4 py-4">Status</th>
@@ -233,7 +264,7 @@ const VotersTable = () => {
           <tbody className="before:block before:h-2">
             {loading ? (
               <tr>
-                <td colSpan={5} className="text-center p-20">
+                <td colSpan={6} className="text-center p-20">
                   <div className="flex flex-col items-center gap-3">
                     <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
                     <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest animate-pulse">
@@ -270,6 +301,24 @@ const VotersTable = () => {
                             President
                           </span>
                         )}
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* QR CODE CELL */}
+                  <td className="bg-gray-50 dark:bg-meta-4/10 px-4 py-4 border-y border-stroke dark:border-strokedark group-hover:bg-gray-100 dark:group-hover:bg-meta-4/20 transition-colors">
+                    <div className="flex flex-col items-start gap-2">
+                      <div className="relative h-20 w-20 bg-white p-1.5 rounded-xl border border-stroke shadow-sm group-hover:shadow-md transition-all group-hover:scale-105">
+                        <img
+                          src={voter.qrImage}
+                          alt="Security QR"
+                          className="h-full w-full object-contain"
+                        />
+                      </div>
+                      <div className="flex flex-col max-w-[120px]">
+                        <span className="text-[8px] font-black text-primary uppercase tracking-widest truncate">
+                          {voter.qrCode}
+                        </span>
                       </div>
                     </div>
                   </td>
@@ -360,32 +409,54 @@ const VotersTable = () => {
                         </button>
                       )}
 
+                      {/* ROLE MANAGEMENT BUTTON - Restricted to super_admin */}
+                      {authUser?.user.role === 'super_admin' && (
+                        <button
+                          onClick={() => {
+                            setSelectedVoter(voter);
+                            setRoleAction(
+                              voter.studentRole === 'president'
+                                ? 'demote'
+                                : 'promote',
+                            );
+                            setShowRoleModal(true);
+                          }}
+                          className={`p-2 rounded-xl bg-white dark:bg-boxdark transition-all hover:shadow-lg ${
+                            voter.studentRole === 'president'
+                              ? 'text-gray-400 hover:text-orange-500'
+                              : 'text-gray-400 hover:text-purple-600'
+                          }`}
+                          title={
+                            voter.studentRole === 'president'
+                              ? 'Demote'
+                              : 'Promote'
+                          }
+                        >
+                          {voter.studentRole === 'president' ? (
+                            <ShieldOff size={18} />
+                          ) : (
+                            <Shield size={18} />
+                          )}
+                        </button>
+                      )}
+                      {/* SEPARATE ACTIVATE/DEACTIVATE TOGGLE */}
                       <button
                         onClick={() => {
                           setSelectedVoter(voter);
-                          setRoleAction(
-                            voter.studentRole === 'president'
-                              ? 'demote'
-                              : 'promote',
-                          );
-                          setShowRoleModal(true);
+                          setShowActivationModal(true);
                         }}
                         className={`p-2 rounded-xl bg-white dark:bg-boxdark transition-all hover:shadow-lg ${
-                          voter.studentRole === 'president'
-                            ? 'text-gray-400 hover:text-orange-500'
-                            : 'text-gray-400 hover:text-purple-600'
+                          voter.isActivated // Use consistent naming
+                            ? 'text-green-500 hover:bg-green-50'
+                            : 'text-gray-300 hover:text-red-500'
                         }`}
                         title={
-                          voter.studentRole === 'president'
-                            ? 'Demote'
-                            : 'Promote'
+                          voter.isActivated
+                            ? 'Deactivate Account'
+                            : 'Activate Account'
                         }
                       >
-                        {voter.studentRole === 'president' ? (
-                          <ShieldOff size={18} />
-                        ) : (
-                          <Shield size={18} />
-                        )}
+                        <Power size={18} />
                       </button>
                     </div>
                   </td>
@@ -394,7 +465,7 @@ const VotersTable = () => {
             ) : (
               <tr>
                 <td
-                  colSpan={5}
+                  colSpan={6}
                   className="text-center py-20 text-gray-400 font-bold uppercase italic tracking-widest"
                 >
                   Zero Intelligence Found.
@@ -430,7 +501,7 @@ const VotersTable = () => {
         </div>
       </div>
 
-      {/* MODALS SECTION (Styling applied via existing components) */}
+      {/* MODALS SECTION */}
       {showViewModal && selectedVoter && (
         <ViewModal
           voter={selectedVoter}
@@ -462,6 +533,18 @@ const VotersTable = () => {
               ),
             );
             setShowArchive(false);
+          }}
+        />
+      )}
+
+      {showActivationModal && selectedVoter && (
+        <ActivationModal
+          voter={selectedVoter}
+          onClose={() => setShowActivationModal(false)}
+          onSuccess={(updatedVoter) => {
+            setVotersData((prev) =>
+              prev.map((v) => (v.id === updatedVoter.id ? updatedVoter : v)),
+            );
           }}
         />
       )}
@@ -562,7 +645,6 @@ const VotersTable = () => {
                       `Execute ${roleAction}`
                     )}
                   </span>
-                  {/* Hover Glow Effect */}
                   <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </button>
 

@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   X,
-  Image as ImageIcon,
   BookOpen,
   AlignLeft,
   GraduationCap,
@@ -61,21 +60,23 @@ const UpdateExhibitor = ({ exhibitor, onClose, onUpdate }: any) => {
     setIsSubmitting(true);
 
     const formData = new FormData();
-    formData.append('_method', 'PATCH');
     formData.append('project_title', title);
     formData.append('project_description', description);
     formData.append('program_id', programId);
     if (selectedFile) formData.append('image', selectedFile);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/exhibitors/${exhibitor.id}`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${authUser.token}`,
-          Accept: 'application/json',
+      const res = await fetch(
+        `${API_BASE_URL}/exhibitors/${exhibitor.id}?_method=PATCH`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${authUser.token}`,
+            Accept: 'application/json',
+          },
+          body: formData,
         },
-        body: formData,
-      });
+      );
 
       if (res.ok) {
         showAlert('success', 'Exhibitor updated successfully.');

@@ -74,9 +74,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             throw new Error('Account deactivated');
           }
 
+          const is_activated =
+            role === 'client'
+              ? data.is_activated
+              : data.user?.attributes?.is_active ?? true;
+
           setAuthUser({
             role,
             token,
+            is_activated,
             user:
               role === 'admin'
                 ? { id: data.user.id, ...data.user.attributes }

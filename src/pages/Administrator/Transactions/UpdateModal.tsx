@@ -68,7 +68,7 @@ const UpdateModal = ({ transaction, onClose, onUpdate }: UpdateModalProps) => {
             client_id: transaction.clientId,
             amount_paid: amount,
             handled_by: userId,
-            handler_by: 'admin',
+            handler_type: 'admin',
           }),
         },
       );

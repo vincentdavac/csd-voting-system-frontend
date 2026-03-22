@@ -37,6 +37,22 @@ const QRCodeScanner = () => {
   const lastScanRef = useRef<number>(0);
   const navigate = useNavigate();
 
+  const isActivated = authUser?.is_activated ?? false;
+
+  useEffect(() => {
+    if (!isActivated) {
+      showAlert(
+        'warning',
+        'Access Denied: Please activate your account first.',
+      );
+      navigate('/client/dashboard');
+    }
+  }, [isActivated, navigate]);
+
+  if (!isActivated) {
+    return null;
+  }
+
   // Keep refs synced with state
   useEffect(() => {
     exhibitorsRef.current = exhibitors;

@@ -7,6 +7,7 @@ import API_BASE_URL from '../../../config/api';
 import { useAuth } from '../../../context/AuthContext';
 import { useAlert } from '../../../components/Alert/AlertContext';
 import VotingLoader from '../../../common/Loader/VotingLoader';
+import { Navigate } from 'react-router-dom';
 
 export interface TRANSACTION {
   id: number;
@@ -33,6 +34,9 @@ const Transactions = () => {
   const { authUser } = useAuth();
   const { showAlert } = useAlert();
   const token = authUser?.token;
+  if (authUser?.user?.role !== 'super_admin') {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
 
   const [transactions, setTransactions] = useState<TRANSACTION[]>([]);
   const [isFetching, setIsFetching] = useState(false);

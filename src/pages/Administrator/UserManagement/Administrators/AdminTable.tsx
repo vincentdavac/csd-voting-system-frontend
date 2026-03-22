@@ -106,11 +106,11 @@ const AdminTable = () => {
     try {
       const endpoint =
         selectedAdmin.action === 'grant'
-          ? `${API_BASE_URL}/users/${selectedAdmin.id}/grant-access`
-          : `${API_BASE_URL}/users/${selectedAdmin.id}/revoke-access`;
+          ? `${API_BASE_URL}/users/${selectedAdmin.id}/grant-access?_method=PATCH`
+          : `${API_BASE_URL}/users/${selectedAdmin.id}/revoke-access?_method=PATCH`;
 
       const res = await fetch(endpoint, {
-        method: 'PATCH',
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${authUser.token}`,
           Accept: 'application/json',

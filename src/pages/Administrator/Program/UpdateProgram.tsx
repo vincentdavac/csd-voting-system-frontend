@@ -54,17 +54,19 @@ const UpdateProgram = ({ program, onClose, onUpdate }: UpdateProgramProps) => {
     formData.append('name', name);
     formData.append('description', description);
     if (selectedFile) formData.append('image', selectedFile);
-    formData.append('_method', 'PATCH');
 
     try {
-      const res = await fetch(`${API_BASE_URL}/programs/${program.id}`, {
-        method: 'POST', // Using POST with _method PATCH for FormData compatibility
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${authUser.token}`,
+      const res = await fetch(
+        `${API_BASE_URL}/programs/${program.id}?_method=PATCH`,
+        {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${authUser.token}`,
+          },
+          body: formData,
         },
-        body: formData,
-      });
+      );
 
       if (res.ok) {
         showAlert('success', 'Program updated successfully.');

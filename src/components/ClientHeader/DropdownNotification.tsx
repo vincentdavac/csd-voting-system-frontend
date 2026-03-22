@@ -63,9 +63,9 @@ const DropdownNotification = () => {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/notifications/client/read/${id}`,
+        `${API_BASE_URL}/notifications/client/read/${id}?_method=PATCH`,
         {
-          method: 'PATCH',
+          method: 'POST',
           headers: {
             Authorization: `Bearer ${authUser.token}`,
             Accept: 'application/json',
@@ -86,9 +86,9 @@ const DropdownNotification = () => {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/notifications/client/read-all`,
+        `${API_BASE_URL}/notifications/client/read-all?_method=PATCH`,
         {
-          method: 'PATCH',
+          method: 'POST',
           headers: {
             Authorization: `Bearer ${authUser.token}`,
             Accept: 'application/json',

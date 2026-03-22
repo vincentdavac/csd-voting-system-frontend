@@ -36,10 +36,22 @@ export interface Client extends BaseUser {
   total_votes_purchased: number;
   id_picture?: string | null;
   is_active: boolean;
+  is_activated: boolean;
+  activated_at?: {
+    date: string;
+    time: string;
+    human: string;
+  } | null;
+  activator?: {
+    id: number;
+    name: string;
+    role: string;
+  } | null;
 }
 
 export interface AuthUser {
   role: 'admin' | 'client';
   token: string;
+  is_activated: boolean;
   user: BaseUser | Client;
 }

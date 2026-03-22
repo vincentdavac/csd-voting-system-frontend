@@ -19,6 +19,8 @@ const DropdownUser = () => {
   const { showAlert } = useAlert();
   const navigate = useNavigate();
 
+  const isActivated = authUser?.is_activated ?? false;
+
   const handleLogout = () => {
     logout();
     showAlert('success', 'Logged out successfully!');
@@ -32,11 +34,11 @@ const DropdownUser = () => {
     : 'Loading...';
   const programName = client?.program?.name || 'Voter';
 
-  console.log('ETO PO ANG ROLE:' + studentRole);
-  console.log('HELLOW PO');
+  // console.log('ETO PO ANG ROLE:' + studentRole);
+  // console.log('HELLOW PO');
 
-  console.log('AUTH USER:', authUser);
-  console.log('CLIENT:', client);
+  // console.log('AUTH USER:', authUser);
+  // console.log('CLIENT:', client);
 
   let profilePic = UserOne;
   const dbImage = client?.id_picture || client?.image;
@@ -117,20 +119,23 @@ const DropdownUser = () => {
                 <span className="uppercase tracking-tight">Top-Up Points</span>
               </Link>
             </li>
-            <li>
-              <Link
-                to="/client/qr-code-scanner"
-                className="flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-blue-600/5 hover:text-blue-600 dark:hover:bg-blue-500/10 transition-all group/item"
-                onClick={() => setDropdownOpen(false)}
-              >
-                <div className="p-2 rounded-lg bg-slate-100 dark:bg-white/5 group-hover/item:bg-blue-600 group-hover/item:text-white transition-colors">
-                  <ScanQrCode size={18} />
-                </div>
-                <span className="uppercase tracking-tight">
-                  QR Code Scanner
-                </span>
-              </Link>
-            </li>
+
+            {isActivated && (
+              <li>
+                <Link
+                  to="/client/qr-code-scanner"
+                  className="flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-blue-600/5 hover:text-blue-600 dark:hover:bg-blue-500/10 transition-all group/item"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  <div className="p-2 rounded-lg bg-slate-100 dark:bg-white/5 group-hover/item:bg-blue-600 group-hover/item:text-white transition-colors">
+                    <ScanQrCode size={18} />
+                  </div>
+                  <span className="uppercase tracking-tight">
+                    QR Code Scanner
+                  </span>
+                </Link>
+              </li>
+            )}
 
             {studentRole === 'president' && (
               <li>

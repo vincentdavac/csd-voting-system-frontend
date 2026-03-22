@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import { useAuth } from '../../../context/AuthContext';
 import API_BASE_URL from '../../../config/api';
-import { BarChart3, ChevronDown, Filter } from 'lucide-react';
+import { BarChart3, Filter } from 'lucide-react';
 
 interface BoothRatingData {
   id: number;

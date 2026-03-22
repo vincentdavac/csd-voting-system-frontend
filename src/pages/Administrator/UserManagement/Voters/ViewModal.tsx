@@ -10,6 +10,9 @@ import {
   Ticket,
   QrCode,
   ShieldCheck,
+  ShieldAlert,
+  Clock,
+  UserCheck,
 } from 'lucide-react';
 import { VOTER } from './VotersTable';
 
@@ -23,18 +26,34 @@ const ViewModal: React.FC<ViewModalProps> = ({ voter, onClose }) => {
     icon: Icon,
     label,
     value,
+    highlight = false,
   }: {
     icon: any;
     label: string;
-    value: string | number;
+    value: string | number | null;
+    highlight?: boolean;
   }) => (
-    <div className="flex items-start gap-3.5 rounded-lg border border-stroke bg-white p-4 shadow-sm dark:border-strokedark dark:bg-boxdark">
-      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-primary dark:bg-meta-4 dark:text-white">
+    <div
+      className={`flex items-start gap-3.5 rounded-lg border p-4 shadow-sm transition-all ${
+        highlight
+          ? 'border-primary/30 bg-primary/5 dark:bg-primary/10'
+          : 'border-stroke bg-white dark:border-strokedark dark:bg-boxdark'
+      }`}
+    >
+      <div
+        className={`flex h-10 w-10 items-center justify-center rounded-full ${
+          highlight
+            ? 'bg-primary text-white'
+            : 'bg-gray-100 text-primary dark:bg-meta-4 dark:text-white'
+        }`}
+      >
         <Icon size={20} />
       </div>
       <div>
         <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
-        <p className="font-medium text-black dark:text-white">{value}</p>
+        <p className="font-medium text-black dark:text-white">
+          {value || 'N/A'}
+        </p>
       </div>
     </div>
   );
@@ -42,20 +61,36 @@ const ViewModal: React.FC<ViewModalProps> = ({ voter, onClose }) => {
   return (
     <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
       <div className="relative w-full max-w-4xl max-h-[90vh] flex flex-col rounded-[32px] bg-white dark:bg-boxdark shadow-2xl overflow-hidden border border-white/10 transform transition-all animate-in zoom-in-95 duration-200">
-        {/* BRANDING ACCENT */}
-        <div className="h-2 w-full bg-[repeating-linear-gradient(45deg,#3c50e0,#3c50e0_10px,#2563eb_10px,#2563eb_20px)]" />
+        {/* BRANDING ACCENT - Color changes based on activation status */}
+        <div
+          className={`h-2 w-full ${
+            voter.isActivated
+              ? 'bg-[repeating-linear-gradient(45deg,#10b981,#10b981_10px,#059669_10px,#059669_20px)]'
+              : 'bg-[repeating-linear-gradient(45deg,#3c50e0,#3c50e0_10px,#2563eb_10px,#2563eb_20px)]'
+          }`}
+        />
 
         {/* HEADER */}
         <div className="flex items-center justify-between px-8 py-6 border-b border-stroke dark:border-strokedark bg-white/50 dark:bg-boxdark/50 backdrop-blur-sm">
           <div>
             <div className="flex items-center gap-2 mb-0.5">
-              <ShieldCheck className="text-primary" size={16} />
-              <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">
-                Verified Voter Dossier
+              {voter.isActivated ? (
+                <ShieldCheck className="text-green-500" size={16} />
+              ) : (
+                <ShieldAlert className="text-gray-400" size={16} />
+              )}
+              <span
+                className={`text-[10px] font-black uppercase tracking-[0.2em] ${
+                  voter.isActivated ? 'text-green-500' : 'text-primary'
+                }`}
+              >
+                {voter.isActivated
+                  ? 'Authenticated & Active'
+                  : 'Pending Activation'}
               </span>
             </div>
             <h3 className="text-2xl font-black text-black dark:text-white uppercase italic tracking-tighter">
-              Profile Details
+              Voter Dossier
             </h3>
           </div>
           <button
@@ -80,23 +115,43 @@ const ViewModal: React.FC<ViewModalProps> = ({ voter, onClose }) => {
                 <img
                   src={voter.idPicture}
                   alt="Official ID"
-                  className="h-40 w-40 rounded-[32px] object-cover border-4 border-white dark:border-boxdark shadow-2xl grayscale-[0.2] hover:grayscale-0 transition-all"
+                  className={`h-40 w-40 rounded-[32px] object-cover border-4 shadow-2xl transition-all ${
+                    voter.isActivated
+                      ? 'border-green-500 grayscale-0'
+                      : 'border-white dark:border-boxdark grayscale-[0.5]'
+                  }`}
                 />
-                <div className="absolute -bottom-2 -right-2 h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white ring-4 ring-gray-50 dark:ring-meta-4">
-                  <ShieldCheck size={20} />
+                <div
+                  className={`absolute -bottom-2 -right-2 h-10 w-10 rounded-full flex items-center justify-center text-white ring-4 ring-gray-50 dark:ring-meta-4 shadow-lg ${
+                    voter.isActivated ? 'bg-green-500' : 'bg-gray-400'
+                  }`}
+                >
+                  {voter.isActivated ? (
+                    <ShieldCheck size={20} />
+                  ) : (
+                    <ShieldAlert size={20} />
+                  )}
                 </div>
               </div>
 
               <div className="flex-1 text-center md:text-left">
-                <div className="mb-4">
-                  {voter.studentRole === 'president' ? (
-                    <span className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-1 text-[10px] font-black uppercase text-white tracking-widest italic shadow-lg shadow-blue-500/20">
+                <div className="mb-4 flex flex-wrap justify-center md:justify-start gap-2">
+                  <span
+                    className={`inline-flex items-center gap-2 rounded-full px-4 py-1 text-[10px] font-black uppercase tracking-widest italic shadow-lg ${
+                      voter.studentRole === 'president'
+                        ? 'bg-blue-600 text-white shadow-blue-500/20'
+                        : 'bg-black dark:bg-white text-white dark:text-black'
+                    }`}
+                  >
+                    {voter.studentRole === 'president' && (
                       <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-                      Executive Level
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center rounded-full bg-black dark:bg-white px-4 py-1 text-[10px] font-black uppercase text-white dark:text-black tracking-widest italic">
-                      Standard Registry
+                    )}
+                    {voter.studentRole}
+                  </span>
+
+                  {voter.isActivated && (
+                    <span className="inline-flex items-center rounded-full bg-green-500 px-4 py-1 text-[10px] font-black uppercase text-white tracking-widest italic shadow-lg shadow-green-500/20">
+                      Verified
                     </span>
                   )}
                 </div>
@@ -119,7 +174,13 @@ const ViewModal: React.FC<ViewModalProps> = ({ voter, onClose }) => {
             </div>
 
             {/* QR SECTION */}
-            <div className="lg:col-span-4 flex flex-col items-center justify-center p-8 rounded-[24px] border-2 border-dashed border-stroke dark:border-strokedark text-center">
+            <div
+              className={`lg:col-span-4 flex flex-col items-center justify-center p-8 rounded-[24px] border-2 border-dashed text-center transition-colors ${
+                voter.isActivated
+                  ? 'border-green-500/30 bg-green-50/10'
+                  : 'border-stroke dark:border-strokedark'
+              }`}
+            >
               <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">
                 Secure Access Token
               </p>
@@ -130,18 +191,13 @@ const ViewModal: React.FC<ViewModalProps> = ({ voter, onClose }) => {
                   className="h-28 w-28 object-contain"
                 />
               </div>
-              <div className="space-y-1">
-                <code className="text-xs font-black text-primary bg-primary/10 px-3 py-1 rounded-lg">
-                  {voter.qrCode}
-                </code>
-                <p className="text-[9px] font-bold text-gray-400 uppercase italic mt-2">
-                  Scan to re-verify integrity
-                </p>
-              </div>
+              <code className="text-xs font-black text-primary bg-primary/10 px-3 py-1 rounded-lg">
+                {voter.qrCode}
+              </code>
             </div>
           </div>
 
-          {/* BOTTOM SECTION: DETAILED INFO GRID */}
+          {/* MIDDLE SECTION: DATA GRID */}
           <div className="space-y-6">
             <div className="flex items-center gap-4">
               <h5 className="text-[12px] font-black text-black dark:text-white uppercase tracking-[0.3em] italic">
@@ -162,9 +218,9 @@ const ViewModal: React.FC<ViewModalProps> = ({ voter, onClose }) => {
                 value={voter.contactNumber}
               />
               <DetailItem
-                icon={CalendarDays}
-                label="Enrollment Date"
-                value={voter.datetime}
+                icon={QrCode}
+                label="Year Level"
+                value={`Level ${voter.yearLevel}`}
               />
               <DetailItem
                 icon={Ticket}
@@ -175,20 +231,49 @@ const ViewModal: React.FC<ViewModalProps> = ({ voter, onClose }) => {
                 icon={Wallet}
                 label="Available Balance"
                 value={`${voter.remainingVotes} VOTES`}
+                highlight={voter.remainingVotes > 0}
               />
               <DetailItem
-                icon={QrCode}
-                label="Year Level"
-                value={`Year ${voter.yearLevel}`}
+                icon={CalendarDays}
+                label="Created Date"
+                value={`${voter.datetime}`}
               />
             </div>
           </div>
+
+          {/* BOTTOM SECTION: AUDIT LOG (Only shows if activated) */}
+          {voter.isActivated && (
+            <div className="space-y-6 animate-in slide-in-from-bottom-4">
+              <div className="flex items-center gap-4">
+                <h5 className="text-[12px] font-black text-green-600 uppercase tracking-[0.3em] italic">
+                  Activation Audit
+                </h5>
+                <div className="h-px flex-1 bg-green-200 dark:bg-green-900/30" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <DetailItem
+                  icon={Clock}
+                  label="Activation Timestamp"
+                  value={voter.activatedAt}
+                />
+                <DetailItem
+                  icon={UserCheck}
+                  label="Authorized By"
+                  value={
+                    voter.activator && typeof voter.activator === 'object'
+                      ? (voter.activator as { name: string }).name
+                      : (voter.activator as string) || 'CSD Staff'
+                  }
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* FOOTER ACTIONS */}
         <div className="p-8 border-t border-stroke dark:border-strokedark bg-gray-50 dark:bg-meta-4/20 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">
-            Confidential Electoral Data • DO NOT SHARE
+            Confidential Electoral Data • {new Date().getFullYear()} System Log
           </p>
           <button
             onClick={onClose}

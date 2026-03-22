@@ -67,9 +67,10 @@ const Header = () => {
 
         {/* RIGHT SECTION: SYSTEM TOOLS */}
         <div className="flex items-center gap-3 sm:gap-6 lg:gap-8">
-          <ul className="flex items-center gap-3 sm:gap-5">
-            {/* TICKET HUD COUNTER */}
-            <li className="relative">
+          {/* Changed <ul> to <div> to stop DOM nesting errors */}
+          <div className="flex items-center gap-3 sm:gap-5">
+            {/* TICKET HUD COUNTER - Changed <li> to <div> */}
+            <div className="relative">
               <div
                 className="group flex items-center justify-center h-10 w-10 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 transition-all hover:border-blue-500/50"
                 title="Available Vote Credits"
@@ -79,18 +80,16 @@ const Header = () => {
                   className="text-slate-600 dark:text-slate-400 group-hover:text-blue-600 transition-colors"
                 />
 
-                {/* Value badge - Styled as a digital notification */}
+                {/* Value badge */}
                 <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-lg bg-blue-600 text-[10px] text-white font-black shadow-lg shadow-blue-600/40 animate-in zoom-in">
                   {remainingVotes}
                 </span>
               </div>
-            </li>
+            </div>
 
-            {/* NOTIFICATION HUB */}
-            <li className="relative">
-              <DropdownNotification />
-            </li>
-          </ul>
+            {/* NOTIFICATION HUB - Wrapper removed, component handles itself */}
+            <DropdownNotification />
+          </div>
 
           {/* SYSTEM USER PROFILE */}
           <div className="flex items-center pl-3 sm:pl-6 border-l border-slate-200 dark:border-white/10">
