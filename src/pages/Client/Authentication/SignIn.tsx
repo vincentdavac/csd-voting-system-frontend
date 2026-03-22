@@ -47,6 +47,10 @@ const SignIn: React.FC = () => {
       login({
         role: data.data.role,
         token: data.data.token,
+        is_activated:
+          data.data.is_activated ??
+          data.data.client?.attributes?.is_activated ??
+          false,
         user: {
           id: data.data.client.id,
           ...data.data.client.attributes,
