@@ -110,28 +110,30 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
             <ul className="mb-6 flex flex-col gap-2">
               {/* DASHBOARD */}
-              <li>
-                <NavLink
-                  to="/admin/dashboard"
-                  className={`group relative flex items-center gap-3 rounded-xl py-3 px-4 font-bold text-gray-400 transition-all duration-300 hover:text-white hover:bg-white/5 ${
-                    pathname.includes('admin/dashboard') &&
-                    'bg-primary/10 !text-white shadow-[inset_0_0_20px_rgba(60,80,224,0.1)]'
-                  }`}
-                >
-                  <LayoutDashboard
-                    size={20}
-                    className={`${
-                      pathname.includes('admin/dashboard')
-                        ? 'text-primary'
-                        : 'group-hover:text-primary'
+              {authUser?.user?.role !== 'admin' && (
+                <li>
+                  <NavLink
+                    to="/admin/dashboard"
+                    className={`group relative flex items-center gap-3 rounded-xl py-3 px-4 font-bold text-gray-400 transition-all duration-300 hover:text-white hover:bg-white/5 ${
+                      pathname.includes('admin/dashboard') &&
+                      'bg-primary/10 !text-white shadow-[inset_0_0_20px_rgba(60,80,224,0.1)]'
                     }`}
-                  />
-                  Dashboard
-                  {pathname.includes('admin/dashboard') && (
-                    <div className="absolute right-0 h-5 w-1 bg-primary rounded-l-full shadow-[0_0_10px_#3C50E0]" />
-                  )}
-                </NavLink>
-              </li>
+                  >
+                    <LayoutDashboard
+                      size={20}
+                      className={`${
+                        pathname.includes('admin/dashboard')
+                          ? 'text-primary'
+                          : 'group-hover:text-primary'
+                      }`}
+                    />
+                    Dashboard
+                    {pathname.includes('admin/dashboard') && (
+                      <div className="absolute right-0 h-5 w-1 bg-primary rounded-l-full shadow-[0_0_10px_#3C50E0]" />
+                    )}
+                  </NavLink>
+                </li>
+              )}
 
               {/* USER MANAGEMENT (DROPDOWN) */}
               <SidebarLinkGroup
@@ -230,21 +232,23 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               )}
 
               {/* PROGRAMS */}
-              <li>
-                <NavLink
-                  to="/admin/programs"
-                  className={`group relative flex items-center gap-3 rounded-xl py-3 px-4 font-bold text-gray-400 transition-all duration-300 hover:text-white hover:bg-white/5 ${
-                    pathname.includes('admin/programs') &&
-                    'bg-primary/10 !text-white'
-                  }`}
-                >
-                  <GraduationCap
-                    size={20}
-                    className="group-hover:text-primary"
-                  />
-                  Programs
-                </NavLink>
-              </li>
+              {authUser?.user?.role !== 'admin' && (
+                <li>
+                  <NavLink
+                    to="/admin/programs"
+                    className={`group relative flex items-center gap-3 rounded-xl py-3 px-4 font-bold text-gray-400 transition-all duration-300 hover:text-white hover:bg-white/5 ${
+                      pathname.includes('admin/programs') &&
+                      'bg-primary/10 !text-white'
+                    }`}
+                  >
+                    <GraduationCap
+                      size={20}
+                      className="group-hover:text-primary"
+                    />
+                    Programs
+                  </NavLink>
+                </li>
+              )}
             </ul>
           </div>
 

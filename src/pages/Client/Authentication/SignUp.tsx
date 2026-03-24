@@ -7,6 +7,57 @@ import YearLevel from './YearLevel';
 import { useAlert } from '../../../components/Alert/AlertContext';
 import API_BASE_URL from '../../../config/api';
 
+// --- Internal Modal Component ---
+const SuccessModal = ({
+  lastname,
+  contact,
+  onClose,
+}: {
+  lastname: string;
+  contact: string;
+  onClose: () => void;
+}) => (
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-[#020d26]/80 backdrop-blur-sm animate-in fade-in duration-300">
+    <div className="w-full max-w-md bg-white dark:bg-boxdark rounded-[2rem] border border-stroke dark:border-strokedark p-8 shadow-2xl overflow-hidden relative">
+      {/* Aesthetic Background element */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16" />
+
+      <div className="text-center relative z-10">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-100 dark:bg-green-500/10 mb-6">
+          <span className="text-4xl">🎉</span>
+        </div>
+
+        <h2 className="text-2xl font-black text-black dark:text-white italic uppercase tracking-tighter">
+          Account Created
+        </h2>
+
+        <p className="mt-4 text-gray-500 dark:text-gray-400 text-sm font-medium leading-relaxed">
+          Registration successful! Please save your login credentials. Your
+          password is a combination of your <b>Last Name</b> and{' '}
+          <b>Contact Number</b>.
+        </p>
+
+        <div className="mt-6 p-5 rounded-2xl bg-gray-50 dark:bg-meta-4 border-2 border-dashed border-primary/30">
+          <label className="block text-[10px] font-black uppercase tracking-widest text-primary mb-2">
+            Default Password
+          </label>
+          <div className="text-xl font-mono font-bold text-black dark:text-white tracking-[0.2em] break-all">
+            {lastname}
+            {contact}
+          </div>
+        </div>
+
+        <button
+          onClick={onClose}
+          className="mt-8 w-full py-4 bg-[#071c4f] hover:bg-primary text-white font-black uppercase text-xs tracking-widest rounded-xl transition-all active:scale-95 shadow-lg shadow-primary/20"
+        >
+          Proceed to Sign In
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
 const SignUp: React.FC = () => {
   const navigate = useNavigate();
   const { showAlert } = useAlert();
@@ -20,11 +71,14 @@ const SignUp: React.FC = () => {
   const [lastName, setLastName] = useState('');
   const [contactNumber, setContactNumber] = useState('');
   const [idPicture, setIdPicture] = useState<File | null>(null);
+
+  // UI states
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [credentials, setCredentials] = useState({ lastname: '', contact: '' });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setLoading(true);
 
     const formData = new FormData();
@@ -48,9 +102,7 @@ const SignUp: React.FC = () => {
 
       if (!res.ok) {
         if (data.errors) {
-          // Cast errors to a known type
           const errors = data.errors as Record<string, string[]>;
-
           Object.values(errors).forEach((fieldErrors) => {
             fieldErrors.forEach((message) => showAlert('error', message));
           });
@@ -61,8 +113,13 @@ const SignUp: React.FC = () => {
         return;
       }
 
-      showAlert('success', 'Registration successful!');
-      navigate('/client/signin');
+      // 1. Store the credentials to show in the modal
+      setCredentials({ lastname: lastName, contact: contactNumber });
+
+      // 2. Trigger the modal visibility
+      setShowModal(true);
+
+      // Note: We do NOT navigate here, otherwise the modal will disappear immediately.
     } catch (err) {
       console.error(err);
       showAlert('error', 'Something went wrong. Please try again.');
@@ -71,8 +128,22 @@ const SignUp: React.FC = () => {
     }
   };
 
+  const handleModalClose = () => {
+    setShowModal(false);
+    navigate('/client/signin');
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#f1f5f9] dark:bg-[#020d26] p-4 sm:p-6">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#f1f5f9] dark:bg-[#020d26] p-4 sm:p-6 transition-colors duration-500">
+      {/* Success Modal Overlay */}
+      {showModal && (
+        <SuccessModal
+          lastname={credentials.lastname}
+          contact={credentials.contact}
+          onClose={handleModalClose}
+        />
+      )}
+
       {/* Mobile Logo Container */}
       <div className="block xl:hidden mb-6 text-center animate-fade-in">
         <img
@@ -84,7 +155,7 @@ const SignUp: React.FC = () => {
 
       {/* Main Container */}
       <div className="w-full max-w-lg xl:max-w-6xl overflow-hidden rounded-3xl border border-stroke bg-white shadow-2xl dark:border-strokedark dark:bg-boxdark flex flex-col xl:flex-row">
-        {/* LEFT SIDE: Brand & Aesthetic (Desktop Only) */}
+        {/* LEFT SIDE: Brand & Aesthetic */}
         <div className="hidden xl:flex w-5/12 flex-col justify-center items-center p-12 bg-gradient-to-br from-[#071c4f] to-[#020d26] relative overflow-hidden">
           <div className="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:20px_20px]" />
 
@@ -127,7 +198,7 @@ const SignUp: React.FC = () => {
             </div>
 
             <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit}>
-              {/* Program + Year Level (Side by Side) */}
+              {/* Program + Year Level */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="group">
                   <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">
@@ -161,6 +232,7 @@ const SignUp: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full rounded-xl border border-stroke bg-gray-50 py-3 px-4 text-sm text-black outline-none transition-all focus:border-primary focus:bg-white dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    required
                   />
                 </div>
                 <div className="group">
@@ -173,6 +245,7 @@ const SignUp: React.FC = () => {
                     value={studentId}
                     onChange={(e) => setStudentId(e.target.value)}
                     className="w-full rounded-xl border border-stroke bg-gray-50 py-3 px-4 text-sm text-black outline-none transition-all focus:border-primary focus:bg-white dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    required
                   />
                 </div>
               </div>
@@ -189,6 +262,7 @@ const SignUp: React.FC = () => {
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     className="w-full rounded-xl border border-stroke bg-gray-50 py-3 px-4 text-sm text-black outline-none transition-all focus:border-primary focus:bg-white dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    required
                   />
                 </div>
                 <div className="group">
@@ -201,6 +275,7 @@ const SignUp: React.FC = () => {
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     className="w-full rounded-xl border border-stroke bg-gray-50 py-3 px-4 text-sm text-black outline-none transition-all focus:border-primary focus:bg-white dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    required
                   />
                 </div>
               </div>
@@ -216,6 +291,7 @@ const SignUp: React.FC = () => {
                   value={contactNumber}
                   onChange={(e) => setContactNumber(e.target.value)}
                   className="w-full rounded-xl border border-stroke bg-gray-50 py-3 px-4 text-sm text-black outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                  required
                 />
               </div>
 
@@ -230,6 +306,7 @@ const SignUp: React.FC = () => {
                     if (e.target.files) setIdPicture(e.target.files[0]);
                   }}
                   className="w-full rounded-xl border border-stroke bg-gray-50 p-2 text-xs file:mr-4 file:rounded-lg file:border-0 file:bg-[#071c4f] file:py-2 file:px-4 file:text-white file:font-black file:uppercase file:text-[10px] dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                  required
                 />
               </div>
 

@@ -171,7 +171,7 @@ const SignIn: React.FC = () => {
                   to="/client/forget-password"
                   className="text-[10px] font-black text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-white transition-all uppercase tracking-widest"
                 >
-                  Forget Passoword?
+                  Forget Password?
                 </Link>
               </div>
 
