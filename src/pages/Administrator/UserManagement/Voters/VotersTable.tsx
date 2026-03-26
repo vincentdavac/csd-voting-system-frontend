@@ -197,6 +197,8 @@ const VotersTable = () => {
   // Filter and paginate
   const filteredData = votersData.filter((voter) => {
     const searchTerm = search.toLowerCase();
+    // Determine the text status based on the boolean
+    const statusText = voter.isActive ? 'verified' : 'archived';
     return (
       voter.fullName.toLowerCase().includes(searchTerm) ||
       voter.studentNo.toLowerCase().includes(searchTerm) ||
@@ -204,7 +206,9 @@ const VotersTable = () => {
       voter.email.toLowerCase().includes(searchTerm) ||
       voter.contactNumber.toLowerCase().includes(searchTerm) ||
       voter.qrCode.toLowerCase().includes(searchTerm) ||
-      voter.yearLevel.toString().includes(searchTerm)
+      voter.yearLevel.toString().includes(searchTerm) ||
+      statusText.includes(searchTerm) ||
+      voter.studentRole.toLowerCase().includes(searchTerm)
     );
   });
 

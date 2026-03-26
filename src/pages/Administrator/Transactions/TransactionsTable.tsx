@@ -7,8 +7,9 @@ import {
   Users,
   UserCheck,
   TrendingUp,
+  ShieldCheck,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TopUpModal from './TopUpModal';
 import UpdateModal from './UpdateModal';
 import { TRANSACTION } from './Transactions';
@@ -43,6 +44,67 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   const { authUser } = useAuth();
   const token = authUser?.token;
   const { showAlert } = useAlert();
+
+  const [presidents, setPresidents] = useState<any[]>([]);
+  const [selectedPresidentId, setSelectedPresidentId] = useState<string>('');
+  const [isFetchingPresidents, setIsFetchingPresidents] = useState(false);
+
+  // Fetch Presidents on mount
+  useEffect(() => {
+    const fetchPresidents = async () => {
+      setIsFetchingPresidents(true);
+      try {
+        const res = await fetch(`${API_BASE_URL}/clients/presidents`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (data.status === 'success') setPresidents(data.data);
+      } catch (error) {
+        console.error('Error fetching presidents:', error);
+      } finally {
+        setIsFetchingPresidents(false);
+      }
+    };
+    if (token) fetchPresidents();
+  }, [token]);
+
+  const handleGenerateHandlerPDF = async () => {
+    if (!selectedPresidentId) {
+      showAlert('warning', 'Please select a President first.');
+      return;
+    }
+
+    setIsGeneratingPDF(true);
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/admin/reports/handler/${selectedPresidentId}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/pdf',
+          },
+        },
+      );
+
+      if (!response.ok) throw new Error('Failed to generate Handler PDF');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `handler-report-${selectedPresidentId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      showAlert('success', 'Handler Report generated successfully!');
+    } catch (error) {
+      showAlert('error', 'Failed to generate Handler PDF.');
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
+
   // Filtered & paginated data
   const filteredData = transactions.filter((t) => {
     const matchSearch =
@@ -126,71 +188,63 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   return (
     <div className="rounded-[32px] border border-stroke bg-white p-6 shadow-2xl dark:border-strokedark dark:bg-boxdark transition-all">
       {/* Top Controls: Search & Filters */}
-      <div className="mb-8 flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between border-b border-stroke pb-8 dark:border-strokedark">
-        <div>
-          <h3 className="text-2xl font-black text-black dark:text-white uppercase italic tracking-tighter">
-            Transaction Logs
-          </h3>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
-            Financial Audit & Point Distribution
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-4">
-          {/* Search Input */}
-          <div className="relative group">
-            <input
-              type="text"
-              placeholder="Search student..."
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1);
-              }}
-              className="w-full xl:w-72 rounded-2xl border border-stroke bg-gray-50 py-3 pl-12 pr-4 text-sm font-bold uppercase tracking-tight outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-strokedark dark:bg-meta-4 transition-all"
-            />
-            <Search
-              size={18}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors"
-            />
-          </div>
-
-          {/* Date Filter */}
-          <div className="relative">
-            <input
-              type="date"
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-              className="rounded-2xl border border-stroke bg-gray-50 px-4 py-3 text-xs font-black uppercase tracking-widest outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4 dark:[color-scheme:dark]"
-            />
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowTopUp(true)}
-              className="flex items-center gap-2 rounded-2xl bg-green-600 px-6 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-green-500/20 transition-all hover:bg-green-700 active:scale-95"
-            >
-              <Wallet size={16} />
-              <span>Top Up</span>
-            </button>
-
-            <button
-              onClick={handleGeneratePDF}
-              disabled={isGeneratingPDF}
-              className="flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-primary/20 transition-all hover:bg-opacity-90 active:scale-95 disabled:opacity-50"
-            >
-              {isGeneratingPDF ? (
-                <RefreshCw size={16} className="animate-spin" />
-              ) : (
-                <FileDown size={16} />
-              )}
-              <span>{isGeneratingPDF ? 'Working...' : 'PDF'}</span>
-            </button>
+      {/* Action Buttons */}
+      <div className="flex flex-wrap items-center gap-3 mb-5">
+        {/* NEW: President Dropdown */}
+        <div className="relative">
+          <select
+            value={selectedPresidentId}
+            onChange={(e) => setSelectedPresidentId(e.target.value)}
+            className="appearance-none rounded-2xl border border-stroke bg-gray-50 px-4 py-3 pr-10 text-xs font-black uppercase tracking-widest outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4 transition-all"
+          >
+            <option value="">Select President</option>
+            {presidents.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.attributes.full_name}
+              </option>
+            ))}
+          </select>
+          <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+            <Users size={14} />
           </div>
         </div>
+
+        {/* NEW: Audit PDF Button */}
+        <button
+          onClick={handleGenerateHandlerPDF}
+          disabled={isGeneratingPDF || !selectedPresidentId}
+          className="group flex items-center gap-2 rounded-2xl border-2 border-primary px-5 py-3 text-xs font-black uppercase tracking-widest text-primary transition-all hover:bg-primary hover:text-white active:scale-95 disabled:opacity-30 shadow-lg shadow-primary/10"
+          title="Generate Audit Report for Selected President"
+        >
+          <ShieldCheck size={16} />
+          <span>Audit Log</span>
+        </button>
+
+        <div className="h-8 w-[1px] bg-stroke dark:bg-strokedark hidden lg:block mx-1" />
+
+        {/* Original Top Up Button */}
+        <button
+          onClick={() => setShowTopUp(true)}
+          className="flex items-center gap-2 rounded-2xl bg-green-600 px-6 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-green-500/20 transition-all hover:bg-green-700 active:scale-95"
+        >
+          <Wallet size={16} />
+          <span>Top Up</span>
+        </button>
+
+        {/* Original Main PDF Button */}
+        <button
+          onClick={handleGeneratePDF}
+          disabled={isGeneratingPDF}
+          className="flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-primary/20 transition-all hover:bg-opacity-90 active:scale-95 disabled:opacity-50"
+        >
+          {isGeneratingPDF ? (
+            <RefreshCw size={16} className="animate-spin" />
+          ) : (
+            <FileDown size={16} />
+          )}
+          <span>General PDF</span>
+        </button>
       </div>
-
       {/* Revenue Summary Cards */}
       <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
         {[
